@@ -1,18 +1,37 @@
 import numpy as _np
 import pandas as _pd
+import glob as _glob
 import os as _os
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
+
+def select_rnx(stations_list,years_list,rnx_dir):
+    station_files = _np.ndarray((len(stations_list)),dtype=object)
+    for i in range(len(stations_list)):
+        tmp =[]
+        for j in range(0, len(years_list)):
+            
+            j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
+            if len(j_year_files) > 0:
+                tmp.append(j_year_files)
+                station_files[i] = _np.concatenate(tmp)
+            else:
+                print('No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
+    return station_files 
+
 
 def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir):
     '''Creates an array of output paths for input rnx files. Concatanates it to the input rnx paths [[input_path,output path],...]. 
     This array is used for rnx to dr conversion. Input is the result of in gx_lib.aux.select_rnx function'''
     rnx_in_out = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
-        tmp = _pd.Series(rnx_files[i]).str.split('/',expand=True)
-        rnx_in_out[i] = _np.column_stack((rnx_files[i], 
-                                         (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-3]
-                                          +'/'+ tmp.iloc[:,-2]+'/'+ tmp.iloc[:,-1]+'.dr.gz').values))
+        if rnx_files[i] is not None:
+            tmp = _pd.Series(rnx_files[i]).str.split('/',expand=True)
+            rnx_in_out[i] = _np.column_stack((rnx_files[i], 
+                                            (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-3]
+                                            +'/'+ tmp.iloc[:,-2]+'/'+ tmp.iloc[:,-1]+'.dr.gz').values))
+        else:
+            print('gx_convert.rnx2dr_gen_paths:Warning:No rnx data found for', stations_list[i])
     return rnx_in_out
 
 def _2dr(rnx2dr_path):
@@ -31,25 +50,29 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores):
     num_cores = int(num_cores) #safety precaution if str value is specified
 #         display(self.analyse())
     for i in range(len(stations_list)):
-        print(stations_list[i],'station conversion to binary...')
 
-        #Checking files that are already in place so not to overwrite
-        if_exists_array = _np.ndarray((len(rnx2dr_paths[i])),dtype=bool)
-        for j in range(len(if_exists_array)):
-            if_exists_array[j] = not _os.path.exists(rnx2dr_paths[i][j,0])
+        if rnx2dr_paths[i] is True:
+            print(stations_list[i],'station conversion to binary...')
 
-        rnx2dr_paths_2convert = rnx2dr_paths[i][if_exists_array]
+            #Checking files that are already in place so not to overwrite
+            if_exists_array = _np.ndarray((len(rnx2dr_paths[i])),dtype=bool)
+            for j in range(len(if_exists_array)):
+                if_exists_array[j] = not _os.path.exists(rnx2dr_paths[i][j,0])
 
-        if len(rnx2dr_paths_2convert) > 0:
-            num_cores = num_cores if len(rnx2dr_paths_2convert[i]) > num_cores else len(rnx2dr_paths_2convert[i])
-            chunksize = int(_np.ceil(len(rnx2dr_paths_2convert[i]) / num_cores))
-            print ('Number of files to process:', len(rnx2dr_paths_2convert),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
+            rnx2dr_paths_2convert = rnx2dr_paths[i][if_exists_array]
 
-            pool = _Pool(processes=num_cores)
-            pool.map_async(func=_2dr, iterable=rnx2dr_paths_2convert, chunksize=chunksize)
-            pool.close()
-            pool.join()
-            print('| Done!')
+            if len(rnx2dr_paths_2convert) > 0:
+                num_cores = num_cores if len(rnx2dr_paths_2convert[i]) > num_cores else len(rnx2dr_paths_2convert[i])
+                chunksize = int(_np.ceil(len(rnx2dr_paths_2convert[i]) / num_cores))
+                print ('Number of files to process:', len(rnx2dr_paths_2convert),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
+
+                pool = _Pool(processes=num_cores)
+                pool.map_async(func=_2dr, iterable=rnx2dr_paths_2convert, chunksize=chunksize)
+                pool.close()
+                pool.join()
+                print('| Done!')
+            else:
+                #In case length of unconverted files array is 0 - nothing will be converted
+                print('Nothing to convert. All available rnx files are already converted')
         else:
-            #In case length of unconverted files array is 0 - nothing will be converted
-            print('Nothing to convert. All available rnx files are already converted')
+            print('gx_convert.rnx2dr:Warning:Please check rnx_in folder. No rnx files were found for station', stations_list[i])
