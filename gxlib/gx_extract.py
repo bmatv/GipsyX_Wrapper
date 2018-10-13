@@ -2,20 +2,17 @@ import numpy as _np
 import pandas as _pd
 import glob as _glob
 from multiprocessing import Pool as _Pool 
-from gx_aux import J2000origin
+from .gx_aux import J2000origin
 
 def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
-    '''Runs _gather_tdps for each station in the project.
-    After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame'''
+    '''Runs _gather_tdps for each station in the stations_list of the project.
+    After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
+    Extraction of residuals added'''
     project_files_list = _np.ndarray((len(stations_list)),dtype=object)
     tdps = _np.ndarray((len(stations_list)),dtype=object)
-    columns = _np.ndarray((len(stations_list)),dtype=object)
+
     for i in range(len(stations_list)):
-        station_list_all_years = sorted(_glob.glob(tmp_dir\
-                                                    + '/gd2e/'\
-                                                    + project_name + '/'\
-                                                    + stations_list[i]\
-                                                    + '/*/*/*.npz'))
+        station_list_all_years = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
         tmp = _pd.DataFrame()
         tmp[['Project','Station', 'Year', 'DOY']] = _pd.Series(station_list_all_years).str.split('/',expand = True).iloc[:, [-5,-4,-3,-2]]
         tmp['Path'] = station_list_all_years
