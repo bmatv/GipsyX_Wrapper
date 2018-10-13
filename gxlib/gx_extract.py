@@ -12,7 +12,7 @@ def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
     tdps = _np.ndarray((len(stations_list)),dtype=object)
 
     #convert years_list to ndarray
-    years = np.asarray(years_list)
+    years = _np.asarray(years_list)
 
     for i in range(len(stations_list)):
         station_list_all_years = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
