@@ -25,7 +25,7 @@ def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir):
     This array is used for rnx to dr conversion. Input is the result of in gx_lib.aux.select_rnx function'''
     rnx_in_out = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
-        if rnx_files[i] is not None:
+        if rnx_files[i]  is not None:
             tmp = _pd.Series(rnx_files[i]).str.split('/',expand=True)
             rnx_in_out[i] = _np.column_stack((rnx_files[i], 
                                             (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-3]
@@ -51,19 +51,19 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores):
 #         display(self.analyse())
     for i in range(len(stations_list)):
 
-        if rnx2dr_paths[i] is True:
+        if rnx2dr_paths[i] is not None:
             print(stations_list[i],'station conversion to binary...')
 
             #Checking files that are already in place so not to overwrite
             if_exists_array = _np.ndarray((len(rnx2dr_paths[i])),dtype=bool)
             for j in range(len(if_exists_array)):
-                if_exists_array[j] = not _os.path.exists(rnx2dr_paths[i][j,0])
+                if_exists_array[j] = not _os.path.exists(rnx2dr_paths[i][j,1])
 
             rnx2dr_paths_2convert = rnx2dr_paths[i][if_exists_array]
 
             if len(rnx2dr_paths_2convert) > 0:
-                num_cores = num_cores if len(rnx2dr_paths_2convert[i]) > num_cores else len(rnx2dr_paths_2convert[i])
-                chunksize = int(_np.ceil(len(rnx2dr_paths_2convert[i]) / num_cores))
+                num_cores = num_cores if len(rnx2dr_paths_2convert) > num_cores else len(rnx2dr_paths_2convert)
+                chunksize = int(_np.ceil(len(rnx2dr_paths_2convert) / num_cores))
                 print ('Number of files to process:', len(rnx2dr_paths_2convert),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
 
                 pool = _Pool(processes=num_cores)
@@ -73,6 +73,6 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores):
                 print('| Done!')
             else:
                 #In case length of unconverted files array is 0 - nothing will be converted
-                print('Nothing to convert. All available rnx files are already converted')
+                print('Found', len(rnx2dr_paths[i]),'RNX files converted.\nNothing to convert. All available rnx files are already converted')
         else:
             print('gx_convert.rnx2dr:Warning:Please check rnx_in folder. No rnx files were found for station', stations_list[i])

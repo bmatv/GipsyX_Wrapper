@@ -27,7 +27,7 @@ def _gen_VMF1_tropNom(tropnom_param):
         nominals=_tropNom.nominalTrops('VMF1', modelFile=VMF1_dir)
         nominals.makeTdp(begin, end, rate, stns, tropNom_out, append=False, staDb=staDb, dry=True, wet=True)
 
-def gen_tropnom(tmp_dir,staDb_dir,rate,VMF1_dir,num_cores):
+def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     '''
     Generating tropnominal file for valid stations in staDb file.Takes number of years from dr_info.npz
     Had to create additional for loop as file no 31 gives error, no matter what year it is (tropNom read error of VMF1 file). tdp file is created for each observation file
@@ -36,7 +36,7 @@ def gen_tropnom(tmp_dir,staDb_dir,rate,VMF1_dir,num_cores):
 
     #Creates a staDb object
     staDb=_StationDataBase.StationDataBase() #creating staDb object
-    staDb.read(staDb_dir) #reading staDb into staDb object
+    staDb.read(staDb_path) #reading staDb into staDb object
     stns = staDb.getStationList() #creating array with available station names
     
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
