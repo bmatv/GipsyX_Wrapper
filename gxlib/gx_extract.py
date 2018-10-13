@@ -9,7 +9,8 @@ def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
     After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
     Extraction of residuals added'''
     project_files_list = _np.ndarray((len(stations_list)),dtype=object)
-    tdps = _np.ndarray((len(stations_list)),dtype=object)
+    solutions = _np.ndarray((len(stations_list)),dtype=object)
+    residuals = _np.ndarray((len(stations_list)),dtype=object)
 
     #convert years_list to ndarray
     years = _np.asarray(years_list)
@@ -21,20 +22,27 @@ def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
         tmp['Path'] = station_list_all_years
         project_files_list[i] = tmp[tmp['Year'].isin(years.astype(str))]
 
-        tmp_records = _gather_tdps(project_files_list[i]['Path'],num_cores)
+        tmp_data = _np.asarray(_gather_tdps(project_files_list[i]['Path'],num_cores))
         
         # Read header array of tuples correctly with dtype and convert to array of arrays 
-        header = _np.load(project_files_list[i]['Path'].iloc[0])['tdp_header']
+        raw_solution_header = _np.load(project_files_list[i]['Path'].iloc[0])['tdp_header']
         dt=_np.dtype([('type', _np.unicode_, 8), ('name',  _np.unicode_,30)])
-        header_array = _np.asarray(header,dtype=dt)
+        solution_header = _np.asarray(raw_solution_header,dtype=dt)
         # Creating MultiIndex from header arrays
-        m_index = [header_array['type'],header_array['name']]
-        # Stacking list of tmp tdps into one np array
-        stacked_tdp = _np.vstack(tmp_records)
+        solution_m_index = [solution_header['type'],solution_header['name']]
+
+        residuals_header = ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
+                            ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']
+
+        # Stacking list of tmp tdps and residuals into one np array
+        stacked_solution = _np.vstack(tmp_data[:,0])
+        stacked_residuals = _np.vstack(tmp_data[:,1])
+
         # Creating a MultiIndex DataFrame of transposed array. Transposing back and adding time index
-        tdps[i] = _pd.DataFrame(data=stacked_tdp[:,1:].T,index=m_index).T.set_index(stacked_tdp[:,0])
+        solutions[i] = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
+        residuals[i] = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
     
-    return tdps
+    return solutions,residuals
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
@@ -44,11 +52,11 @@ def _gather_tdps(station_files,num_cores):
     chunksize = 20
     try:
         pool = _Pool(num_cores)
-        data_tdp = pool.map(_get_tdps_npz, station_files,chunksize=chunksize)
+        data = pool.map(_get_tdps_npz, station_files,chunksize=chunksize)
     finally:
         pool.close()
         pool.join()
-    return data_tdp
+    return data
 
 def _get_tdps_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
