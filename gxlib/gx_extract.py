@@ -11,12 +11,15 @@ def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
     project_files_list = _np.ndarray((len(stations_list)),dtype=object)
     tdps = _np.ndarray((len(stations_list)),dtype=object)
 
+    #convert years_list to ndarray
+    years = np.asarray(years_list)
+
     for i in range(len(stations_list)):
         station_list_all_years = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
         tmp = _pd.DataFrame()
         tmp[['Project','Station', 'Year', 'DOY']] = _pd.Series(station_list_all_years).str.split('/',expand = True).iloc[:, [-5,-4,-3,-2]]
         tmp['Path'] = station_list_all_years
-        project_files_list[i] = tmp[tmp['Year'].isin(years_list.astype(str))]
+        project_files_list[i] = tmp[tmp['Year'].isin(years.astype(str))]
 
         tmp_records = _gather_tdps(project_files_list[i]['Path'],num_cores)
         
