@@ -51,16 +51,27 @@ def _gather_tdps(station_files,num_cores):
     return data_tdp
 
 def _get_tdps_npz(file):
-    tmp = _np.load(file=file)['tdp']
-    time = tmp[:,0].astype(int)
-    #chekcking the total length of the record
-    if (time[-1] - time[0])/3600 > 3:
-        #clipping to 24 hours on the fly
-        start_timeframe = ((time[0] + J2000origin + _np.timedelta64(3,'h')).astype('datetime64[D]')- J2000origin).astype(int)
-        end_timeframe = start_timeframe + 86400
+    '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
+    Clips data to 24 hours of the same day if the file is bigger'''
+    tmp_solution = _np.load(file=file)['tdp']
+    tmp_residuals = _np.load(file=file)['finalResiduals']
+
+    time_solution = tmp_solution[:,0].astype(int)
+    time_residuals = tmp_residuals[:,0].astype(int)
+
+    
+    if (time_solution[-1] - time_solution[0])/3600 > 3:
+        #checking the total length of the record. In case total length is less than 3 hours, when adding 3 hours it can return wrong day.
         
-        return tmp[(time >= start_timeframe) & (time < end_timeframe)]
+        #clipping to 24 hours on the fly. Solution and Residuals are cut with the same mask
+        begin_timeframe = ((time_solution[0] + J2000origin + _np.timedelta64(3,'h')).astype('datetime64[D]')- J2000origin).astype(int)
+        end_timeframe = begin_timeframe + 86400
+        
+        solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
+        residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
+
+        return solution,residuals
     else:
-#             print('file too short ', file) 
+        #print('file too short ', file) 
         #normally shouldn't happened as files were filtered after conversion and short files won't be here
-        return tmp
+        return tmp_solution,tmp_residuals
