@@ -71,7 +71,7 @@ def _get_solutions_npz(file):
         #normally shouldn't happened as files were filtered after conversion and short files won't be here
         return tmp_solution
 
-'''Extraction of solutions from npz'''
+'''Extraction of residuals from npz'''
 def extract_residuals(tmp_dir,project_name,stations_list,years_list,num_cores):
     '''Runs _gather_tdps for each station in the stations_list of the project.
     After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
@@ -95,7 +95,7 @@ def extract_residuals(tmp_dir,project_name,stations_list,years_list,num_cores):
                             ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']
 
         # Stacking list of tmp residuals into one np array
-        stacked_residuals = _np.vstack(tmp_data[:,1])
+        stacked_residuals = _np.vstack(tmp_data)
         residuals[i] = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
     
     return residuals
@@ -112,7 +112,7 @@ def _gather_residuals(station_files,num_cores):
         pool.close()
         pool.join()
     return data
-    
+
 def _get_residuals_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
     Clips data to 24 hours of the same day if the file is bigger'''
