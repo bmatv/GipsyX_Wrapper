@@ -20,10 +20,10 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
     #Making staDb directory in tmp folder 
     staDb_dir = tmp_dir + '/staDb/' + project_name + '/'
-    staDb_file = staDb_dir + project_name + '.staDb'
+    staDb_path = staDb_dir + project_name + '.staDb'
 
-    #if staDb_file was already generated, just return staDb_file path
-    if not _os.path.exists(staDb_file):
+    #if staDb_path was already generated, just return staDb_path path
+    if not _os.path.exists(staDb_path):
 
         if not _os.path.exists(staDb_dir):
             _os.makedirs(staDb_dir)
@@ -32,7 +32,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
         for i in range(len(stations_list)):
             logs[i] = _glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*')[0]
 
-        with open(staDb_file,'w') as output:
+        with open(staDb_path,'w') as output:
             output.write("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
             for file in logs:
                 with open(file, 'r') as f:
@@ -70,7 +70,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
                                 radome_type=ant[matchNum][8], up=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
     
     
-    return staDb_file
+    return staDb_path
 
 def _dr_size(rnx_files_in_out):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
@@ -137,13 +137,13 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
 
 '''section of solution to ENV conversion'''
-def _xyz2env(dataset,stations_list,staDb_file):
+def _xyz2env(dataset,stations_list,staDb_path):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
     tdp2EnvDiff outputs in cm. We need in mm.
     Outputs a MultiIndex DataFrame with value and nomvalue subsections to control tdp_in procedure
     '''
     envs = _np.ndarray((len(dataset)),dtype=object)
-    reference_df = get_ref_xyz(staDb_file)
+    reference_df = get_ref_xyz_sites(staDb_path)
     for i in range(len(dataset)):
         # Creating MultiIndex:
         arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
@@ -175,9 +175,9 @@ def get_xyz_site(staDb_ref_xyz,site_name):
     #return reference XYZ coordinates for specified station from staDb
     return staDb_ref_xyz[staDb_ref_xyz['Station'] == site_name][['X','Y','Z']].squeeze().values #Squeeze to series. Not to create array in array
 
-def get_ref_xyz(staDb_file):
+def get_ref_xyz_sites(staDb_path):
     '''Function reads staDb file provided'''
-    read = _pd.read_csv(staDb_file,delimiter='\s+',names=list(range(11)))
+    read = _pd.read_csv(staDb_path,delimiter='\s+',names=list(range(11)))
     positions = read[read.iloc[:,1]=='STATE']
 #     refxyz = get_xyz_site(positions)
     xyz_table = positions[[0,4,5,6]]
