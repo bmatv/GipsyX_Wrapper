@@ -59,37 +59,8 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
     drinfo_stations_list = drinfo_file['stations_list']
     
-    
     for i in range(len(stations_list)):
-        tmp = _pd.DataFrame()
-                            
-        station_index_in_drinfo = _np.where(drinfo_stations_list==stations_list[i])[0][0]
-        tmp_merge_table = merge_tables[station_index_in_drinfo]
-        
-        filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
-        filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_30h.dr.gz'
-                    
-        tmp['filename'] = filename
-        tmp['class'] = tmp_merge_table[:,0]
-        tmp['year'] = _pd.Series(tmp_merge_table[:,1]).dt.year.astype(str)
-        tmp['dayofyear'] = _pd.Series(tmp_merge_table[:,1]).dt.dayofyear.astype(str).str.zfill(3)
-        tmp = tmp.join(other=trees_df,on='year')
-        tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
-        tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+stations_list[i]+'/'+tmp['year']+ '/' + tmp['dayofyear']
-        tmp['gnss_products_dir'] = gnss_products_dir
-        tmp['staDb_path'] = staDb_path
-
-        tmp['station'] = stations_list[i]
-        
-        tmp['year'] = _pd.to_numeric(tmp['year'])
-        
-        tmp = tmp[tmp['year'].isin(years_list)&tmp['class']!=0] #cleaning unused years (loaded from npz!!!)
-        
-        #Check if files exist (from what left):
-        file_exists = _np.zeros(tmp.shape[0],dtype=int)
-        for j in range(tmp.shape[0]):
-            file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.npz')
-        tmp['file_exists']=file_exists
+        tmp = _gen_gd2e_table_station(trees_df,drinfo_stations_list, stations_list[i], years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
 
         if tmp[tmp['file_exists']==0].shape[0] ==0:
             gd2e_table[i] = None
@@ -107,7 +78,7 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
             finally:
                 pool.close()
                 pool.join()
-            print('Staion',stations_list[i],'done')
+            print('Station',stations_list[i],'done')
     return gd2e_table
 
 def _get_tdps_pn(path_dir):
@@ -140,3 +111,41 @@ def _read_finalResiduals(path_dir):
     #header has to be present to extract correct number of columns as status is often None
     finalResiduals = _pd.read_table(finalResiduals_path,delim_whitespace=True,header=None,names=header)
     return finalResiduals.values
+
+
+def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path):
+    '''Generates an np recarray that is used as sets for _gd2e
+    station is the member of station_list
+    gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
+    '''
+
+    tmp = _pd.DataFrame()
+                        
+    station_index_in_drinfo = _np.where(drinfo_stations_list==station)[0][0]
+    tmp_merge_table = merge_tables[station_index_in_drinfo]
+    
+    filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
+    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_30h.dr.gz'
+                
+    tmp['filename'] = filename
+    tmp['class'] = tmp_merge_table[:,0]
+    tmp['year'] = _pd.Series(tmp_merge_table[:,1]).dt.year.astype(str)
+    tmp['dayofyear'] = _pd.Series(tmp_merge_table[:,1]).dt.dayofyear.astype(str).str.zfill(3)
+    tmp = tmp.join(other=trees_df,on='year')
+    tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
+    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+station+'/'+tmp['year']+ '/' + tmp['dayofyear']
+    tmp['gnss_products_dir'] = gnss_products_dir
+    tmp['staDb_path'] = staDb_path
+
+    tmp['station'] = station
+    
+    tmp['year'] = _pd.to_numeric(tmp['year'])
+    
+    tmp = tmp[tmp['year'].isin(years_list)&tmp['class']!=0] #cleaning unused years (loaded from npz!!!)
+    
+    #Check if files exist (from what left):
+    file_exists = _np.zeros(tmp.shape[0],dtype=int)
+    for j in range(tmp.shape[0]):
+        file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.npz')
+    tmp['file_exists']=file_exists
+    return tmp
