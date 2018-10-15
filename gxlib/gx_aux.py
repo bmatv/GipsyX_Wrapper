@@ -5,7 +5,7 @@ from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
-if PYGCOREPATH not in sys.path:
+if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0, PYGCOREPATH)
 import gcore.EarthCoordTrans as _eo
 
