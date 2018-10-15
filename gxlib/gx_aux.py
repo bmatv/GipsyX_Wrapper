@@ -1,8 +1,13 @@
-import os as _os, re as _re, glob as _glob
+import os as _os, re as _re, glob as _glob, sys as _sys
 import numpy as _np
 import pandas as _pd
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
+
+PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
+if PYGCOREPATH not in sys.path:
+    _sys.path.insert(0, PYGCOREPATH)
+import gcore.EarthCoordTrans as _eo
 
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
 _regex_loc = _re.compile(r"2\.\W+S.+\W+City or Town\W+\:\s(.+|)\W+State or Province\W+\:\s(.+|)\W+Country\W+\:\s(.+|)\W+Tectonic Plate\W+\:\s(.+|)\W+.+\W+X.+\:\s(.+|)\W+Y..+\:\s(.+|)\W+Z.+\:\s(.+|)\W*Latitude.+\:\s(.+|)\W*Longitude.+\:\s(.+|)\W*Elevation.+\:\s(.+|)", _re.MULTILINE)
@@ -130,3 +135,54 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
     
     #Saving extracted data for furthe processing
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
+
+'''section of solution to ENV conversion'''
+def _xyz2env(dataset,stations_list):
+    '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
+    tdp2EnvDiff outputs in cm. We need in mm.
+    Outputs a MultiIndex DataFrame with value and nomvalue subsections to control tdp_in procedure
+    '''
+    envs = _np.ndarray((len(dataset)),dtype=object)
+    for i in range(len(dataset)):
+        # Creating MultiIndex:
+        arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
+        arrays_nomvalue=[['nomvalue','nomvalue','nomvalue'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
+        
+        m_index_value = _pd.MultiIndex.from_arrays(arrays=arrays_value)
+        m_index_nomvalue = _pd.MultiIndex.from_arrays(arrays=arrays_nomvalue)
+        
+        
+        xyz_value = dataset[i]['value'].iloc[:,[0,1,2]] 
+        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[0,1,2]] 
+        refxyz = get_xyz_site(stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
+#             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
+#             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
+        rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
+
+        diff_value = xyz_value - refxyz #XYZ
+        diff_nomvalue = xyz_nomvalue - refxyz #XYZ
+        
+        diff_env_value = rot.dot(diff_value.T)*1000
+        diff_env_nomvalue = rot.dot(diff_nomvalue.T)*1000
+        
+        frame_value = _pd.DataFrame(diff_env_value, index=m_index_value).T
+        frame_nomvalue = _pd.DataFrame(diff_env_nomvalue, index=m_index_nomvalue).T
+        envs[i] = _pd.concat((frame_value,frame_nomvalue),axis=1).set_index(dataset[i].index)
+    return envs
+
+def get_xyz_site(staDb_ref_xyz,site_name):
+    #return reference XYZ coordinates for specified station from staDb
+    return staDb_ref_xyz[staDb_ref_xyz['Station'] == site_name][['X','Y','Z']].squeeze().values #Squeeze to series. Not to create array in array
+
+def get_ref_xyz(staDb_file):
+    '''Function reads staDb file provided'''
+    read = _pd.read_csv(staDb_file,delimiter='\s+',names=list(range(11)))
+    positions = read[read.iloc[:,1]=='STATE']
+#     refxyz = get_xyz_site(positions)
+    xyz_table = positions[[0,4,5,6]]
+    xyz_table.reset_index(inplace=True,drop=True)
+
+    staDb_xyz = _pd.DataFrame()
+    staDb_xyz['Station'] = xyz_table[0]
+    staDb_xyz[['X','Y','Z']] = xyz_table[[4,5,6]].astype('float')
+    return staDb_xyz
