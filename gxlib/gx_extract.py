@@ -135,7 +135,7 @@ def _get_residuals_npz(file):
         return tmp_residuals
 
 def _filter_tdps(tdps,std_coeff=3):
-
+    '''For now commented sigma > 1 filtering'''
     filtered_dataset = _np.ndarray((len(tdps)),dtype=object)
     for i in range(len(tdps)):
         tdp = tdps[i]
@@ -146,13 +146,14 @@ def _filter_tdps(tdps,std_coeff=3):
             #Sigma Y
             (tdp.iloc[:,11]<=(_np.median(tdp.iloc[:,11])+ std_coeff*_np.std(tdp.iloc[:,11])))&
             #Sigma Z
-            (tdp.iloc[:,12]<=(_np.median(tdp.iloc[:,12])+ std_coeff*_np.std(tdp.iloc[:,12])))&
-            #Sigma X
-            (tdp.iloc[:,10]<=1)&
-            #Sigma Y
-            (tdp.iloc[:,11]<=1)&
-            #Sigma Z
-            (tdp.iloc[:,12]<=1)
+            (tdp.iloc[:,12]<=(_np.median(tdp.iloc[:,12])+ std_coeff*_np.std(tdp.iloc[:,12])))
+            # &
+            # #Sigma X
+            # (tdp.iloc[:,10]<=1)&
+            # #Sigma Y
+            # (tdp.iloc[:,11]<=1)&
+            # #Sigma Z
+            # (tdp.iloc[:,12]<=1)
             ]
         #Step 2. Filtering values - fileter X Y Z values (m) based on -3*std<Value<+3*std
         filt2_data = filt1_data [
