@@ -137,12 +137,13 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
 
 '''section of solution to ENV conversion'''
-def _xyz2env(dataset,stations_list):
+def _xyz2env(dataset,stations_list,staDb_file):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
     tdp2EnvDiff outputs in cm. We need in mm.
     Outputs a MultiIndex DataFrame with value and nomvalue subsections to control tdp_in procedure
     '''
     envs = _np.ndarray((len(dataset)),dtype=object)
+    reference_df = get_ref_xyz(staDb_file)
     for i in range(len(dataset)):
         # Creating MultiIndex:
         arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
@@ -154,7 +155,7 @@ def _xyz2env(dataset,stations_list):
         
         xyz_value = dataset[i]['value'].iloc[:,[0,1,2]] 
         xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[0,1,2]] 
-        refxyz = get_xyz_site(stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
+        refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
 #             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
 #             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
         rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
