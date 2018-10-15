@@ -137,13 +137,13 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
 
 '''section of solution to ENV conversion'''
-def _xyz2env(dataset,stations_list,staDb_path):
+def _xyz2env(dataset,stations_list,reference_df):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
     tdp2EnvDiff outputs in cm. We need in mm.
     Outputs a MultiIndex DataFrame with value and nomvalue subsections to control tdp_in procedure
     '''
     envs = _np.ndarray((len(dataset)),dtype=object)
-    reference_df = get_ref_xyz_sites(staDb_path)
+
     for i in range(len(dataset)):
         # Creating MultiIndex:
         arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
