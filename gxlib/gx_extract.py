@@ -133,3 +133,41 @@ def _get_residuals_npz(file):
         #print('file too short ', file) 
         #normally shouldn't happened as files were filtered after conversion and short files won't be here
         return tmp_residuals
+
+def _filter_tdps(tdps,std_coeff=3):
+
+    filtered_dataset = _np.ndarray((len(tdps)),dtype=object)
+    for i in range(len(tdps)):
+        tdp = tdps[i]
+        #Step 1. Filtering sigmas - fileter X Y Z sigmas based on <= 3*std, and <1
+        filt1_data = tdp [
+            #Sigma X
+            (tdp.iloc[:,10]<=(_np.median(tdp.iloc[:,10])+ std_coeff*_np.std(tdp.iloc[:,10])))&
+            #Sigma Y
+            (tdp.iloc[:,11]<=(_np.median(tdp.iloc[:,11])+ std_coeff*_np.std(tdp.iloc[:,11])))&
+            #Sigma Z
+            (tdp.iloc[:,12]<=(_np.median(tdp.iloc[:,12])+ std_coeff*_np.std(tdp.iloc[:,12])))&
+            #Sigma X
+            (tdp.iloc[:,10]<=1)&
+            #Sigma Y
+            (tdp.iloc[:,11]<=1)&
+            #Sigma Z
+            (tdp.iloc[:,12]<=1)
+            ]
+        #Step 2. Filtering values - fileter X Y Z values (m) based on -3*std<Value<+3*std
+        filt2_data = filt1_data [
+            #Value X
+            ((filt1_data.iloc[:,0]<=(_np.median(filt1_data.iloc[:,0])+ std_coeff*_np.std(filt1_data.iloc[:,0])))
+                                    &(filt1_data.iloc[:,0]>=(_np.median(filt1_data.iloc[:,0])- std_coeff*_np.std(filt1_data.iloc[:,0]))))
+            &
+            #Value Y
+            ((filt1_data.iloc[:,1]<=(_np.median(filt1_data.iloc[:,1])+ std_coeff*_np.std(filt1_data.iloc[:,1])))
+                                    &(filt1_data.iloc[:,1]>=(_np.median(filt1_data.iloc[:,1])- std_coeff*_np.std(filt1_data.iloc[:,1]))))
+            &
+            #Value Z
+            ((filt1_data.iloc[:,2]<=(_np.median(filt1_data.iloc[:,2])+ std_coeff*_np.std(filt1_data.iloc[:,2])))
+                                    &(filt1_data.iloc[:,2]>=(_np.median(filt1_data.iloc[:,2])- std_coeff*_np.std(filt1_data.iloc[:,2]))))
+            ]
+    #     filt3_data = filt2_data[(filt2_data[:,14]==0)&(filt2_data[:,15]==0)&(filt2_data[:,16]==0)]
+        filtered_dataset[i] = filt2_data
+    return filtered_dataset
