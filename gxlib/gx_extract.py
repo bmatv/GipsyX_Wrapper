@@ -6,6 +6,31 @@ from multiprocessing import Pool as _Pool
 from .gx_aux import J2000origin
 
 '''Extraction of solutions from npz'''
+def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
+    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions_' + project_name +'.npz'
+
+    if not _os.path.exists(solutions_file):
+        extract_tdps(tmp_dir,project_name,stations_list,num_cores)
+
+        file = _np.load(solutions_file)
+        solutions = file['solutions']
+    else:
+        file = _np.load(solutions_file)
+        solutions = file['solutions']
+    return solutions
+
+def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/solutions_' + project_name +'.npz'
+
+    if not _os.path.exists(residuals_file):
+        extract_tdps(tmp_dir,project_name,stations_list,num_cores)
+
+        file = _np.load(residuals_file)
+        solutions = file['residuals']
+    else:
+        file = _np.load(residuals_file)
+        solutions = file['residuals']
+    return residuals
 
 def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
     '''Runs _gather_tdps for each station in the stations_list of the project.
@@ -17,9 +42,6 @@ def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
     If file doesn't exist, will run the script and save the file as it should.
     Rolling back to the version where solutions and residuals were collected simultaneously.
     '''
-    gather_file = tmp_dir + '/gd2e/' + project_name + '/' + project_name +'_gather.npz'
-
-    if not _os.path.exists(gather_file):
 
         project_files_list = _np.ndarray((len(stations_list)),dtype=object)
         solutions = _np.ndarray((len(stations_list)),dtype=object)
@@ -55,9 +77,7 @@ def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
             _np.savez_compressed(gather_file, solutions = solutions, residuals = residuals,
                                  project_name=project_name, stations_list = stations_list)
 
-    else:
-        gather = _np.load(gather_file)
-        solutions, residuals = gather['solutions'],gather['residuals']
+
 
     return solutions,residuals
 
@@ -65,7 +85,7 @@ def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
     get_tdps_pandas,numpy'''
     num_cores = num_cores if len(station_files) > num_cores else len(station_files)
-#         chunksize = int(np.ceil(len(station_files) / num_cores)) #20-30 is the best
+    #  chunksize = int(np.ceil(len(station_files) / num_cores)) #20-30 is the best
     chunksize = 20
     try:
         pool = _Pool(num_cores)
