@@ -7,29 +7,31 @@ from .gx_aux import J2000origin
 
 '''Extraction of solutions from npz'''
 def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
-    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions_' + project_name +'.npz'
+    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions.npz'
 
     if not _os.path.exists(solutions_file):
         extract_tdps(tmp_dir,project_name,stations_list,num_cores)
 
         file = _np.load(solutions_file)
-        solutions = file['solutions']
+        solutions = file['data']
     else:
+        print('Found', solutions_file)
         file = _np.load(solutions_file)
-        solutions = file['solutions']
+        solutions = file['data']
     return solutions
 
 def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
-    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals_' + project_name +'.npz'
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals.npz'
 
     if not _os.path.exists(residuals_file):
         extract_tdps(tmp_dir,project_name,stations_list,num_cores)
 
         file = _np.load(residuals_file)
-        residuals = file['residuals']
+        residuals = file['data']
     else:
+        print('Found', residuals_file)
         file = _np.load(residuals_file)
-        residuals = file['residuals']
+        residuals = file['data']
     return residuals
 
 def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
@@ -42,8 +44,9 @@ def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
     If file doesn't exist, will run the script and save the file as it should.
     Rolling back to the version where solutions and residuals were collected simultaneously.
     '''
-    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions_' + project_name +'.npz'
-    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals_' + project_name +'.npz'
+
+    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions.npz'
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals.npz'
 
     project_files_list = _np.ndarray((len(stations_list)),dtype=object)
     solutions = _np.ndarray((len(stations_list)),dtype=object)
@@ -76,12 +79,11 @@ def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
         solutions[i] = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
         residuals[i] = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
     
-        _np.savez_compressed(solutions_file, solutions = solutions, project_name=project_name, stations_list = stations_list)
-        _np.savez_compressed(residuals_file, solutions = solutions, project_name=project_name, stations_list = stations_list)
+        _np.savez_compressed(solutions_file, data = solutions, project_name=project_name, stations_list = stations_list)
+        _np.savez_compressed(residuals_file, data = residuals, project_name=project_name, stations_list = stations_list)
 
-
-
-    return solutions,residuals
+    print(solutions_file + 'successfully saved')
+    print(residuals_file + 'successfully saved')
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
