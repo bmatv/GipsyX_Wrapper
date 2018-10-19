@@ -20,16 +20,16 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
     return solutions
 
 def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
-    residuals_file = tmp_dir + '/gd2e/' + project_name + '/solutions_' + project_name +'.npz'
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals_' + project_name +'.npz'
 
     if not _os.path.exists(residuals_file):
         extract_tdps(tmp_dir,project_name,stations_list,num_cores)
 
         file = _np.load(residuals_file)
-        solutions = file['residuals']
+        residuals = file['residuals']
     else:
         file = _np.load(residuals_file)
-        solutions = file['residuals']
+        residuals = file['residuals']
     return residuals
 
 def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
@@ -42,40 +42,42 @@ def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
     If file doesn't exist, will run the script and save the file as it should.
     Rolling back to the version where solutions and residuals were collected simultaneously.
     '''
+    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions_' + project_name +'.npz'
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals_' + project_name +'.npz'
 
-        project_files_list = _np.ndarray((len(stations_list)),dtype=object)
-        solutions = _np.ndarray((len(stations_list)),dtype=object)
-        residuals = _np.ndarray((len(stations_list)),dtype=object)
+    project_files_list = _np.ndarray((len(stations_list)),dtype=object)
+    solutions = _np.ndarray((len(stations_list)),dtype=object)
+    residuals = _np.ndarray((len(stations_list)),dtype=object)
 
-        for i in range(len(stations_list)):
-            station_list_all_years = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
-            tmp = _pd.DataFrame()
-            tmp[['Project','Station', 'Year', 'DOY']] = _pd.Series(station_list_all_years).str.split('/',expand = True).iloc[:, [-5,-4,-3,-2]]
-            tmp['Path'] = station_list_all_years
-            project_files_list[i] = tmp
+    for i in range(len(stations_list)):
+        station_list_all_years = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
+        tmp = _pd.DataFrame()
+        tmp[['Project','Station', 'Year', 'DOY']] = _pd.Series(station_list_all_years).str.split('/',expand = True).iloc[:, [-5,-4,-3,-2]]
+        tmp['Path'] = station_list_all_years
+        project_files_list[i] = tmp
 
-            tmp_data = _np.asarray(_gather_tdps(project_files_list[i]['Path'],num_cores))
-            
-            # Read header array of tuples correctly with dtype and convert to array of arrays 
-            raw_solution_header = _np.load(project_files_list[i]['Path'].iloc[0])['tdp_header']
-            dt=_np.dtype([('type', _np.unicode_, 8), ('name',  _np.unicode_,30)])
-            solution_header = _np.asarray(raw_solution_header,dtype=dt)
-            # Creating MultiIndex from header arrays
-            solution_m_index = [solution_header['type'],solution_header['name']]
-
-            residuals_header = ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
-                                ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']
-
-            # Stacking list of tmp tdps and residuals into one np array
-            stacked_solution = _np.vstack(tmp_data[:,0])
-            stacked_residuals = _np.vstack(tmp_data[:,1])
-
-            # Creating a MultiIndex DataFrame of transposed array. Transposing back and adding time index
-            solutions[i] = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
-            residuals[i] = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
+        tmp_data = _np.asarray(_gather_tdps(project_files_list[i]['Path'],num_cores))
         
-            _np.savez_compressed(gather_file, solutions = solutions, residuals = residuals,
-                                 project_name=project_name, stations_list = stations_list)
+        # Read header array of tuples correctly with dtype and convert to array of arrays 
+        raw_solution_header = _np.load(project_files_list[i]['Path'].iloc[0])['tdp_header']
+        dt=_np.dtype([('type', _np.unicode_, 8), ('name',  _np.unicode_,30)])
+        solution_header = _np.asarray(raw_solution_header,dtype=dt)
+        # Creating MultiIndex from header arrays
+        solution_m_index = [solution_header['type'],solution_header['name']]
+
+        residuals_header = ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
+                            ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']
+
+        # Stacking list of tmp tdps and residuals into one np array
+        stacked_solution = _np.vstack(tmp_data[:,0])
+        stacked_residuals = _np.vstack(tmp_data[:,1])
+
+        # Creating a MultiIndex DataFrame of transposed array. Transposing back and adding time index
+        solutions[i] = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
+        residuals[i] = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
+    
+        _np.savez_compressed(solutions_file, solutions = solutions, project_name=project_name, stations_list = stations_list)
+        _np.savez_compressed(residuals_file, solutions = solutions, project_name=project_name, stations_list = stations_list)
 
 
 
