@@ -28,7 +28,7 @@ def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
         tmp = _pd.DataFrame()
         tmp[['Project','Station', 'Year', 'DOY']] = _pd.Series(station_list_all_years).str.split('/',expand = True).iloc[:, [-5,-4,-3,-2]]
         tmp['Path'] = station_list_all_years
-        project_files_list[i] = tmp[tmp['Year'].isin(years.astype(str))]
+        project_files_list[i] = tmp
 
         tmp_data = _np.asarray(_gather_tdps(project_files_list[i]['Path'],num_cores))
         
