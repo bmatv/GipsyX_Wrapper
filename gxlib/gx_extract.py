@@ -7,7 +7,7 @@ from .gx_aux import J2000origin
 
 '''Extraction of solutions from npz'''
 
-def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
+def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
     '''Runs _gather_tdps for each station in the stations_list of the project.
     After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
     Extraction of residuals moved to extract_residuals
@@ -58,7 +58,7 @@ def extract_tdps(tmp_dir,project_name,stations_list,years_list,num_cores):
     else:
         gather = _np.load(gather_file)
         solutions, residuals = gather['solutions'],gather['residuals']
-        
+
     return solutions,residuals
 
 def _gather_tdps(station_files,num_cores):
