@@ -18,7 +18,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
 
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/' + _np.asarray(checked_stations,dtype=object) + '/solution.npz'
+    paths_tmp = tmp_dir + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.npz'
 
     gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
@@ -34,19 +34,32 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
             gather[i] = _np.load(paths_tmp[i])['data']
     return gather
 
-# def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
-#     residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals.npz'
+def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
+    stations_list = _np.core.defchararray.upper(stations_list)
 
-#     if not _os.path.exists(residuals_file):
-#         extract_tdps(tmp_dir,project_name,num_cores)
+    #check if station from input is in the folder
+    gd2e_stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
+    station_exists = _np.isin(stations_list,gd2e_stations_list)
 
-#         file = _np.load(residuals_file)
-#         residuals = file['data']
-#     else:
-#         print('Found', residuals_file)
-#         file = _np.load(residuals_file)
-#         residuals = file['data']
-#     return residuals
+    checked_stations = stations_list[station_exists==True]
+
+    n_stations = len(checked_stations)
+    #Create a list of paths to get data from
+    paths_tmp = tmp_dir + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.npz'
+
+    gather = _np.ndarray((n_stations), dtype=object)
+    '''This loader can be multithreaded'''
+
+    for i in range(n_stations):
+        if not _os.path.exists(paths_tmp[i]):
+            extract_tdps(tmp_dir,project_name,num_cores)
+
+            gather[i] = _np.load(paths_tmp[i])['data']
+        
+        else:
+            print('Found', paths_tmp[i], 'Loading...')
+            gather[i] = _np.load(paths_tmp[i])['data']
+    return gather
 
 def extract_tdps(tmp_dir,project_name,num_cores):
     '''Runs _gather_tdps for each station in the stations_list of the project.
@@ -91,7 +104,7 @@ def extract_tdps(tmp_dir,project_name,num_cores):
         Each station's gather is saved in it's gd2e subfolder
         Possibly, when reading many station gathers in parallel npz_compressed will become more efficient as less data is read'''
 
-        solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/solution.npz'
+        solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/solutions.npz'
         _np.savez(solutions_file, data = solutions, project_name=project_name, station = stations_list[i])
         print(stations_list[i] + 'solutions successfully extracted')
 
