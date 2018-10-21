@@ -18,7 +18,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
 
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.npz'
+    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.npz'
 
     gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
@@ -77,7 +77,7 @@ def extract_tdps(tmp_dir,project_name,num_cores):
 
     for i in range(len(stations_list)):
         station_files = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
-        
+
         tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
         
         # Read header array of tuples correctly with dtype and convert to array of arrays 
