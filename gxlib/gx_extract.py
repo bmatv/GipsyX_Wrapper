@@ -7,34 +7,48 @@ from .gx_aux import J2000origin
 
 '''Extraction of solutions from npz'''
 def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
-    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions.npz'
 
-    if not _os.path.exists(solutions_file):
-        extract_tdps(tmp_dir,project_name,stations_list,num_cores)
+    stations_list = _np.core.defchararray.upper(stations_list)
 
-        file = _np.load(solutions_file)
-        solutions = file['data']
-    else:
-        print('Found', solutions_file)
-        file = _np.load(solutions_file)
-        solutions = file['data']
-    return solutions
+    #check if station from input is in the folder
+    gd2e_stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
+    station_exists = _np.isin(stations_list,gd2e_stations_list)
 
-def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
-    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals.npz'
+    checked_stations = stations_list[station_exists==True]
 
-    if not _os.path.exists(residuals_file):
-        extract_tdps(tmp_dir,project_name,stations_list,num_cores)
+    n_stations = len(checked_stations)
+    #Create a list of paths to get data from
+    paths_tmp = tmp_dir + '/' + _np.asarray(checked_stations,dtype=object) + '/solution.npz'
 
-        file = _np.load(residuals_file)
-        residuals = file['data']
-    else:
-        print('Found', residuals_file)
-        file = _np.load(residuals_file)
-        residuals = file['data']
-    return residuals
+    gather = _np.ndarray((n_stations), dtype=object)
+    '''This loader can be multithreaded'''
 
-def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
+    for i in range(n_stations):
+        if not _os.path.exists(paths_tmp[i]):
+            extract_tdps(tmp_dir,project_name,num_cores)
+
+            gather[i] = _np.load(paths_tmp[i])['data']
+        
+        else:
+            print('Found', paths_tmp[i], 'Loading...')
+            gather[i] = _np.load(paths_tmp[i])['data']
+    return gather
+
+# def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
+#     residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals.npz'
+
+#     if not _os.path.exists(residuals_file):
+#         extract_tdps(tmp_dir,project_name,num_cores)
+
+#         file = _np.load(residuals_file)
+#         residuals = file['data']
+#     else:
+#         print('Found', residuals_file)
+#         file = _np.load(residuals_file)
+#         residuals = file['data']
+#     return residuals
+
+def extract_tdps(tmp_dir,project_name,num_cores):
     '''Runs _gather_tdps for each station in the stations_list of the project.
     After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
     Extraction of residuals moved to extract_residuals
@@ -43,47 +57,47 @@ def extract_tdps(tmp_dir,project_name,stations_list,num_cores):
     [solutions] and [residuals] datasets inside.
     If file doesn't exist, will run the script and save the file as it should.
     Rolling back to the version where solutions and residuals were collected simultaneously.
+
+    Creates folder "gather" and puts station-named files in it.
+    All stations all years.
     '''
 
-    solutions_file = tmp_dir + '/gd2e/' + project_name + '/solutions.npz'
-    residuals_file = tmp_dir + '/gd2e/' + project_name + '/residuals.npz'
-
-    project_files_list = _np.ndarray((len(stations_list)),dtype=object)
-    solutions = _np.ndarray((len(stations_list)),dtype=object)
-    residuals = _np.ndarray((len(stations_list)),dtype=object)
+    stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
 
     for i in range(len(stations_list)):
-        station_list_all_years = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
-        tmp = _pd.DataFrame()
-        tmp[['Project','Station', 'Year', 'DOY']] = _pd.Series(station_list_all_years).str.split('/',expand = True).iloc[:, [-5,-4,-3,-2]]
-        tmp['Path'] = station_list_all_years
-        project_files_list[i] = tmp
-
-        tmp_data = _np.asarray(_gather_tdps(project_files_list[i]['Path'],num_cores))
+        station_files = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
+        tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
         
         # Read header array of tuples correctly with dtype and convert to array of arrays 
-        raw_solution_header = _np.load(project_files_list[i]['Path'].iloc[0])['tdp_header']
+        raw_solution_header = _np.load(station_files.iloc[0])['tdp_header']
         dt=_np.dtype([('type', _np.unicode_, 8), ('name',  _np.unicode_,30)])
         solution_header = _np.asarray(raw_solution_header,dtype=dt)
-        # Creating MultiIndex from header arrays
-        solution_m_index = [solution_header['type'],solution_header['name']]
 
         residuals_header = ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
                             ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']
+
+        # Creating MultiIndex from header arrays
+        solution_m_index = [solution_header['type'],solution_header['name']]
 
         # Stacking list of tmp tdps and residuals into one np array
         stacked_solution = _np.vstack(tmp_data[:,0])
         stacked_residuals = _np.vstack(tmp_data[:,1])
 
         # Creating a MultiIndex DataFrame of transposed array. Transposing back and adding time index
-        solutions[i] = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
-        residuals[i] = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
-    
-        _np.savez_compressed(solutions_file, data = solutions, project_name=project_name, stations_list = stations_list)
-        _np.savez_compressed(residuals_file, data = residuals, project_name=project_name, stations_list = stations_list)
+        solutions = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
+        residuals = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
+        
+        '''Saving with np.savez as it is 2x faster than npz_compressed but takes 3x space (also, it is a bit faster save/load than pandas to_pickle).
+        Each station's gather is saved in it's gd2e subfolder
+        Possibly, when reading many station gathers in parallel npz_compressed will become more efficient as less data is read'''
 
-    print(solutions_file + 'successfully saved')
-    print(residuals_file + 'successfully saved')
+        solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/solution.npz'
+        _np.savez(solutions_file, data = solutions, project_name=project_name, station = stations_list[i])
+        print(stations_list[i] + 'solutions successfully extracted')
+
+        residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/residuals.npz'
+        _np.savez(residuals_file, data = residuals, project_name=project_name, station = stations_list[i])
+        print(stations_list[i] + 'residuals successfully extracted')
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
