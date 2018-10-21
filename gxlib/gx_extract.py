@@ -108,7 +108,7 @@ def extract_tdps(tmp_dir,project_name,num_cores):
         print(stations_list[i], 'solutions successfully extracted')
 
         residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/residuals.pickle'
-        residuals.to_pickle(solutions_file)
+        residuals.to_pickle(residuals_file)
         print(stations_list[i], 'residuals successfully extracted')
 
 def _gather_tdps(station_files,num_cores):
