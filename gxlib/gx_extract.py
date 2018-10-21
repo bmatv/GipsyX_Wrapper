@@ -26,9 +26,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
             extract_tdps(tmp_dir,project_name,num_cores)
-
             gather[i] = _np.load(paths_tmp[i])['data']
-        
         else:
             print('Found', paths_tmp[i], 'Loading...')
             gather[i] = _np.load(paths_tmp[i])['data']
@@ -53,9 +51,7 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
             extract_tdps(tmp_dir,project_name,num_cores)
-
-            gather[i] = _np.load(paths_tmp[i])['data']
-        
+            gather[i] = _np.load(paths_tmp[i])['data']     
         else:
             print('Found', paths_tmp[i], 'Loading...')
             gather[i] = _np.load(paths_tmp[i])['data']
@@ -82,7 +78,7 @@ def extract_tdps(tmp_dir,project_name,num_cores):
         tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
         
         # Read header array of tuples correctly with dtype and convert to array of arrays 
-        raw_solution_header = _np.load(station_files.iloc[0])['tdp_header']
+        raw_solution_header = _np.load(station_files[0])['tdp_header']
         dt=_np.dtype([('type', _np.unicode_, 8), ('name',  _np.unicode_,30)])
         solution_header = _np.asarray(raw_solution_header,dtype=dt)
 
