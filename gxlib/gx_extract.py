@@ -25,6 +25,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
 
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
+            print('No gather file for', checked_stations[i] + '. Running extract_tdps for the dataset.')
             extract_tdps(tmp_dir,project_name,num_cores)
             gather[i] = _np.load(paths_tmp[i])['data']
         else:
@@ -50,6 +51,7 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
 
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
+            print('No gather file for', checked_stations[i] + '. Running extract_tdps for the dataset.')
             extract_tdps(tmp_dir,project_name,num_cores)
             gather[i] = _np.load(paths_tmp[i])['data']     
         else:
@@ -75,6 +77,7 @@ def extract_tdps(tmp_dir,project_name,num_cores):
 
     for i in range(len(stations_list)):
         station_files = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
+        
         tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
         
         # Read header array of tuples correctly with dtype and convert to array of arrays 
@@ -102,11 +105,11 @@ def extract_tdps(tmp_dir,project_name,num_cores):
 
         solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/solutions.npz'
         _np.savez(solutions_file, data = solutions, project_name=project_name, station = stations_list[i])
-        print(stations_list[i] + 'solutions successfully extracted')
+        print(stations_list[i], 'solutions successfully extracted')
 
         residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/residuals.npz'
         _np.savez(residuals_file, data = residuals, project_name=project_name, station = stations_list[i])
-        print(stations_list[i] + 'residuals successfully extracted')
+        print(stations_list[i], 'residuals successfully extracted')
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
