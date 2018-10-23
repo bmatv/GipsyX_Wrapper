@@ -1,8 +1,13 @@
-import os as _os, re as _re, glob as _glob
+import os as _os, re as _re, glob as _glob, sys as _sys
 import numpy as _np
 import pandas as _pd
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
+
+PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
+if PYGCOREPATH not in _sys.path:
+    _sys.path.insert(0, PYGCOREPATH)
+import gcore.EarthCoordTrans as _eo
 
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
 _regex_loc = _re.compile(r"2\.\W+S.+\W+City or Town\W+\:\s(.+|)\W+State or Province\W+\:\s(.+|)\W+Country\W+\:\s(.+|)\W+Tectonic Plate\W+\:\s(.+|)\W+.+\W+X.+\:\s(.+|)\W+Y..+\:\s(.+|)\W+Z.+\:\s(.+|)\W*Latitude.+\:\s(.+|)\W*Longitude.+\:\s(.+|)\W*Elevation.+\:\s(.+|)", _re.MULTILINE)
@@ -15,51 +20,57 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
     #Making staDb directory in tmp folder 
     staDb_dir = tmp_dir + '/staDb/' + project_name + '/'
-    staDb_file = staDb_dir + project_name + '.staDb'
-    if not _os.path.exists(staDb_dir):
-        _os.makedirs(staDb_dir)
-    #getting paths to all log files needed    
-    logs = _np.ndarray((len(stations_list)),dtype=object)
-    for i in range(len(stations_list)):
-        logs[i] = _glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*')[0]
+    staDb_path = staDb_dir + project_name + '.staDb'
 
-    with open(staDb_file,'w') as output:
-        output.write("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
-        for file in logs:
-            with open(file, 'r') as f:
-                data = f.read()
-        # Site ID
-            matches_ID = _re.findall(_regex_ID, data)
-        # Site Location, only one location line per BIGF log
-            matches_loc = _re.findall(_regex_loc, data)
-            output.write("{ID}  ID  {IERS} {loc_2} {loc_1}\n".format(ID=matches_ID[0][1], IERS=matches_ID[0][3] if matches_ID[0][3] != '' else 'NONE',
-                                                            loc_2=matches_loc[0][1], loc_1=matches_loc[0][2]))
+    #if staDb_path was already generated, just return staDb_path path
+    if not _os.path.exists(staDb_path):
 
-            output.write("{ID}  STATE 1-01-01 00:00:00 {X:.15e}  {Y:.15e} {Z:.15e} {X_v:.15e}  {Y_v:.15e} {Z_v:.15e}\n".format(ID=matches_ID[0][1],
-                                                                                                                      X=float(matches_loc[0][4]) if matches_loc[0][4] != '' else 0,
-                                                                                                                      Y=float(matches_loc[0][5]) if matches_loc[0][5] != '' else 0,
-                                                                                                                      Z=float(matches_loc[0][6]) if matches_loc[0][6] != '' else 0,
-                                                                                                                      X_v=0, Y_v=0, Z_v=0))
-        # Receiver Information
-            rec = []
-            matches_rec = _re.finditer(_regex_rec, data)
-            for matchNum, match in enumerate(matches_rec):
-                for groupNum in range(0, len(match.groups())):
-                    groupNum = groupNum + 1
-                rec.append(match.groups())
-                output.write("{ID}  RX {d_inst} {t_inst}:00 {rec_type} {rec_num} {rec_fw_v}\n".format(ID=matches_ID[0][1], d_inst=rec[matchNum][5], t_inst=rec[
-                      matchNum][7] if rec[matchNum][7] != '' else '00:00', rec_type=rec[matchNum][0], rec_num=rec[matchNum][2], rec_fw_v=rec[matchNum][3]))
-        # Antenna Information
-            ant = []
-            matches_ant = _re.finditer(_regex_ant, data)
-            for matchNum, match in enumerate(matches_ant):
-                for groupNum in range(0, len(match.groups())):
-                    groupNum = groupNum + 1
-                ant.append(match.groups())
-                output.write("{ID}  ANT {d_inst} {t_inst}:00 {ant_type} {radome_type} {up} {north} {east} {ant_num}\n".
-                      format(ID=matches_ID[0][1], d_inst=ant[matchNum][12], t_inst=ant[matchNum][13] if ant[matchNum][13]!= '' else '00:00', ant_type=ant[matchNum][0],
-                             radome_type=ant[matchNum][8], up=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
-    return staDb_file
+        if not _os.path.exists(staDb_dir):
+            _os.makedirs(staDb_dir)
+        #getting paths to all log files needed    
+        logs = _np.ndarray((len(stations_list)),dtype=object)
+        for i in range(len(stations_list)):
+            logs[i] = _glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*')[0]
+
+        with open(staDb_path,'w') as output:
+            output.write("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
+            for file in logs:
+                with open(file, 'r') as f:
+                    data = f.read()
+            # Site ID
+                matches_ID = _re.findall(_regex_ID, data)
+            # Site Location, only one location line per BIGF log
+                matches_loc = _re.findall(_regex_loc, data)
+                output.write("{ID}  ID  {IERS} {loc_2} {loc_1}\n".format(ID=matches_ID[0][1], IERS=matches_ID[0][3] if matches_ID[0][3] != '' else 'NONE',
+                                                                loc_2=matches_loc[0][1], loc_1=matches_loc[0][2]))
+
+                output.write("{ID}  STATE 1-01-01 00:00:00 {X:.15e}  {Y:.15e} {Z:.15e} {X_v:.15e}  {Y_v:.15e} {Z_v:.15e}\n".format(ID=matches_ID[0][1],
+                                                                                                                        X=float(matches_loc[0][4]) if matches_loc[0][4] != '' else 0,
+                                                                                                                        Y=float(matches_loc[0][5]) if matches_loc[0][5] != '' else 0,
+                                                                                                                        Z=float(matches_loc[0][6]) if matches_loc[0][6] != '' else 0,
+                                                                                                                        X_v=0, Y_v=0, Z_v=0))
+            # Receiver Information
+                rec = []
+                matches_rec = _re.finditer(_regex_rec, data)
+                for matchNum, match in enumerate(matches_rec):
+                    for groupNum in range(0, len(match.groups())):
+                        groupNum = groupNum + 1
+                    rec.append(match.groups())
+                    output.write("{ID}  RX {d_inst} {t_inst}:00 {rec_type} {rec_num} {rec_fw_v}\n".format(ID=matches_ID[0][1], d_inst=rec[matchNum][5], t_inst=rec[
+                        matchNum][7] if rec[matchNum][7] != '' else '00:00', rec_type=rec[matchNum][0], rec_num=rec[matchNum][2], rec_fw_v=rec[matchNum][3]))
+            # Antenna Information
+                ant = []
+                matches_ant = _re.finditer(_regex_ant, data)
+                for matchNum, match in enumerate(matches_ant):
+                    for groupNum in range(0, len(match.groups())):
+                        groupNum = groupNum + 1
+                    ant.append(match.groups())
+                    output.write("{ID}  ANT {d_inst} {t_inst}:00 {ant_type} {radome_type} {up} {north} {east} {ant_num}\n".
+                        format(ID=matches_ID[0][1], d_inst=ant[matchNum][12], t_inst=ant[matchNum][13] if ant[matchNum][13]!= '' else '00:00', ant_type=ant[matchNum][0],
+                                radome_type=ant[matchNum][8], up=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
+    
+    
+    return staDb_path
 
 def _dr_size(rnx_files_in_out):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
@@ -124,3 +135,55 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
     
     #Saving extracted data for furthe processing
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
+
+'''section of solution to ENV conversion'''
+def _xyz2env(dataset,stations_list,reference_df):
+    '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
+    tdp2EnvDiff outputs in cm. We need in mm.
+    Outputs a MultiIndex DataFrame with value and nomvalue subsections to control tdp_in procedure
+    '''
+    envs = _np.ndarray((len(dataset)),dtype=object)
+
+    for i in range(len(dataset)):
+        # Creating MultiIndex:
+        arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
+        arrays_nomvalue=[['nomvalue','nomvalue','nomvalue'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
+        
+        m_index_value = _pd.MultiIndex.from_arrays(arrays=arrays_value)
+        m_index_nomvalue = _pd.MultiIndex.from_arrays(arrays=arrays_nomvalue)
+        
+        
+        xyz_value = dataset[i]['value'].iloc[:,[0,1,2]] 
+        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[0,1,2]] 
+        refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
+#             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
+#             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
+        rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
+
+        diff_value = xyz_value - refxyz #XYZ
+        diff_nomvalue = xyz_nomvalue - refxyz #XYZ
+        
+        diff_env_value = rot.dot(diff_value.T)*1000
+        diff_env_nomvalue = rot.dot(diff_nomvalue.T)*1000
+        
+        frame_value = _pd.DataFrame(diff_env_value, index=m_index_value).T
+        frame_nomvalue = _pd.DataFrame(diff_env_nomvalue, index=m_index_nomvalue).T
+        envs[i] = _pd.concat((frame_value,frame_nomvalue),axis=1).set_index(dataset[i].index)
+    return envs
+
+def get_xyz_site(staDb_ref_xyz,site_name):
+    #return reference XYZ coordinates for specified station from staDb
+    return staDb_ref_xyz[staDb_ref_xyz['Station'] == site_name][['X','Y','Z']].squeeze().values #Squeeze to series. Not to create array in array
+
+def get_ref_xyz_sites(staDb_path):
+    '''Function reads staDb file provided'''
+    read = _pd.read_csv(staDb_path,delimiter='\s+',names=list(range(11)))
+    positions = read[read.iloc[:,1]=='STATE']
+#     refxyz = get_xyz_site(positions)
+    xyz_table = positions[[0,4,5,6]]
+    xyz_table.reset_index(inplace=True,drop=True)
+
+    staDb_xyz = _pd.DataFrame()
+    staDb_xyz['Station'] = xyz_table[0]
+    staDb_xyz[['X','Y','Z']] = xyz_table[[4,5,6]].astype('float')
+    return staDb_xyz
