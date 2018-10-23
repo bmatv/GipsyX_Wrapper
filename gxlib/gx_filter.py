@@ -12,6 +12,11 @@ def _filter_derivative(dataset, margin=0.1):
     mask = (derivative<=margin).min(axis=1)
     return dataset[mask]
 
+def _filter_value(dataset,std_coeff=3):
+    sigma_cut = dataset['value'].median() + dataset['value'].std()*std_coeff
+    mask = (dataset['value']<=sigma_cut).min(axis=1)
+    return dataset[mask]
+
 def _filter_sigma(dataset,std_coeff=3):
     sigma_cut = dataset['sigma'].median() + dataset['sigma'].std()*std_coeff
     mask = (dataset['sigma']<=sigma_cut).min(axis=1)
@@ -21,8 +26,8 @@ def filter_tdps(tdps,std_coeff=3,margin=0.1):
     filtered_tdps = _np.ndarray((tdps.shape),dtype = object)
     for i in range(tdps.shape[0]):
         step1_filter = _filter_derivative(dataset = tdps[i], margin = margin)
-        # step2_filter = _filter_sigma(dataset = step1_filter, std_coeff=std_coeff)
-        # filtered_tdps[i] = step2_filter
-        # print('step1: {:.2f}% left. step2: {:.2f}% left.'.format(step1_filter.shape[0]/tdps[i].shape[0]*100, step2_filter.shape[0]/tdps[i].shape[0]*100))
-        filtered_tdps[i] = step1_filter
+        step2_filter = _filter_value(dataset = step1_filter, std_coeff=std_coeff)
+        filtered_tdps[i] = step2_filter
+        print('step1: {:.2f}% left. step2: {:.2f}% left.'.format(step1_filter.shape[0]/tdps[i].shape[0]*100, step2_filter.shape[0]/tdps[i].shape[0]*100))
+        filtered_tdps[i] = step2_filter
     return filtered_tdps
