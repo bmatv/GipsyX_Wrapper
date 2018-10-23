@@ -73,7 +73,7 @@ def extract_tdps(tmp_dir,project_name,num_cores):
     All stations all years.
     '''
 
-    stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
+    stations_list = sorted(_os.listdir(tmp_dir + '/gd2e/'+project_name)) #sort station names so we are sure the lists are always the same
 
     for i in range(len(stations_list)):
         station_files = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
