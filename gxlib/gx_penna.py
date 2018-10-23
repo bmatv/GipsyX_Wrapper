@@ -1,3 +1,4 @@
+'''Module to run penna test.'''
 import numpy as _np
 import glob as _glob
 import numpy as _np
