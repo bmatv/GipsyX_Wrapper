@@ -1085,7 +1085,7 @@ all_on_test = [[
 
 all_on_kinematic = [[   
     # Stochastic Adjustment State
-        ['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj', '10 10 $GLOBAL_DATA_RATE WHITENOISE'],
+        ['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj', '10E6 10E6 $GLOBAL_DATA_RATE WHITENOISE'],
         # Tides section
         ['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
         # ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', '$OCEANLOAD'], #not needed as "all on"
