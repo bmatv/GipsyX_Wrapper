@@ -153,8 +153,8 @@ def _xyz2env(dataset,stations_list,reference_df):
         m_index_nomvalue = _pd.MultiIndex.from_arrays(arrays=arrays_nomvalue)
         
         
-        xyz_value = dataset[i]['value'].iloc[:,[0,1,2]] 
-        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[0,1,2]] 
+        xyz_value = dataset[i]['value'].iloc[:,[1,2,3]] 
+        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[1,2,3]] 
         refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
 #             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
 #             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
