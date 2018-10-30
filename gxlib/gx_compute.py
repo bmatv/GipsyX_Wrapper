@@ -91,9 +91,9 @@ def _get_tdps_pn(path_dir):
     
     # Create output through dictionary concat
     extracted_data = _pd.concat({
-                                'sigma'  : df['sigma'].iloc[:,_np.arange(-11,-1)],
-                                'nomvalue': df['nomvalue'].iloc[:,_np.arange(-11,-1)],
-                                'value'   : df['value'].iloc[:,_np.arange(-11,-1)]
+                                'sigma'  : df['sigma'].iloc[:,_np.arange(-12,-1)],
+                                'nomvalue': df['nomvalue'].iloc[:,_np.arange(-12,-1)],
+                                'value'   : df['value'].iloc[:,_np.arange(-12,-1)]
                                 },axis=1)
     
     tdp = _np.column_stack((df.index.values,extracted_data.values))
