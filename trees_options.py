@@ -176,7 +176,7 @@ penna_k_randomwalk_m3_5 = [[
         ['GRN_STATION_CLK_WHITE:Trop:Mapping', 'VMF1'],
         ['GRN_STATION_CLK_WHITE:Trop:Model', 'On'],
         ['GRN_STATION_CLK_WHITE:Trop:WetZ', '0.1'],
-        ['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1e-3.5 $GLOBAL_DATA_RATE RANDOMWALK'],
+        ['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1.5e-3 $GLOBAL_DATA_RATE RANDOMWALK'],
         # Station properties. e.g. CAMB. So we will get wetz etc in the output. Highly important!!!
         ['Station', '`cat $STATIONLIST`'+'\nStation `staDb2TreeIn.py -s $STATIONLIST -y2kSecs $GLOBAL_EPOCH -d $STA_DB`'],
         # VMF1dataDir path  
@@ -285,7 +285,7 @@ penna_k_randomwalk_m4_5 = [[
         ['GRN_STATION_CLK_WHITE:Trop:Mapping', 'VMF1'],
         ['GRN_STATION_CLK_WHITE:Trop:Model', 'On'],
         ['GRN_STATION_CLK_WHITE:Trop:WetZ', '0.1'],
-        ['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1e-4.5 $GLOBAL_DATA_RATE RANDOMWALK'],
+        ['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1.5e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
         # Station properties. e.g. CAMB. So we will get wetz etc in the output. Highly important!!!
         ['Station', '`cat $STATIONLIST`'+'\nStation `staDb2TreeIn.py -s $STATIONLIST -y2kSecs $GLOBAL_EPOCH -d $STA_DB`'],
         # VMF1dataDir path  
