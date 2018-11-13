@@ -4,7 +4,7 @@ import pandas as _pd
 import tqdm as _tqdm
 import multiprocessing as _mp
 
-from .gx_aux import _J2000origin
+from .gx_aux import J2000origin as _J2000origin
 
 _sys.path.insert(0, "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], \
                 _sys.version_info[0], _sys.version_info[1]))
@@ -24,6 +24,10 @@ Repro2 products should be used. IGS08b.
 GipsyX gcore.IgsGcoreConversions doesn't support IGS05 conversion
 
 For GFZ products: ftp://ftp.gfz-potsdam.de/GNSS/products/repro2
+
+CDDIS ftp:
+rclone sync cddis:/gnss/products /mnt/Data/bogdanm/Products/IGS_GNSS_Products/ -vv --transfers 10 --checkers 10 --include "/15[6-9][0-9]/repro2/es2*{.sp3.Z,.clk.Z}"
+rclone sync cddis:/gnss/products /mnt/Data/bogdanm/Products/IGS_GNSS_Products/ -vv --transfers 10 --checkers 10 --include "/16[0-9][0-9]/repro2/es2*{.sp3.Z,.clk.Z}"
 '''
 _GPSorigin = _np.datetime64('1980-01-06 00:00:00')
 _seconds_week = 604800
