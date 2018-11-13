@@ -79,7 +79,7 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
         tmp_dir = _os.path.join(out_dir,'tmp') #creating tmp directory processes will work in
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
-        out_array = out_array + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
+        out_array = out_array + '/' + products_type + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
 
         if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
 
