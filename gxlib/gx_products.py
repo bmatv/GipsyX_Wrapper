@@ -3,6 +3,7 @@ import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
 import multiprocessing as _mp
+from shutil import rmtree
 
 from .gx_aux import J2000origin as _J2000origin
 
@@ -37,27 +38,6 @@ def _date2igs(date):
     gps_week = gps_seconds//_seconds_week
     day_in_week = ((gps_seconds%_seconds_week)/86400).astype(_np.int)
     return gps_week.astype(_np.str).astype(object), day_in_week.astype(_np.str).astype(object)
-
-def _sp3ToPosTdp(np_set):
-    
-    process = _mp.current_process()
-    tmp_dir = _os.path.join(np_set['tmp'],str(process._identity[0]))
-    
-    if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
-    _os.chdir(tmp_dir)
-    
-    
-    frame = _IgsGcoreConversions.sp3ToPosTdp(np_set['sp3'], 
-                                    _os.path.join(np_set['out'], str(np_set['date'])+'.pos.gz'), 
-                                    _DEFAULT_COEFF,igsCm=True, workDir=tmp_dir, 
-                                    tdpOut=None)
-    
-    refClk = _IgsGcoreConversions.clkToTdp(np_set['clk'], 
-                                    _os.path.join(np_set['out'], str(np_set['date'])+'.tdp.gz'), 
-                                    stationClk=False)
-    
-    miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
-    miscProducts.make()
 
 def _gen_sets(begin,end,products_type,products_dir,repro2=True):
     '''Generates filenames list'''
@@ -95,24 +75,45 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.join(products_dir,'igs2gipsyx/')
-        tmp_dir = _os.path.join(out_dir,'tmp')
-        tmp_array = _np.ndarray((date_array.shape),dtype=object)
+        out_dir = _os.path.join(products_dir,'igs2gipsyx')
+        tmp_dir = _os.path.join(out_dir,'tmp') #creating tmp directory processes will work in
         out_array = _np.ndarray((date_array.shape),dtype=object)
-        tmp_array.fill(tmp_dir); out_array.fill(out_dir) #filling with default values
+        out_array.fill(out_dir) #filling with default values
         out_array = out_array + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
-        
-        
-        
+
         if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
 
         [_os.makedirs(out_path) for out_path in out_array if not _os.path.exists(out_path)] #creating unique year directories
-        return _pd.DataFrame(_np.column_stack((sp3_path,clk_path,date_array,date_array_J2000,tmp_array,out_array)),columns = ['sp3','clk', 'date', 'dateJ','tmp','out'])
+        return _pd.DataFrame(_np.column_stack((sp3_path,clk_path,date_array,date_array_J2000,out_array)),columns = ['sp3','clk', 'date', 'dateJ','out'])
     
+def _sp3ToPosTdp(np_set):
+    
+    process = _mp.current_process()
+    tmp_dir = _os.path.join(np_set['out'],'tmp',str(process._identity[0]))
+    
+    if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
+    _os.chdir(tmp_dir)
+    
+    
+    frame = _IgsGcoreConversions.sp3ToPosTdp(np_set['sp3'], 
+                                    _os.path.join(np_set['out'], str(np_set['date'])+'.pos.gz'), 
+                                    _DEFAULT_COEFF,igsCm=True, workDir=tmp_dir, 
+                                    tdpOut=None)
+    
+    refClk = _IgsGcoreConversions.clkToTdp(np_set['clk'], 
+                                    _os.path.join(np_set['out'], str(np_set['date'])+'.tdp.gz'), 
+                                    stationClk=False)
+    
+    miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
+    miscProducts.make()
 
 def igs2jpl(begin,end,products_type,products_dir,repro2=True,num_cores=None):
     
+
     sets = _gen_sets(begin,end,products_type,products_dir,repro2).to_records()
     
     with _mp.Pool(num_cores) as p:
         list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
+    
+    tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp')
+    rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
