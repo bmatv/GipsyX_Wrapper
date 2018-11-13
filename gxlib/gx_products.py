@@ -3,7 +3,7 @@ import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
 import multiprocessing as _mp
-from shutil import rmtree
+from shutil import rmtree as _rmtree
 
 from .gx_aux import J2000origin as _J2000origin
 
@@ -76,11 +76,11 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
         out_dir = _os.path.join(products_dir,'igs2gipsyx')
-        tmp_dir = _os.path.join(out_dir,'tmp') #creating tmp directory processes will work in
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + products_type + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
 
+        tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp') #creating tmp directory processes will work in
         if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
 
         [_os.makedirs(out_path) for out_path in out_array if not _os.path.exists(out_path)] #creating unique year directories
@@ -89,7 +89,7 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
 def _sp3ToPosTdp(np_set):
     
     process = _mp.current_process()
-    tmp_dir = _os.path.join(np_set['out'],'tmp',str(process._identity[0]))
+    tmp_dir = _os.path.join(_os.path.dirname(np_set['out']),'tmp',str(process._identity[0]))
     
     if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
     _os.chdir(tmp_dir)
@@ -116,4 +116,4 @@ def igs2jpl(begin,end,products_type,products_dir,repro2=True,num_cores=None):
         list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
     
     tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp')
-    rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
+    _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
