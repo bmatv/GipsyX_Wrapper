@@ -89,8 +89,9 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
 def _sp3ToPosTdp(np_set):
     
     process = _mp.current_process()
-    tmp_dir = _os.path.join(_os.path.dirname(np_set['out']),'tmp',str(process._identity[0]))
-    
+
+    tmp_dir = _os.path.abspath(_os.path.join(np_set['out'],_os.pardir,_os.pardir,'tmp',str(process._identity[0])))
+    #creates tmp dirs in igs2gipsyx directory
     if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
     _os.chdir(tmp_dir)
     
