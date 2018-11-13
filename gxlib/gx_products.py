@@ -4,14 +4,14 @@ import pandas as _pd
 import tqdm as _tqdm
 import multiprocessing as _mp
 
-from .gx_aux import J2000origin
+from .gx_aux import _J2000origin
 
 _sys.path.insert(0, "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], \
                 _sys.version_info[0], _sys.version_info[1]))
 
-import gcore.IgsGcoreConversions as IgsGcoreConversions
+import gcore.IgsGcoreConversions as _IgsGcoreConversions
 
-DEFAULT_COEFF=_os.path.expandvars('$GOA_VAR/sta_info/otide_cmcoeff_got48ac')
+_DEFAULT_COEFF=_os.path.expandvars('$GOA_VAR/sta_info/otide_cmcoeff_got48ac')
 
 
 '''Function to convert date to gps week and day number
@@ -25,16 +25,16 @@ GipsyX gcore.IgsGcoreConversions doesn't support IGS05 conversion
 
 For GFZ products: ftp://ftp.gfz-potsdam.de/GNSS/products/repro2
 '''
-GPSorigin = _np.datetime64('1980-01-06 00:00:00')
-seconds_week = 604800
+_GPSorigin = _np.datetime64('1980-01-06 00:00:00')
+_seconds_week = 604800
 
-def date2igs(date):
-    gps_seconds = (date - GPSorigin).astype(_np.int)
-    gps_week = gps_seconds//seconds_week
-    day_in_week = ((gps_seconds%seconds_week)/86400).astype(_np.int)
+def _date2igs(date):
+    gps_seconds = (date - _GPSorigin).astype(_np.int)
+    gps_week = gps_seconds//_seconds_week
+    day_in_week = ((gps_seconds%_seconds_week)/86400).astype(_np.int)
     return gps_week.astype(_np.str).astype(object), day_in_week.astype(_np.str).astype(object)
 
-def sp3ToPosTdp(np_set):
+def _sp3ToPosTdp(np_set):
     
     process = _mp.current_process()
     tmp_dir = _os.path.join(np_set['tmp'],str(process._identity[0]))
@@ -43,31 +43,38 @@ def sp3ToPosTdp(np_set):
     _os.chdir(tmp_dir)
     
     
-    frame = IgsGcoreConversions.sp3ToPosTdp(np_set['sp3'], 
+    frame = _IgsGcoreConversions.sp3ToPosTdp(np_set['sp3'], 
                                     _os.path.join(np_set['out'], str(np_set['date'])+'.pos.gz'), 
-                                    DEFAULT_COEFF,igsCm=True, workDir=tmp_dir, 
+                                    _DEFAULT_COEFF,igsCm=True, workDir=tmp_dir, 
                                     tdpOut=None)
     
-    refClk = IgsGcoreConversions.clkToTdp(np_set['clk'], 
-                                _os.path.join(np_set['out'], str(np_set['date'])+'.tdp.gz'), 
-                                stationClk=False)
+    refClk = _IgsGcoreConversions.clkToTdp(np_set['clk'], 
+                                    _os.path.join(np_set['out'], str(np_set['date'])+'.tdp.gz'), 
+                                    stationClk=False)
     
-    miscProducts=IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
+    miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
     miscProducts.make()
 
-def gen_paths(begin,end,products_type,products_dir):
+def _gen_sets(begin,end,products_type,products_dir,repro2=True):
     '''Generates filenames list'''
+    products_dir = _os.path.abspath(products_dir)
+    
     begin64 = _np.datetime64(begin).astype('datetime64[D]') #Explicitly rounding to days as we don't care about hours,minutes etc.
     end64 = _np.datetime64(end).astype('datetime64[D]')
-
     date_array = _np.arange(begin64,end64)
-    date_array_J2000 = (date_array - J2000origin).astype('timedelta64[s]').astype(_np.int)
+    date_array_J2000 = (date_array - _J2000origin).astype('timedelta64[s]').astype(_np.int)
     
-    gps_week,day_in_week = date2igs(date_array)
+    gps_week,day_in_week = _date2igs(date_array)
     igs_days = gps_week+day_in_week
-    sp3_path = _os.path.join(products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z')
-    clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
     
+    if not repro2:
+        sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
+        clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
+    else:
+        products_type = products_type[:2]+'2' #esa becomes es2, gfz becomes gf2 etc in repro2
+        sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
+        clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
+        
     #checking if files are locally available
     sp3_path_avail_mask = _np.asarray([_os.path.isfile(f) for f in sp3_path])
     clk_path_avail_mask = _np.asarray([_os.path.isfile(f) for f in clk_path])
@@ -82,7 +89,7 @@ def gen_paths(begin,end,products_type,products_dir):
     print('sp3: found {}%. missing {}%'.format(sp3_avail*100,sp3_unavail*100))
     print('clk: found {}%. missing {}%'.format(clk_avail*100,clk_unavail*100))
     
-    if (sp3_avail == 1) & (clk_avail ==1): #proceed only if all sp3 and clk files are present
+    if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
         out_dir = _os.path.join(products_dir,'igs2gipsyx/')
         tmp_dir = _os.path.join(out_dir,'tmp')
@@ -95,5 +102,13 @@ def gen_paths(begin,end,products_type,products_dir):
         
         if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
 
-        [_os.makedirs(out_path) for out_path in out_array if not _os.path.exists(out_path)] #creating unique year directories, so processes won't have to check if they exist
+        [_os.makedirs(out_path) for out_path in out_array if not _os.path.exists(out_path)] #creating unique year directories
         return _pd.DataFrame(_np.column_stack((sp3_path,clk_path,date_array,date_array_J2000,tmp_array,out_array)),columns = ['sp3','clk', 'date', 'dateJ','tmp','out'])
+    
+
+def igs2jpl(begin,end,products_type,products_dir,repro2=True,num_cores=None):
+    
+    sets = _gen_sets(begin,end,products_type,products_dir,repro2).to_records()
+    
+    with _mp.Pool(num_cores) as p:
+        list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
