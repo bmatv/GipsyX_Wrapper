@@ -65,15 +65,15 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
 
         if tmp[tmp['file_exists']==0].shape[0] ==0:
             gd2e_table[i] = None
-            print('{} is already processed'.format(stations_list[i]))
+            print('---{}---\n{} is already processed'.format(project_name,stations_list[i]))
         else:
             gd2e_table[i] = tmp[tmp['file_exists']==0].to_records()#converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
             num_cores = num_cores if len(gd2e_table[i]) > num_cores else len(gd2e_table[i])
-            print('Processing station {}...\nNumber of files to be processed: {}\nAdjusted number of cores: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
+            print('---{}---\nProcessing station {}...\nNumber of files to be processed: {}\nAdjusted number of cores: {}'.format(project_name,stations_list[i],gd2e_table[i].shape[0],num_cores))
 
             with _Pool(processes = num_cores) as p:
                 list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
-                print('----Done!----')
+                # print('----Done!----')
     # return gd2e_table
 
 def _get_tdps_pn(path_dir):
