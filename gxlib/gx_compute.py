@@ -1,6 +1,7 @@
 import os as _os
 import numpy as _np
 import pandas as _pd
+import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
@@ -72,14 +73,11 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
             print('\nStaion',stations_list[i],'processing starts...')
             print('Number of files to be processed:', len(gd2e_table[i]),
                     '\nAdjusted number of cores:', num_cores)
-            try:
-                pool = _Pool(processes=num_cores)
-                pool.map_async(func=_gd2e,iterable=gd2e_table[i])
-            finally:
-                pool.close()
-                pool.join()
-            print('Station',stations_list[i],'done')
-    return gd2e_table
+
+            with _Pool(processes = num_cores) as p:
+                list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
+                print('Station',stations_list[i],'done')
+    # return gd2e_table
 
 def _get_tdps_pn(path_dir):
     '''Reads smoothFinal.tdp with pandas, pivots the data and converts to np array'''
