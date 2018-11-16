@@ -21,7 +21,7 @@ def _gd2e(gd2e_set):
 
     out, err = process.communicate()
 
-    print(str(gd2e_set['year'])+'/'+gd2e_set['dayofyear'])
+    # print(str(gd2e_set['year'])+'/'+gd2e_set['dayofyear'])
     #read tdp file (smooth0_0.tdp)
     tdp, tdp_header = _get_tdps_pn(gd2e_set['output'])
     #read tree file
