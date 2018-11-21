@@ -196,7 +196,7 @@ def _gen_penna_tdp_file(np_set):
     write_tdp(tdp_concat=tdp_concat,output_file=output_file)
     # print(output_file)
 
-def gen_penna_tdp(tdp_path='/mnt/Data/bogdanm/tmp_GipsyX/tropNom',
+def gen_penna_tdp(tmp_path='/mnt/Data/bogdanm/tmp_GipsyX',
             staDb_path = '/home/bogdanm/Desktop/GipsyX_trees/staDb/bigf.staDb',
             period=13.9585147,
             num_cores = 25,
@@ -210,7 +210,7 @@ def gen_penna_tdp(tdp_path='/mnt/Data/bogdanm/tmp_GipsyX/tropNom',
     6. Rotate for each station and create tdp output lines for each station
     7. Concatanate outputs and append to input tdp file 
     '''
-    files = _np.asarray(sorted(_glob.glob(tdp_path+'/*/*/30h_tropNominalOut_VMF1.tdp')))
+    files = _np.asarray(sorted(_glob.glob(tmp_path+'/tropNom/*/*/30h_tropNominalOut_VMF1.tdp')))
     num_cores = num_cores if len(files) > num_cores else len(files)
     
     ref_xyz_df = get_ref_xyz(staDb_path)
