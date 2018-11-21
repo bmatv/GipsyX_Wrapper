@@ -42,6 +42,28 @@ def RMS_Res(residuals):
         rms_array[i] = (((L_residuals**2).sum())/L_residuals.count())**0.5
     return rms_array
 
+def get_wetz_index(station_df):
+    '''Get WetZ column index. Splits GipsyX default column names and extract index for column with Trop and WetZ in the name
+    (ignores station name and future changes in column order made by JPL'''
+    values_names = _pd.Series(station_df['value'].columns).str.split('.',expand=True)
+    columns = ['INDEX','_NAME','NAME','TYPE','SUBTYPE','_SUBTYPE']
+    values_names.columns = columns #
+
+    trop_columns = values_names[values_names.TYPE == 'Trop']
+    wetz_index = trop_columns[trop_columns.SUBTYPE == 'WetZ'].index[0]
+    return wetz_index
+
+def STD_WetZ(kin_solutions_filtered_avg,sta_solutions_filtered_avg):
+
+
+    std_array = _np.ndarray((kin_solutions_filtered_avg.shape))
+    for i in range(std_array.shape[0]):
+        wetz_index_static = get_wetz_index(sta_solutions_filtered_avg[i])
+        wetz_index_kinematic = get_wetz_index(kin_solutions_filtered_avg[i])
+        std_array[i] = (kin_solutions_filtered_avg[i]['value'].iloc[:,wetz_index_kinematic] - sta_solutions_filtered_avg[i]['value'].iloc[:,wetz_index_static]).std()*1000
+    return std_array
+
+
 def penna_test(class_name):
     debug_df = get_debug(tmp_dir=class_name.tmp_dir,project_name=class_name.project_name)
     
