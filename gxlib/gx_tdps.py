@@ -164,7 +164,7 @@ def _gen_penna_tdp_file(np_set):
     for i in range(staDb.shape[0]):
         refxyz = staDb[['X','Y','Z']].iloc[i]
 
-        tmp_xyz = _pd.DataFrame(rot_ndarray[i].dot(env.T).T, columns=['X','Y','Z']) + refxyz
+        tmp_xyz = _pd.DataFrame(rot_ndarray[i].dot(env.T).T, columns=['X','Y','Z'],dtype=float) + refxyz
 
         tmp_x = _pd.DataFrame()
         tmp_x['Time'] = df['Time']
