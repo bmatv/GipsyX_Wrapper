@@ -54,8 +54,6 @@ def get_wetz_index(station_df):
     return wetz_index
 
 def STD_WetZ(kin_solutions_filtered_avg,sta_solutions_filtered_avg):
-
-
     std_array = _np.ndarray((kin_solutions_filtered_avg.shape))
     for i in range(std_array.shape[0]):
         wetz_index_static = get_wetz_index(sta_solutions_filtered_avg[i])
@@ -69,7 +67,6 @@ def penna_test(class_name):
     
     #check if station from input is in the folder
     gd2e_stations_list = sorted(next(_os.walk('{}/gd2e/{}'.format(class_name.tmp_dir, class_name.project_name)))[1])
-
     stdv_array = STD_Vert(class_name.envs())
     rms_res_array = RMS_Res(class_name.residuals())
     for i in range(len(gd2e_stations_list)):
