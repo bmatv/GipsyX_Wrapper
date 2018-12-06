@@ -179,7 +179,7 @@ def get_ref_xyz_sites(staDb_path):
     '''Function reads staDb file provided'''
     read = _pd.read_csv(staDb_path,delimiter='\s+',names=list(range(11)))
     positions = read[read.iloc[:,1]=='STATE']
-#     refxyz = get_xyz_site(positions)
+    # refxyz = get_xyz_site(positions)
     xyz_table = positions[[0,4,5,6]]
     xyz_table.reset_index(inplace=True,drop=True)
 
