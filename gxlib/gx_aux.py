@@ -1,6 +1,7 @@
 import os as _os, re as _re, glob as _glob, sys as _sys
 import numpy as _np
 import pandas as _pd
+import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
 
@@ -120,19 +121,12 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
 
     
     for i in range(len(stations_list)):
-        num_cores = num_cores if len(dr_good[i]) > num_cores else len(dr_good[i])
+        num_cores = num_cores if dr_good[i].shape[0] > num_cores else dr_good[i].shape[0]
 
-        chunksize = int(_np.ceil(len(dr_good[i]) / num_cores))
         print(stations_list[i],'station binary files analysis...')
-        print ('Number of files to process:', len(dr_good[i]),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
-        
-        pool = _Pool(processes=num_cores)
-        rs[i] = _np.asarray(pool.map(func=_drinfo, iterable=dr_good[i][:,1], chunksize=chunksize))
-        pool.close()
-        pool.join()
-        print('| Done!')
-
-    
+        print ('Number of files to process:', dr_good[i].shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
+        with _Pool(processes = num_cores) as p:
+            rs[i] = list(_tqdm.tqdm_notebook(p.imap(_drinfo, dr_good[i][:,1]), total=dr_good[i].shape[0]))
     #Saving extracted data for furthe processing
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
 
