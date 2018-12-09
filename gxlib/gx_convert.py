@@ -2,6 +2,7 @@ import numpy as _np
 import pandas as _pd
 import glob as _glob
 import os as _os
+import tqdm as _tqdm
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 
@@ -61,18 +62,18 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores):
 
             rnx2dr_paths_2convert = rnx2dr_paths[i][if_exists_array]
 
-            if len(rnx2dr_paths_2convert) > 0:
-                num_cores = num_cores if len(rnx2dr_paths_2convert) > num_cores else len(rnx2dr_paths_2convert)
-                chunksize = int(_np.ceil(len(rnx2dr_paths_2convert) / num_cores))
-                print ('Number of files to process:', len(rnx2dr_paths_2convert),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
-
-                pool = _Pool(processes=num_cores)
-                pool.map_async(func=_2dr, iterable=rnx2dr_paths_2convert, chunksize=chunksize)
-                pool.close()
-                pool.join()
-                print('| Done!')
+            if rnx2dr_paths_2convert.shape[0] > 0:
+                num_cores = num_cores if rnx2dr_paths_2convert.shape[0] > num_cores else rnx2dr_paths_2convert.shape[0]
+                chunksize = int(_np.ceil(rnx2dr_paths_2convert.shape[0] / num_cores))
+                print ('Number of files to process:', rnx2dr_paths_2convert.shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
+                
+                with _Pool(processes = num_cores) as p:
+                    list(_tqdm.tqdm_notebook(p.imap(_2dr, rnx2dr_paths_2convert), total=rnx2dr_paths_2convert.shape[0])
             else:
                 #In case length of unconverted files array is 0 - nothing will be converted
-                print('Found', len(rnx2dr_paths[i]),'RNX files converted.\nNothing to convert. All available rnx files are already converted')
+                print('Found', rnx2dr_paths[i].shape[0],'RNX files converted.\nNothing to convert. All available rnx files are already converted')
         else:
             print('gx_convert.rnx2dr:Warning:Please check rnx_in folder. No rnx files were found for station', stations_list[i])
+
+#     with _Pool(processes = num_cores) as p:
+        # list(_tqdm.tqdm_notebook(p.imap(_gen_penna_tdp_file, np_set), total=np_set.shape[0]))
