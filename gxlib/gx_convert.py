@@ -68,7 +68,7 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores):
                 print ('Number of files to process:', rnx2dr_paths_2convert.shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
                 
                 with _Pool(processes = num_cores) as p:
-                    list(_tqdm.tqdm_notebook(p.imap(_2dr, rnx2dr_paths_2convert), total=rnx2dr_paths_2convert.shape[0])
+                    list(_tqdm.tqdm_notebook(p.imap(_2dr, rnx2dr_paths_2convert), total=rnx2dr_paths_2convert.shape[0]))
             else:
                 #In case length of unconverted files array is 0 - nothing will be converted
                 print('Found', rnx2dr_paths[i].shape[0],'RNX files converted.\nNothing to convert. All available rnx files are already converted')
