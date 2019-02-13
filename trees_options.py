@@ -1030,10 +1030,9 @@ penna_k_randomwalk_m4_static = [[
         []]
 
 
-glo_only = penna_k_randomwalk_m4 + pseudo_range + carrier_phase + gps_sv_del
+# glo_only = penna_k_randomwalk_m4[0] + pseudo_range + carrier_phase + gps_sv_del
 #Pseudorange
-pseudo_range = [
-['Global:DataTypes:IonoFreeC_1P_2P', ''],
+pseudo_range = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:DataBiasReference', 'GLONASS'],
@@ -1047,12 +1046,10 @@ pseudo_range = [
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:ElDepWeight', 'SqrtSin'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:PostSmoothEdit', '2e5 2e4 12.5 10 5 2.5'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath', ''],
-['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath:Platforms', '.* GPS.*']
-]
+['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath:Platforms', '.* GPS.*']]
                     
 #Carrier Phase                  
-carrier_phase = [
-['Global:DataTypes:IonoFreeL_1P_2P', ''],
+carrier_phase = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias:StochasticAdj', '3.0e8 3.0e8 DATADRIVEN WHITENOISE'],
@@ -1068,8 +1065,7 @@ carrier_phase = [
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:ElDepWeight', 'SqrtSin'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:PostSmoothEdit', '2e5 2e4 0.125 0.1 0.05 .025'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:SignalPath', ''],
-['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:SignalPath:Platforms', '.* GPS.*']
-]
+['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:SignalPath:Platforms', '.* GPS.*']]
 
 gps_sv_del = [['Satellite:Delete','GPS01 GPS02 GPS03 GPS04 GPS05 GPS06 GPS08 GPS09 GPS10 GPS11 GPS13 GPS14 GPS15 GPS16 GPS17 GPS18 GPS19 GPS20 GPS21 GPS22 GPS23 GPS24 GPS25 GPS26 GPS27 GPS28 GPS29 GPS30 GPS31 GPS32 GPS33 GPS34 GPS35 GPS36 GPS37 GPS38 GPS39 GPS40 GPS41 GPS43 GPS44 GPS45 GPS46 GPS47 GPS48 GPS49 GPS50 GPS51 GPS52 GPS53 GPS54 GPS55 GPS56 GPS57 GPS58 GPS59 GPS60 GPS61 GPS62 GPS63 GPS64 GPS65 GPS66 GPS67 GPS68 GPS69 GPS71 GPS72 GPS73 GPS70']]
 
