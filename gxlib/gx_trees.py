@@ -31,6 +31,18 @@ def gen_trees(tmp_dir, ionex_type, tree_options):
         for option in tree_options[1]:
             input_tree.entries.pop(option, None)
 
+        #Removing all 'Global:DataTypes:IonoFree' options from default tree
+        #Selecting them first:
+        ion_entries=[]
+        for key in input_tree.entries:
+            if key.startswith('Global:DataTypes:IonoFree'):
+                ion_entries.append(key)
+        # ion_entries.sort()
+
+        #Removing selected keys
+        for option in ion_entries:
+            input_tree.entries.pop(option, None)
+
         #Add IONEX_merged file dynamically based on IONEX basename (year and type)
         input_tree.entries['Global:Ion2nd:StecModel:IonexFile'] = _treeUtils.treevalue(ionex_files[i])
 
