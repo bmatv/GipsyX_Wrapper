@@ -84,16 +84,18 @@ def _get_tdps_pn(path_dir):
     df = _pd.read_table(file, sep='\s+', header=None, usecols=[0, 1, 2, 3, 4], names=['time','nomvalue', 'value', 'sigma', 'type'])
     df = df.pivot_table(index='time', columns='type')
     
+    columns = df.value.columns #extract columns' names for analysis. We need to extract only Station*
+    columns_df = _pd.Series(columns.values).str.split('.',expand=True)
+    selected_columns = columns[columns_df.iloc[:,1]=='Station']
     # Create output through dictionary concat
     extracted_data = _pd.concat({
-                                'sigma'  : df['sigma'].iloc[:,_np.arange(-12,-1)],
-                                'nomvalue': df['nomvalue'].iloc[:,_np.arange(-12,-1)],
-                                'value'   : df['value'].iloc[:,_np.arange(-12,-1)]
+                                'sigma'  : df.sigma[selected_columns],
+                                'nomvalue': df.nomvalue[selected_columns],
+                                'value'   : df.value[selected_columns]
                                 },axis=1)
     
     tdp = _np.column_stack((df.index.values,extracted_data.values))
     tdp_header = extracted_data.columns.values
-    
     
     return tdp,tdp_header
 
