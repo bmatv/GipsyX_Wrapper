@@ -24,7 +24,7 @@ def get_merge_table(tmp_dir):
         
         gps_transmitter = _np.ndarray((len(drinfo[i])),dtype=bool)
         for j in range(len(drinfo[i])):
-            gps_transmitter[j] = hasGPS(drinfo[i][j][-2])
+            gps_transmitter[j] = hasGPS(drinfo[i][j,-2])
         gps_drinfo = drinfo[i][gps_transmitter]
         
         
