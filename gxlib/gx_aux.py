@@ -126,9 +126,9 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
         print(stations_list[i],'station binary files analysis...')
         print ('Number of files to process:', dr_good[i].shape[0],'| Adj. num_cores:', num_cores, end=' ')
         with _Pool(processes = num_cores) as p:
-            rs[i] = list(_tqdm.tqdm_notebook(p.imap(_drinfo, dr_good[i][:,1]), total=dr_good[i].shape[0]))
+            rs[i] = _np.vstack(list(_tqdm.tqdm_notebook(p.imap(_drinfo, dr_good[i][:,1]), total=dr_good[i].shape[0])))
     #Saving extracted data for furthe processing
-    _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=_np.vstack(rs),stations_list=stations_list,years_list=years_list)
+    _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
