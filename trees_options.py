@@ -980,7 +980,7 @@ penna_k_randomwalk_m4 = [[
     # Stochastic Adjustment State
         ['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj', '1.0 5.7e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
         # Tides section
-        ['GRN_STATION_CLK_WHITE:Tides:All', 'Off'],
+        ['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
         # ['GRN_STATION_CLK_WHITE:Tides:SolidTide', 'On'],
         # ['GRN_STATION_CLK_WHITE:Tides:PoleTide', 'On'],
         # ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', 'On'], #turning all components on manually
