@@ -1019,8 +1019,8 @@ penna_k_randomwalk_m4 = [[
         ['Global:Input:TimeDepParms:NameFilter:Station\..*\.Trop.*',' '],
     
         ],
-        #Pop values. Values that will be elemenated
-        ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj',]]
+        #Pop values. Values that will be eliminated
+        ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','GRN_STATION_CLK_WHITE:Tides:OceanLoad']]
 
 #Pseudorange
 pseudo_range = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
