@@ -983,7 +983,7 @@ penna_k_randomwalk_m4 = [[
         ['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
         # ['GRN_STATION_CLK_WHITE:Tides:SolidTide', 'On'],
         # ['GRN_STATION_CLK_WHITE:Tides:PoleTide', 'On'],
-        # ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', 'On'], #turning all components on manually
+        ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', 'Off'], #turning all components on manually
         ['GRN_STATION_CLK_WHITE:Tides:OceanLoadFile', '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf.blq'],
         # Trop section    
         ['GRN_STATION_CLK_WHITE:Trop:GradEast', '0.0'],
@@ -1023,7 +1023,7 @@ penna_k_randomwalk_m4 = [[
         ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','GRN_STATION_CLK_WHITE:Tides:OceanLoad']]
 
 #Pseudorange
-pseudo_range = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
+pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:DataBiasReference', 'GLONASS'],
@@ -1031,25 +1031,25 @@ pseudo_range = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:PostSmoothEdit', '2e5 2e4 25 20 10 5'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath', ''],
-['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath:Platforms', '.* R.*'],
-    
-['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS', ''],
+['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath:Platforms', '.* R.*']]
+
+pseudo_range_gps = [['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:ElDepWeight', 'SqrtSin'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:PostSmoothEdit', '2e5 2e4 12.5 10 5 2.5'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath:Platforms', '.* GPS.*']]
                     
 #Carrier Phase                  
-carrier_phase = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
+carrier_phase_glo = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias:StochasticAdj', '3.0e8 3.0e8 DATADRIVEN WHITENOISE'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:PostSmoothEdit', '2e5 2e4 0.25 0.2 0.1 .05'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath', ''],
-['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath:Platforms', '.* R.*'],
-    
-['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS', ''],
+['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath:Platforms', '.* R.*']]
+
+carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias:StochasticAdj', '3.0e8 3.0e8 DATADRIVEN WHITENOISE'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
@@ -1058,10 +1058,10 @@ carrier_phase = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:SignalPath', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:SignalPath:Platforms', '.* GPS.*']]
 
-gps_sv_del = [['Satellite:Delete','GPS01 GPS02 GPS03 GPS04 GPS05 GPS06 GPS08 GPS09 GPS10 GPS11 GPS13 GPS14 GPS15 GPS16 GPS17 GPS18 GPS19 GPS20 GPS21 GPS22 GPS23 GPS24 GPS25 GPS26 GPS27 GPS28 GPS29 GPS30 GPS31 GPS32 GPS33 GPS34 GPS35 GPS36 GPS37 GPS38 GPS39 GPS40 GPS41 GPS43 GPS44 GPS45 GPS46 GPS47 GPS48 GPS49 GPS50 GPS51 GPS52 GPS53 GPS54 GPS55 GPS56 GPS57 GPS58 GPS59 GPS60 GPS61 GPS62 GPS63 GPS64 GPS65 GPS66 GPS67 GPS68 GPS69 GPS71 GPS72 GPS73 GPS70']]
+#gps_sv_del = [['Satellite:Delete','GPS01 GPS02 GPS03 GPS04 GPS05 GPS06 GPS08 GPS09 GPS10 GPS11 GPS13 GPS14 GPS15 GPS16 GPS17 GPS18 GPS19 GPS20 GPS21 GPS22 GPS23 GPS24 GPS25 GPS26 GPS27 GPS28 GPS29 GPS30 GPS31 GPS32 GPS33 GPS34 GPS35 GPS36 GPS37 GPS38 GPS39 GPS40 GPS41 GPS43 GPS44 GPS45 GPS46 GPS47 GPS48 GPS49 GPS50 GPS51 GPS52 GPS53 GPS54 GPS55 GPS56 GPS57 GPS58 GPS59 GPS60 GPS61 GPS62 GPS63 GPS64 GPS65 GPS66 GPS67 GPS68 GPS69 GPS71 GPS72 GPS73 GPS70']]
 
-glo_sv_del = [['Satellite:Delete','R701 R802 R711 R712 R713 R714 R715 R716 R717 R718 R719 R720 R721 R722 R723 R724 R725 R726 R727 R728 R729 R730 R731 R732 R733 R734 R735 R736 R737 R738 R742 R743 R744 R745 R746 R747 R851 R852 R853 R856 R754 R854 R755 R855 R783 R787 R788 R789 R791 R792 R793 R794 R795 R796 R797 R798 R801']]
+#glo_sv_del = [['Satellite:Delete','R701 R802 R711 R712 R713 R714 R715 R716 R717 R718 R719 R720 R721 R722 R723 R724 R725 R726 R727 R728 R729 R730 R731 R732 R733 R734 R735 R736 R737 R738 R742 R743 R744 R745 R746 R747 R851 R852 R853 R856 R754 R854 R755 R855 R783 R787 R788 R789 R791 R792 R793 R794 R795 R796 R797 R798 R801']]
 
-glo_only = [gps_sv_del+carrier_phase + pseudo_range + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+glo_only = [carrier_phase_glo + pseudo_range_glo + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
 
-gps_only = [glo_sv_del+carrier_phase + pseudo_range + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+gps_only = [carrier_phase_gps + pseudo_range_gps + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
