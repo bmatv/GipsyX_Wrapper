@@ -1066,6 +1066,8 @@ carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS', ''
 
 #glo_sv_del = [['Satellite:Delete','R701 R802 R711 R712 R713 R714 R715 R716 R717 R718 R719 R720 R721 R722 R723 R724 R725 R726 R727 R728 R729 R730 R731 R732 R733 R734 R735 R736 R737 R738 R742 R743 R744 R745 R746 R747 R851 R852 R853 R856 R754 R854 R755 R855 R783 R787 R788 R789 R791 R792 R793 R794 R795 R796 R797 R798 R801']]
 
-glo_only = [carrier_phase_glo + pseudo_range_glo + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+tree_glo_only = [carrier_phase_glo + pseudo_range_glo + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
 
-gps_only = [carrier_phase_gps + pseudo_range_gps + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+tree_gps_only = [carrier_phase_gps + pseudo_range_gps + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+
+tree_gps_glo = [carrier_phase_gps + pseudo_range_gps + carrier_phase_glo + pseudo_range_glo + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
