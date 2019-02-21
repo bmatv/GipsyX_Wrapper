@@ -8,6 +8,7 @@ class gd2e_class:
                  tree_options,
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
+                 blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
                  VMF1_dir = '/mnt/Data/bogdanm/Products/VMF1_Products',
                  tropNom_type = '30h_tropNominalOut_VMF1.tdp',
                  IGS_logs_dir = '/mnt/Data/bogdanm/GNSS_data/BIGF_data/station_log_files',
@@ -23,6 +24,7 @@ class gd2e_class:
         self.stations_list=stations_list
         self.years_list=years_list
         self.num_cores = num_cores
+        self.blq_file = blq_file
         self.VMF1_dir = VMF1_dir
         self.tropNom_type = tropNom_type
         self.tree_options = tree_options
@@ -49,7 +51,7 @@ class gd2e_class:
     def gen_VMF1_tropNom(self):
         gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
     def gen_trees(self):
-        return gx_trees.gen_trees(ionex_type=self.ionex_type,tmp_dir=self.tmp_dir,tree_options=self.tree_options)
+        return gx_trees.gen_trees(ionex_type=self.ionex_type,tmp_dir=self.tmp_dir,tree_options=self.tree_options,blq_file=self.blq_file)
     def gd2e(self):
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir)
         return gx_compute.gd2e(gnss_products_dir=self.gnss_products_dir,
