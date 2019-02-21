@@ -9,7 +9,7 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details'''
     # reading ionex filenames
     out_df = _pd.DataFrame()
@@ -46,10 +46,11 @@ def gen_trees(tmp_dir, ionex_type, tree_options):
         #Add IONEX_merged file dynamically based on IONEX basename (year and type)
         input_tree.entries['Global:Ion2nd:StecModel:IonexFile'] = _treeUtils.treevalue(ionex_files[i])
 
-
         #Adding options to default tree. These options are stored as tree_options[0]
         for option in tree_options[0]:
             input_tree.entries[option[0]] = _treeUtils.treevalue(option[1])  # write standard parameters
+        #Add blq file location manually. At this step will override any tree option
+        input_tree.entries['GRN_STATION_CLK_WHITE:Tides:OceanLoadFile'] =  _treeUtils.treevalue(blq_file)
 
         input_tree.save(out_df['tree_path'][i] + 'ppp_0.tree')
     # return year type path_trees
