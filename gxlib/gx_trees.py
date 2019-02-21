@@ -9,8 +9,10 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file):
-    '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details'''
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file,GPS = True,GLO = False):
+    '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
+    Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
+    Together with this drInfo files with specific properties will be filtered'''
     # reading ionex filenames
     out_df = _pd.DataFrame()
 #         default_tree = '/home/bogdanm/Desktop/GipsyX_trees/Trees_kinematic_VMF1_IONEX/ppp_0.tree'
