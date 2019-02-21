@@ -42,7 +42,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
                 matches_ID = _re.findall(_regex_ID, data)
             # Site Location, only one location line per BIGF log
                 matches_loc = _re.findall(_regex_loc, data)
-                output.write("{ID}  ID  {IERS} {loc_2} {loc_1}\n".format(ID=matches_ID[0][1], IERS=matches_ID[0][3] if matches_ID[0][3] != '' else 'NONE',
+                output.write("{ID}  ID  {IERS} {loc_2} {loc_1}\n".format(ID=matches_ID[0][1], IERS=matches_ID[0][3] if matches_ID[0][3] != '' else 'UNKNOWN',
                                                                 loc_2=matches_loc[0][1], loc_1=matches_loc[0][2]))
 
                 output.write("{ID}  STATE 1-01-01 00:00:00 {X:.15e}  {Y:.15e} {Z:.15e} {X_v:.15e}  {Y_v:.15e} {Z_v:.15e}\n".format(ID=matches_ID[0][1],
