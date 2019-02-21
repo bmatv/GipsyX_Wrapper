@@ -57,7 +57,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
                     for groupNum in range(0, len(match.groups())):
                         groupNum = groupNum + 1
                     rec.append(match.groups())
-                    output.write("{ID}  RX {d_inst} {t_inst}:00 {rec_type} {rec_num} {rec_fw_v}\n".format(ID=matches_ID[0][1], d_inst=rec[matchNum][5], t_inst=rec[
+                    output.write("{ID}  RX {d_inst} {t_inst}:00 {rec_type} # {rec_num} {rec_fw_v}\n".format(ID=matches_ID[0][1], d_inst=rec[matchNum][5], t_inst=rec[
                         matchNum][7] if rec[matchNum][7] != '' else '00:00', rec_type=rec[matchNum][0], rec_num=rec[matchNum][2], rec_fw_v=rec[matchNum][3]))
             # Antenna Information
                 ant = []
