@@ -15,6 +15,8 @@ class gd2e_class:
                  rate = 300,
                  gnss_products_dir = '/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final',
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
+                 GPS_enabled = True,
+                 GLO_enabled = True,
                  num_cores = 8):
         
         self.project_name = project_name
@@ -35,6 +37,8 @@ class gd2e_class:
         self.ionex_type=ionex_type
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
+        self.GPS_enabled = GPS_enabled
+        self.GLO_enabled = GLO_enabled
 
         
     # def analyse(self):
@@ -51,7 +55,12 @@ class gd2e_class:
     def gen_VMF1_tropNom(self):
         gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
     def gen_trees(self):
-        return gx_trees.gen_trees(ionex_type=self.ionex_type,tmp_dir=self.tmp_dir,tree_options=self.tree_options,blq_file=self.blq_file)
+        return gx_trees.gen_trees(ionex_type=self.ionex_type,
+        tmp_dir=self.tmp_dir,
+        tree_options=self.tree_options,
+        blq_file=self.blq_file,
+        GPS=self.GPS_enabled,
+        GLO=self.GLO_enabled)
     def gd2e(self):
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir)
         return gx_compute.gd2e(gnss_products_dir=self.gnss_products_dir,
