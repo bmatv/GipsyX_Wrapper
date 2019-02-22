@@ -118,9 +118,11 @@ def _drinfo(dr_file):
     site_name = dr_Info_raw.iloc[4, 0].strip()
     transmitter_types = _np.unique(
         ((dr_Info_raw.iloc[6:, 0]).str.strip()).str[:1].values)
+    GPS_present = _np.max(_np.isin(transmitter_types,'G'))
+    GLO_present = _np.max(_np.isin(transmitter_types,'R'))
 
     return _np.asarray(( site_name, number_of_records, _np.datetime64(timeframe[1]), _np.datetime64(timeframe[2]),
-                        number_of_receivers, number_of_transmitters,transmitter_types, dr_file))
+                        number_of_receivers, number_of_transmitters,GPS_present,GLO_present, dr_file),dtype=object)
 
 def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
     ''' Takes a list of all the rnx files of the project that were converted with rnxEditGde.py. rnx_files_in_out is essentially an array of shape: [[rnx_in_path,rnx_out_path],...]'''
