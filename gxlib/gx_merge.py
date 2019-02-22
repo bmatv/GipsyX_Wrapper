@@ -6,29 +6,32 @@ from multiprocessing import Pool as _Pool
 from .gx_aux import J2000origin
 
 
-def get_merge_table(tmp_dir):
+def get_merge_table(tmp_dir,mode=None):
     ''' tmp_dir is expected to have drinfo.npz file produced by get_drinfo function
     Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 30 hours files centerd on the midday.
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
     drinfo = drinfo_file['drinfo']
     
-    #function for gps records. Othervise no-gps files won't be processed and will always be present in gd2e output
-    def hasGPS(arr):
-        return _np.max(_np.isin(arr,'G')) 
-    
+    modes = [None, 'GPS', 'GLONASS','GPS+GLONASS']
+    if mode not in modes:
+        raise ValueError("Invalid mode. Expected one of: %s" % modes)
+
 
     '''Creating classes according to record length'''
     dr_classes = _np.ndarray((len(drinfo)),dtype=object)
     for i in range(len(drinfo)):
+        if mode is None:
+            station_record = drinfo[i]
+        elif mode == 'GPS':
+            station_record = drinfo[i][drinfo[i][:,-3] == True]
+        elif mode == 'GLONASS':
+            station_record = drinfo[i][drinfo[i][:,-2] == True]
+        elif mode == 'GPS+GLONASS':
+            station_record = drinfo[i][(drinfo[i][:,-3] == True)&(drinfo[i][:,-2] == True)]
         
-        gps_transmitter = _np.ndarray((len(drinfo[i])),dtype=bool)
-        for j in range(len(drinfo[i])):
-            gps_transmitter[j] = hasGPS(drinfo[i][j,-2])
-        gps_drinfo = drinfo[i][gps_transmitter]
         
-        
-        station_record = gps_drinfo #filtered station record
+#         station_record = gps_drinfo #filtered station record
         completeness = _np.zeros((len(station_record)),dtype=_np.int)
         drinfo_rec_time = (station_record[:,3].astype('datetime64[h]')-station_record[:,2].astype('datetime64[h]')).astype(_np.int)
         
@@ -78,9 +81,10 @@ def get_merge_table(tmp_dir):
         dr_classes[i] = _np.column_stack((completeness,
                                             station_record[:,2], #record start time
                                             station_record[:,3], #record end time
-                                            _np.roll(station_record[:,7],1),
-                                            station_record[:,7],
-                                            _np.roll(station_record[:,7],-1)
+                                            _np.roll(station_record[:,-1],1), #filename previous
+                                            station_record[:,-1], #filename
+                                            _np.roll(station_record[:,-1],-1), #filename next
+                                          
                                         ))
         #     return dataRecordInfo
     return dr_classes
