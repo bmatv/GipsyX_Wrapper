@@ -1018,8 +1018,7 @@ penna_k_randomwalk_m4 = [[
     
         ],
         #Pop values. Values that will be eliminated
-        ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj',
-        'GRN_STATION_CLK_WHITE:Tides:OceanLoad']]
+        ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj']]
 
 #Pseudorange
 pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
@@ -1032,7 +1031,8 @@ pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath:Platforms', '.* R.*']]
 
-pseudo_range_gps = [['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS', ''],
+pseudo_range_gps = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
+['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:ElDepWeight', 'SqrtSin'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:PostSmoothEdit', '2e5 2e4 12.5 10 5 2.5'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath', ''],
@@ -1048,7 +1048,8 @@ carrier_phase_glo = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath:Platforms', '.* R.*']]
 
-carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS', ''],
+carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
+['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias:StochasticAdj', '3.0e8 3.0e8 DATADRIVEN WHITENOISE'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
