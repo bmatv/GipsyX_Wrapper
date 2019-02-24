@@ -72,8 +72,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
         input_tree.entries['Global:Ion2nd:StecModel:IonexFile'] = _treeUtils.treevalue(ionex_files[i])
 
         #Adding options to default tree. These options are stored as tree_options[0]
-        for option in tree_options[0]:
-            input_tree.entries[option[0]] = _treeUtils.treevalue(option[1])  # write standard parameters
+        # for option in tree_options[0]:
+        #     input_tree.entries[option[0]] = _treeUtils.treevalue(option[1])  # write standard parameters
         #Add blq file location manually. At this step will override any tree option
         input_tree.entries['GRN_STATION_CLK_WHITE:Tides:OceanLoadFile'] =  _treeUtils.treevalue(blq_file)
 
