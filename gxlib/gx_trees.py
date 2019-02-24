@@ -1,7 +1,10 @@
 import pandas as _pd
 import glob as _glob
 import os as _os, sys as _sys
-from ..trees_options import carrier_phase_glo, carrier_phase_gps, pseudo_range_glo, pseudo_range_gps
+
+_sys.path.append('..')
+
+from trees_options import carrier_phase_glo, carrier_phase_gps, pseudo_range_glo, pseudo_range_gps
 
 _PYGCOREPATH="{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],
                             _sys.version_info[0], _sys.version_info[1])
@@ -19,7 +22,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
-        
+
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
     GPS_DataLink = pseudo_range_gps + carrier_phase_gps
     GLONASS_DataLink = pseudo_range_glo + carrier_phase_glo
