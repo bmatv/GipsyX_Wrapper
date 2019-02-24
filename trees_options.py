@@ -1019,10 +1019,7 @@ penna_k_randomwalk_m4 = [[
         ],
         #Pop values. Values that will be eliminated
         ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj',
-        'GRN_STATION_CLK_WHITE:Tides:OceanLoad',
-        'GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj',
-        'GRN_STATION_CLK_WHITE:Trop:GradNorth:StochasticAdj',
-        'GRN_STATION_CLK_WHITE:Trop:GradEast:StochasticAdj']]
+        'GRN_STATION_CLK_WHITE:Tides:OceanLoad']]
 
 #Pseudorange
 pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
