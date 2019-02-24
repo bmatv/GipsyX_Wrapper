@@ -6,7 +6,7 @@ class gd2e_class:
                  stations_list,
                  years_list,
                  tree_options,
-                 mode=,
+                 mode,
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
