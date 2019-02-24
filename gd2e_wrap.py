@@ -6,6 +6,7 @@ class gd2e_class:
                  stations_list,
                  years_list,
                  tree_options,
+                 mode='GPS',
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
@@ -15,8 +16,6 @@ class gd2e_class:
                  rate = 300,
                  gnss_products_dir = '/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final',
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
-                 GPS_enabled = True,
-                 GLO_enabled = True,
                  num_cores = 8):
         
         self.project_name = project_name
@@ -37,10 +36,13 @@ class gd2e_class:
         self.ionex_type=ionex_type
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
-        self.GPS_enabled = GPS_enabled
-        self.GLO_enabled = GLO_enabled
+        self.mode = self._check_mode(mode)
 
-        
+    def _check_mode(self,mode):
+        modes = ['GPS', 'GLONASS','GPS+GLONASS']
+        if mode not in modes:  raise ValueError("Invalid mode. Expected one of: %s" % modes)
+        else: return mode
+    
     # def analyse(self):
     #     return gx_aux.analyse(rnx_files=self.rnx_files,stations_list=self.stations_list,years_list=self.years_list)
     def rnx2dr(self):
@@ -50,19 +52,22 @@ class gd2e_class:
         gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
     
     def dr_merge(self):
+        '''This is the only stage where merge_table is being executed with mode=None'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None)
         gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list)
-    def gen_VMF1_tropNom(self):
+    def gen_tropNom(self):
+        '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
+        Generates zenith tropnominals from VMF1 model files.'''
         gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
     def gen_trees(self):
         return gx_trees.gen_trees(ionex_type=self.ionex_type,
         tmp_dir=self.tmp_dir,
         tree_options=self.tree_options,
-        blq_file=self.blq_file,
-        GPS=self.GPS_enabled,
-        GLO=self.GLO_enabled)
+        blq_file=self.blq_file, 
+        mode = self.mode)
     def gd2e(self):
-        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir)
+        '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
+        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir,mode=self.mode)
         return gx_compute.gd2e(gnss_products_dir=self.gnss_products_dir,
                 merge_tables=merge_table,
                 num_cores=self.num_cores,
