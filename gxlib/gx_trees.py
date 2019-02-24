@@ -23,6 +23,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
 
+    tmp_options_add, tmp_options_remove = tree_options #Adding tmp vars to prevent original options from overwriting
+
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
     GPS_DataLink = pseudo_range_gps + carrier_phase_gps
     GLONASS_DataLink = pseudo_range_glo + carrier_phase_glo
@@ -33,7 +35,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     elif mode == 'GPS+GLONASS':
         DataLink = (GPS_DataLink + GLONASS_DataLink)
     
-    tree_options[0] += DataLink
+    tmp_options_add += DataLink
 
 
     # reading ionex filenames
@@ -53,7 +55,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
             _os.makedirs(out_df['tree_path'].iloc[i])
 
         #Removing options from default tree. These options are stored as tree_options[1]
-        for option in tree_options[1]:
+        for option in tmp_options_remove:
             input_tree.entries.pop(option, None)
 
         #Removing all 'Global:DataTypes:IonoFree' options from default tree
@@ -72,7 +74,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
         input_tree.entries['Global:Ion2nd:StecModel:IonexFile'] = _treeUtils.treevalue(ionex_files[i])
 
         #Adding options to default tree. These options are stored as tree_options[0]
-        for option in tree_options[0]:
+        for option in tmp_options_add:
             input_tree.entries[option[0]] = _treeUtils.treevalue(option[1])  # write standard parameters
         #Add blq file location manually. At this step will override any tree option
         input_tree.entries['GRN_STATION_CLK_WHITE:Tides:OceanLoadFile'] =  _treeUtils.treevalue(blq_file)
