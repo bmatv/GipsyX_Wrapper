@@ -27,13 +27,13 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     GPS_DataLink = pseudo_range_gps + carrier_phase_gps
     GLONASS_DataLink = pseudo_range_glo + carrier_phase_glo
     if mode == 'GPS':
-        tree_options[0] += GPS_DataLink
+        DataLink = GPS_DataLink
     elif mode == 'GLONASS':
-        tree_options[0] += GLONASS_DataLink
+        DataLink = GLONASS_DataLink
     elif mode == 'GPS+GLONASS':
-        tree_options[0] += (GPS_DataLink + GLONASS_DataLink)
+        DataLink = (GPS_DataLink + GLONASS_DataLink)
     
-    
+    tree_options[0] += DataLink
 
 
     # reading ionex filenames
