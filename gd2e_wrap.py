@@ -50,7 +50,7 @@ class gd2e_class:
         gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
     
     def dr_merge(self):
-        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir)
+        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None)
         gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list)
     def gen_VMF1_tropNom(self):
         gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
