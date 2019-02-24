@@ -41,7 +41,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     # reading ionex filenames
     out_df = _pd.DataFrame()
 #         default_tree = '/home/bogdanm/Desktop/GipsyX_trees/Trees_kinematic_VMF1_IONEX/ppp_0.tree'
-    default_tree = _os.path.join(_os.environ['GCORE'], '/share/gd2e/DefaultTreeSeries/PPP/ppp_0.tree')
+    default_tree = _os.path.join(_os.environ['GCORE'], 'share/gd2e/DefaultTreeSeries/PPP/ppp_0.tree')
     input_tree = _treeUtils.tree(default_tree)
     ionex_files = _pd.Series(sorted(_glob.glob(tmp_dir+'/IONEX_merged/' + ionex_type + '*')))
     ionex_basenames = ionex_files.str.split('/', expand=True).iloc[:, -1]
