@@ -23,7 +23,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
 
-    tmp_options_add, tmp_options_remove = tree_options.copy() #Adding tmp vars to prevent original options from overwriting
+    tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
 
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
     GPS_DataLink = pseudo_range_gps + carrier_phase_gps
