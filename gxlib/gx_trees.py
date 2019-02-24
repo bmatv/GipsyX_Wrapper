@@ -1,6 +1,7 @@
 import pandas as _pd
 import glob as _glob
 import os as _os, sys as _sys
+from ..trees_options import carrier_phase_glo, carrier_phase_gps, pseudo_range_glo, pseudo_range_gps
 
 _PYGCOREPATH="{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],
                             _sys.version_info[0], _sys.version_info[1])
@@ -9,10 +10,29 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file,GPS = True,GLO = False):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
-    Together with this drInfo files with specific properties will be filtered'''
+    Together with this drInfo files with specific properties will be filtered
+    Expects mode to be one of the following: [None, 'GPS', 'GLONASS','GPS+GLONASS']. Will be fetched by gd2e_wrap automatically'''
+
+    modes = ['GPS', 'GLONASS','GPS+GLONASS']
+    if mode not in modes:
+        raise ValueError("Invalid mode. Expected one of: %s" % modes)
+        
+    #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
+    GPS_DataLink = pseudo_range_gps + carrier_phase_gps
+    GLONASS_DataLink = pseudo_range_glo + carrier_phase_glo
+    if mode == 'GPS':
+        tree_options[0] += GPS_DataLink
+    elif mode == 'GLONASS':
+        tree_options[0] += GLONASS_DataLink
+    elif mode == 'GPS+GLONASS':
+        tree_options[0] += (GPS_DataLink + GLONASS_DataLink)
+    
+    
+
+
     # reading ionex filenames
     out_df = _pd.DataFrame()
 #         default_tree = '/home/bogdanm/Desktop/GipsyX_trees/Trees_kinematic_VMF1_IONEX/ppp_0.tree'
@@ -41,7 +61,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file,GPS = True,GLO = False)
                 ion_entries.append(key)
         # ion_entries.sort()
 
-        #Removing selected keys
+        #Removing all selected datalink keys
         for option in ion_entries:
             input_tree.entries.pop(option, None)
 
