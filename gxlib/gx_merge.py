@@ -9,7 +9,7 @@ from .gx_aux import J2000origin
 def get_merge_table(tmp_dir,mode=None):
     '''
     Reads drInfo file and outputs merge_table for all available stations in drInfo in the same order.
-    
+
     Because of JPL's specific 30 hour products for GPS GipsyX is checking if centerd file is 30 hours and if so:
     fetch one product day even with 24 hours products as ESA. To make GipsyX fetch more product days - 32 hour files 
     should be created. In this case GipsyX will understand that 30h products are not enought and will extract three
@@ -102,8 +102,8 @@ def _merge(merge_set):
     '''
     if not _os.path.isfile((merge_set[4])[:-6]+'_32h.dr.gz'):
         #Computing time boundaries of the merge. merge_set[1] is file begin time
-        merge_begin = ((merge_set[1].astype('datetime64') - _np.timedelta64( 4,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
-        merge_end =   ((merge_set[1].astype('datetime64') + _np.timedelta64(28,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 4,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(28,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
 
         drMerge_proc = _Popen(['drMerge', merge_begin, merge_end,\
                     _os.path.basename(merge_set[4])[:-6]+'_32h.dr.gz',\
