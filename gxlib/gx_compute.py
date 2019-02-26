@@ -122,6 +122,7 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     
     filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
     filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_32h.dr.gz'
+    #From now files are 32 hours to overcome GipsyX check if files is 30 hours then use one product day
                 
     tmp['filename'] = filename
     tmp['class'] = tmp_merge_table[:,0]
