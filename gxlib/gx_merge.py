@@ -70,22 +70,15 @@ def get_merge_table(tmp_dir,mode=None):
         end_n_hour=_np.roll(station_record[:,3],-1).astype('datetime64[h]')
 
 
-        B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))\
-        &(start_c_day-start_p_hour >= _np.timedelta64(4,'[h]'))
+        B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))&(start_c_day-start_p_hour >= _np.timedelta64(4,'[h]'))
 
-        B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))\
-        &(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]'))
+        B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))&(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]'))
 
-        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(28,'[h]')) 
-        #start_c_day is the same as end_c_day
-
-        B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))&(start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) 
-        #check if next file is next day without missing days in between 
+        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(28,'[h]')) #start_c_day is the same as end_c_day
+        
+        B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))&(start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) #check if next file is next day without missing days in between 
+        
          
-
-
-#             completeness[(B1c1 & B1c2 & B2c1 & B2c2 & completeness==2)] = 3
-
         completeness[B1c1 & B1c2 & B2c1 & B2c2 & (completeness==2)] = 3
         dr_classes[i] = _np.column_stack((completeness,
                                             station_record[:,2], #record start time
