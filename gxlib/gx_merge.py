@@ -76,11 +76,12 @@ def get_merge_table(tmp_dir,mode=None):
         B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))\
         &(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]'))
 
-        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))& #start_c_day is the same as end_c_day
-        (end_n_hour-start_c_day >= _np.timedelta64(28,'[h]'))
+        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(28,'[h]')) 
+        #start_c_day is the same as end_c_day
 
-        B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))& #check if next file is next day without missing days in between 
-        (start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) 
+        B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))&(start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) 
+        #check if next file is next day without missing days in between 
+         
 
 
 #             completeness[(B1c1 & B1c2 & B2c1 & B2c2 & completeness==2)] = 3
