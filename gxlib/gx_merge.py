@@ -7,8 +7,14 @@ from .gx_aux import J2000origin
 
 
 def get_merge_table(tmp_dir,mode=None):
-    ''' tmp_dir is expected to have drinfo.npz file produced by get_drinfo function
-    Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 30 hours files centerd on the midday.
+    '''Because of JPL's specific 30 hour products for GPS GipsyX is checking if centerd file is 30 hours and if so:
+    fetch one product day even with 24 hours products as ESA. To make GipsyX fetch more product days - 32 hour files 
+    should be created. In this case GipsyX will understand that 30h products are not enought and will extract three
+    days of products. This completely solves the problem with products extrapolation and gives ability of proper 
+    processing of 30 hour files as GPS as GLONASS successfully overcoming day-boundary effects.
+
+    tmp_dir is expected to have drinfo.npz file produced by get_drinfo function
+    Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 32 hours files centered on the midday.
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
     drinfo = drinfo_file['drinfo']
