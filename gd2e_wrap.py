@@ -104,3 +104,6 @@ class gd2e_class:
                               A_North=A_North,
                               A_Vertical=A_Vertical,
                               num_cores = self.num_cores)
+    def remove_merged(self):
+        gx_aux.remove_30h(self.tmp_dir)
+        gx_aux.remove_32h(self.tmp_dir)
