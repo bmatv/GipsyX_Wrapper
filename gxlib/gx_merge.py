@@ -19,8 +19,8 @@ def get_merge_table(tmp_dir,mode=None):
 
 
     '''Creating classes according to record length'''
-    dr_classes = _np.ndarray((len(drinfo)),dtype=object)
-    for i in range(len(drinfo)):
+    dr_classes = _np.ndarray((drinfo.shape[0]),dtype=object)
+    for i in range(drinfo.shape[0]):
         if mode is None:
             station_record = drinfo[i]
         elif mode == 'GPS':
