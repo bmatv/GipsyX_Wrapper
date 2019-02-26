@@ -7,7 +7,10 @@ from .gx_aux import J2000origin
 
 
 def get_merge_table(tmp_dir,mode=None):
-    '''Because of JPL's specific 30 hour products for GPS GipsyX is checking if centerd file is 30 hours and if so:
+    '''
+    Reads drInfo file and outputs merge_table for all available stations in drInfo in the same order.
+    
+    Because of JPL's specific 30 hour products for GPS GipsyX is checking if centerd file is 30 hours and if so:
     fetch one product day even with 24 hours products as ESA. To make GipsyX fetch more product days - 32 hour files 
     should be created. In this case GipsyX will understand that 30h products are not enought and will extract three
     days of products. This completely solves the problem with products extrapolation and gives ability of proper 
@@ -92,18 +95,18 @@ def get_merge_table(tmp_dir,mode=None):
     return dr_classes
 
 def _merge(merge_set):
-    '''Expects a merge set of 3 files [class,time,file0,file1,file2]. Merges all files into file1_30h. file1 must be a class 3 file
-    Constructs 30h arcs with drMerge.py.
+    '''Expects a merge set of 3 files [class,time,file0,file1,file2]. Merges all files into file1_20h. file1 must be a class 3 file
+    Constructs 32h files with drMerge.py.
     Sample input:
     drMerge.py -i isba0940.15o.dr ohln0940.15o.dr -start 2015-04-04 00:00:00 -end 2015-04-04 04:00:00
     '''
-    if not _os.path.isfile((merge_set[4])[:-6]+'_30h.dr.gz'):
-        #Computing time boundaries of the merge
-        merge_begin = ((merge_set[1].astype('datetime64') - _np.timedelta64( 3,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
-        merge_end =   ((merge_set[1].astype('datetime64') + _np.timedelta64(27,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+    if not _os.path.isfile((merge_set[4])[:-6]+'_32h.dr.gz'):
+        #Computing time boundaries of the merge. merge_set[1] is file begin time
+        merge_begin = ((merge_set[1].astype('datetime64') - _np.timedelta64( 4,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_end =   ((merge_set[1].astype('datetime64') + _np.timedelta64(28,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
 
         drMerge_proc = _Popen(['drMerge', merge_begin, merge_end,\
-                    _os.path.basename(merge_set[4])[:-6]+'_30h.dr.gz',\
+                    _os.path.basename(merge_set[4])[:-6]+'_32h.dr.gz',\
                     merge_set[3], merge_set[4], merge_set[5] ],\
                     cwd=_os.path.dirname(merge_set[4]))
         drMerge_proc.wait()
