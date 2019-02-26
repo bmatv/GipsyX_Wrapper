@@ -192,3 +192,13 @@ def get_ref_xyz_sites(staDb_path):
     staDb_xyz['Station'] = xyz_table[0]
     staDb_xyz[['X','Y','Z']] = xyz_table[[4,5,6]].astype('float')
     return staDb_xyz
+
+def remove_30h(tmp_dir):
+    #'rnx_dr/SITE/YEAR/DAY/*_30h.dr.gz
+    files = _glob.glob(_os.path.join(tmp_dir,'rnx_dr/*/*/*/*_30h.dr.gz'))
+    for file in files: _os.remove(file)
+
+def remove_32h(tmp_dir):
+    #'rnx_dr/SITE/YEAR/DAY/*_32h.dr.gz
+    files = _glob.glob(_os.path.join(tmp_dir,'rnx_dr/*/*/*/*_32h.dr.gz'))
+    for file in files: _os.remove(file)
