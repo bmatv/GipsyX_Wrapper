@@ -142,7 +142,7 @@ def _get_tdps_npz(file):
     time_residuals = tmp_residuals[:,0].astype(int)
 
     #begin_timeframe as file time median should always work
-    begin_timeframe = ((time_solution.median()+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    begin_timeframe = ((_np.median(time_solution)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
     end_timeframe = begin_timeframe + 86400
         
     solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
