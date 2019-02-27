@@ -107,3 +107,6 @@ class gd2e_class:
     def remove_merged(self):
         gx_aux.remove_30h(self.tmp_dir)
         gx_aux.remove_32h(self.tmp_dir)
+    def remove_gathers(self):
+        gx_extract.rm_solutions_gathers(self.tmp_dir,self.project_name)
+        gx_extract.rm_residuals_gathers(self.tmp_dir,self.project_name)
