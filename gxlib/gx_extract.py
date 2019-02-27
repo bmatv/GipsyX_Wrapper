@@ -134,19 +134,11 @@ def _get_tdps_npz(file):
     time_solution = tmp_solution[:,0].astype(int)
     time_residuals = tmp_residuals[:,0].astype(int)
 
-    
-    if (time_solution[-1] - time_solution[0])/3600 > 3:
-        #checking the total length of the record. In case total length is less than 3 hours, when adding 3 hours it can return wrong day.
+    #begin_timeframe as file time median should always work
+    begin_timeframe = ((time_solution.median()+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    end_timeframe = begin_timeframe + 86400
         
-        #clipping to 24 hours on the fly. Solution and Residuals are cut with the same mask
-        begin_timeframe = ((time_solution[0] + J2000origin + _np.timedelta64(3,'h')).astype('datetime64[D]')- J2000origin).astype(int)
-        end_timeframe = begin_timeframe + 86400
-        
-        solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
-        residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
+    solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
+    residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
 
-        return solution,residuals
-    else:
-        #print('file too short ', file) 
-        #normally shouldn't happened as files were filtered after conversion and short files won't be here
-        return tmp_solution,tmp_residuals
+    return solution,residuals
