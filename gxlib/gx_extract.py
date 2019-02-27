@@ -138,14 +138,13 @@ def _get_tdps_npz(file):
     tmp_solution = _np.load(file=file)['tdp']
     tmp_residuals = _np.load(file=file)['finalResiduals']
 
-    time_solution = tmp_solution[:,0].astype(int)
-    time_residuals = tmp_residuals[:,0].astype(int)
+    time_solution = tmp_solution[:,0]
 
     #begin_timeframe as file time median should always work
-    begin_timeframe = ((_np.median(time_solution)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    begin_timeframe = ((_np.median(time_solution).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
     end_timeframe = begin_timeframe + 86400
         
     solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
-    residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
+    residuals = tmp_residuals[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
 
     return solution,residuals
