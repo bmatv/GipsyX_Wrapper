@@ -135,16 +135,17 @@ def _gather_tdps(station_files,num_cores):
 def _get_tdps_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
     Clips data to 24 hours of the same day if the file is bigger'''
-    tmp_solution = _np.load(file=file)['tdp']
-    tmp_residuals = _np.load(file=file)['finalResiduals']
+    tmp  = _np.load(file=file)
+    tmp_solution = tmp['tdp']
+    tmp_residuals = tmp['finalResiduals']
 
     time_solution = tmp_solution[:,0]
-
+    time_residuals = tmp_residuals[:,0]
     #begin_timeframe as file time median should always work
     begin_timeframe = ((_np.median(time_solution).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
     end_timeframe = begin_timeframe + 86400
         
     solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
-    residuals = tmp_residuals[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
+    residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
 
     return solution,residuals
