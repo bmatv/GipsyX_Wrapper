@@ -32,6 +32,11 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
             print('Found', paths_tmp[i], 'Loading...')
             gather[i] = _pd.read_pickle(paths_tmp[i])
     return gather
+def rm_solutions_gathers(tmp_dir,project_name):
+    _os.path.join(tmp_dir,'gd2e',project_name) + '/*/solutions.pickle'
+def rm_residuals_gathers(tmp_dir,project_name):
+    _os.path.join(tmp_dir,'gd2e',project_name) + '/*/residuals.pickle'
+
 
 def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
     stations_list = _np.core.defchararray.upper(stations_list)
