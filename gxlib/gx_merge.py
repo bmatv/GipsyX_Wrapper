@@ -55,10 +55,10 @@ def get_merge_table(tmp_dir,mode=None):
 
         # BOUNDARY_1                                    # BOUNDARY_2
 
-        # start_c - start_p         <=24h & > 4h        # end_n   - start_c + 24h   <=48h & > 26h
+        # start_c - start_p         <=24h & >=4h        # end_n   - start_c  <=48h & >=28h
         #  day      hour                                #  hour     day
 
-        # start_c - end_p           <1h   & >=0m        # start_n - start_c + 24h   <25h  & >=24h
+        # start_c - end_p           <=1h  & >=0m        # start_n - start_c  <=25h  & >=24h | Only gaps of up to 1h are accepted
         #  day      hour                                #  hour     day
         # Missing data of 1 hour is acceptable
         #-----------------------------------------------------------------------
