@@ -55,10 +55,10 @@ def get_merge_table(tmp_dir,mode=None):
 
         # BOUNDARY_1                                    # BOUNDARY_2
 
-        # start_c - start_p         <=24h & > 2h        # end_n   - start_c + 24h   <=48h & > 26h
+        # start_c - start_p         <=24h & > 4h        # end_n   - start_c + 24h   <=48h & > 26h
         #  day      hour                                #  hour     day
 
-        # start_c - end_p           <1h   & >=0h        # start_n - start_c + 24h   <25h  & >=24h
+        # start_c - end_p           <1h   & >=0m        # start_n - start_c + 24h   <25h  & >=24h
         #  day      hour                                #  hour     day
         # Missing data of 1 hour is acceptable
         #-----------------------------------------------------------------------
@@ -75,7 +75,7 @@ def get_merge_table(tmp_dir,mode=None):
 
         B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))&(start_c_day-start_p_hour >= _np.timedelta64(4,'[h]'))
 
-        B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))&(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]'))
+        B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))&(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]')) #value should be positive
 
         B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(28,'[h]')) #start_c_day is the same as end_c_day
         
