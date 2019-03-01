@@ -4,6 +4,17 @@ import pandas as _pd
 from gxlib.gx_aux import J2000origin as _J2000origin
 from gxlib.gx_filter import _stretch, _avg_30
 
+import sys as _sys,os as _os
+import shutil as _shutil
+from subprocess import Popen as _Popen, PIPE as _PIPE
+#Converting staDb coordinates to llh for eterna ini file
+PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],
+                                          _sys.version_info[0], _sys.version_info[1])
+if PYGCOREPATH not in _sys.path:
+    _sys.path.insert(0, PYGCOREPATH)
+
+import gcore.StationDataBase as StationDataBase
+
 
 def _write_ETERNA(dataset, filename,sampling = 300):
     def a(inp):
@@ -103,3 +114,183 @@ def env2eterna(dataset):
     filt1_st = _stretch(filt1)
     filt1_avg = _avg_30(filt1_st)
     return _interp_short_gaps(filt1_avg)
+
+ini_extra = '''
+STATGRAVIT=      0.        #PRETERNA stations gravity in m/s**2
+STATAZIMUT=      0.        #PRETERNA stations azimuth in degree from north
+TIDALCOMPO=      2         #PRETERNA tidal component, see manual
+
+TIDALPOTEN=      4        #CHOICE OF POTENTIAL DEVELOPMENT 4=TAMURA
+                          #                                7=HW95
+INITIALEPO= 2003  1  1
+PREDICSPAN= 35063
+#AMTRUNCATE=      1.D-10   #truncation threshold for tidal waves(Complete)
+PRINTDEVEL=      0        #ETERNA print param. for tidal development (1=yes)
+#SEARDATLIM=     -1.       #ETERNA search for data error threshold
+#NUMHIGPASS=      1        #ANALYZE highpass filtering = 1
+
+#NUMFILNAME=n30m30m2.nlf   #ANALYZE low pass filter for hourly data
+PRINTOBSER=      0        #ETERNA print parameter for observations (1=yes)
+#PRINTLFOBS=      1        #ETERNA print parameter fo lowpass filtered obs.
+RIGIDEARTH=      1        #ETERNA parameter for rigid earth model (1=yes)
+HANNWINDOW=      0        #ETERNA parameter for Hann-window (1=yes)
+QUICKLOOKA=      0        #ETERNA parameter for quick look analysis (1=yes)
+
+WAVEGROUPI=   .000146   .003426  1.000000   .000000 SA    #ETERNA wavegroup
+WAVEGROUPI=   .004709   .010952  1.000000   .000000 SSA   #ETERNA wavegroup
+WAVEGROUPI=   .025811   .031745  1.000000   .000000 MSM   #ETERNA wavegroup
+WAVEGROUPI=   .033406   .044653  1.000000   .000000 MM    #ETERNA wavegroup
+WAVEGROUPI=   .060131   .068640  1.000000   .000000 MSF   #ETERNA wavegroup
+WAVEGROUPI=   .069845   .080798  1.000000   .000000 MF    #ETERNA wavegroup
+WAVEGROUPI=   .096422   .104932  1.000000   .000000 MSTM  #ETERNA wavegroup
+WAVEGROUPI=   .106136   .115412  1.000000   .000000 MTM   #ETERNA wavegroup
+WAVEGROUPI=   .130192   .143814  1.000000   .000000 MSQM  #ETERNA wavegroup
+WAVEGROUPI=   .145166   .249952  1.000000   .000000 MQM   #ETERNA wavegroup
+WAVEGROUPI=   .721499   .833113  1.000000   .000000 SGQ1  #ETERNA wavegroup
+WAVEGROUPI=   .851181   .859691  1.000000   .000000 2Q1   #ETERNA wavegroup
+WAVEGROUPI=   .860895   .870024  1.000000   .000000 SGM1  #ETERNA wavegroup
+WAVEGROUPI=   .887326   .896130  1.000000   .000000 Q1    #ETERNA wavegroup
+WAVEGROUPI=   .897806   .906316  1.000000   .000000 RO1   #ETERNA wavegroup
+WAVEGROUPI=   .921940   .930450  1.000000   .000000 O1    #ETERNA wavegroup
+WAVEGROUPI=   .931963   .940488  1.000000   .000000 TAU1  #ETERNA wavegroup
+WAVEGROUPI=   .958085   .966757  1.000000   .000000 NO1   #ETERNA wavegroup
+WAVEGROUPI=   .968564   .974189  1.000000   .000000 CHI1  #ETERNA wavegroup
+WAVEGROUPI=   .989048   .998029  1.000000   .000000 P1    #ETERNA wavegroup
+WAVEGROUPI=   .999852  1.000148  1.000000   .000000 S1    #ETERNA wavegroup
+WAVEGROUPI=  1.001824  1.013690  1.000000   .000000 K1    #ETERNA wavegroup
+WAVEGROUPI=  1.028549  1.034468  1.000000   .000000 TET1  #ETERNA wavegroup
+WAVEGROUPI=  1.036291  1.044801  1.000000   .000000 J1    #ETERNA wavegroup
+WAVEGROUPI=  1.064840  1.071084  1.000000   .000000 SO1   #ETERNA wavegroup
+WAVEGROUPI=  1.072582  1.080945  1.000000   .000000 OO1   #ETERNA wavegroup
+WAVEGROUPI=  1.099160  1.216398  1.000000   .000000 NU1   #ETERNA wavegroup
+WAVEGROUPI=  1.719380  1.837970  1.000000   .000000 EPS2  #ETERNA wavegroup
+WAVEGROUPI=  1.853919  1.862429  1.000000   .000000 2N2   #ETERNA wavegroup
+WAVEGROUPI=  1.863633  1.872143  1.000000   .000000 MU2   #ETERNA wavegroup
+WAVEGROUPI=  1.888386  1.896749  1.000000   .000000 N2    #ETERNA wavegroup
+WAVEGROUPI=  1.897953  1.906463  1.000000   .000000 NU2   #ETERNA wavegroup
+WAVEGROUPI=  1.923765  1.942754  1.000000   .000000 M2    #ETERNA wavegroup
+WAVEGROUPI=  1.958232  1.963709  1.000000   .000000 LAM2  #ETERNA wavegroup
+WAVEGROUPI=  1.965826  1.976927  1.000000   .000000 L2    #ETERNA wavegroup
+WAVEGROUPI=  1.991786  1.998288  1.000000   .000000 T2    #ETERNA wavegroup
+WAVEGROUPI=  1.999705  2.000767  1.000000   .000000 S2    #ETERNA wavegroup
+WAVEGROUPI=  2.002590  2.013690  1.000000   .000000 K2    #ETERNA wavegroup
+WAVEGROUPI=  2.031287  2.047391  1.000000   .000000 ETA2  #ETERNA wavegroup
+WAVEGROUPI=  2.067578  2.182844  1.000000   .000000 2K2   #ETERNA wavegroup
+WAVEGROUPI=  2.753243  3.081255  1.000000   .000000 M3    #ETERNA wavegroup
+WAVEGROUPI=  3.791963  3.937898  1.000000   .000000 M4    #ETERNA wavegroup
+
+
+#METEOPARAM=         0      3.20airpress. hPa             #ANALYZE meteorol.
+#STORENEQSY=         1
+
+# End of file template.ini'''
+
+def get_staDb_llh(staDb_path):
+    '''Returns dataframe with staDb stations and llh that can be used for eterna ini file or nloadf'''
+    max_t = 3.0e8
+    staDb = StationDataBase.StationDataBase()  # creating staDb object
+
+    
+    staDb.read(staDb_path)# reading staDb into staDb object
+    stns = staDb.getStationList()  # creating array with available station names
+    llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
+                                                 stationList=stns))
+    return _pd.DataFrame(llh_stdb.T,index=stns,columns=['LAT','LON','ELEV'])
+
+from multiprocessing import Pool
+def run_eterna(input_vars):
+    eterna_exec,comp_path = input_vars
+    process = _Popen([eterna_exec],cwd=comp_path,stdout=_PIPE)
+    out, err = process.communicate()
+    #print(err.decode())
+    print(out.decode())
+    
+def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path):
+    '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
+    eterna_exec = _os.path.join(eterna_path,'bin/analyse')
+    commdat_path = _os.path.join(eterna_path,'commdat')
+    comp_path_list = []
+    tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_et')
+        
+    if _os.path.exists(tmp_station_path):
+        _shutil.rmtree(tmp_station_path)
+    if not _os.path.exists(tmp_station_path):
+        _os.makedirs(tmp_station_path)
+
+            
+#     env_et = env2eterna(env_dataset)
+    env_et = env_dataset
+    components = ['e_eterna','n_eterna','v_eterna']
+    for i in range(len(components)):
+        comp_path = _os.path.join(tmp_station_path,components[i])
+        _os.makedirs(comp_path)
+        #create a symlink to commdat folder as needed for eterna
+        _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
+        #Writing Eterna dat file for specific component and station
+        _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800)
+
+        #Writing ini file for specific component and station
+        ini_path = _os.path.join(comp_path,components[i]+'.ini')
+        llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
+        with open(ini_path,'w') as ini_file:
+            ini_file.write('''SENSORNAME= {}\nSAMPLERATE= {}\nSTATLATITU= {}\nSTATLONITU= {}\nSTATELEVAT= {}\nTEXTHEADER= {} {} {} {} '''
+                           .format(station_name,'1800',llh['LAT'],llh['LON'],llh['ELEV'],station_name,'GNSS station',llh['LAT'],llh['LON'] ))
+            ini_file.write(ini_extra)
+
+        #Touch empty default.ini file
+        def_ini_path = _os.path.join(comp_path,'default.ini')
+        with open(def_ini_path,'w'):
+            _os.utime(def_ini_path, None)
+
+        #Writing project file
+        project_path = _os.path.join(comp_path,'project')
+        with open(project_path,'w') as project_file:
+            project_file.write(components[i])
+
+        #Executing ETERNA
+#             run_eterna(eterna_exec,comp_path)
+        comp_path_list.append([eterna_exec,comp_path])
+
+    #Running Eterna analysis of 3 components in parallel
+    with Pool() as p:
+        p.map(run_eterna, comp_path_list)
+
+def extract_et(tmp_et_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
+    '''Function to return blq-like table from 3 component analysis of eterna.'''
+    components = ['v_eterna','e_eterna','n_eterna']
+    df_blq_ampli = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    df_blq_phase = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    for component in components:
+        prn_file = _os.path.join(tmp_et_path,component,component+'.prn')
+        with open(prn_file,'r') as file:
+            data = file.read()
+
+        data_lines = data.split('\n')
+        begin_line = [i for i in range(len(data_lines)) if "adjusted tidal parameters :" in data_lines[i]][0]+6
+
+        data_lines_part = data_lines[begin_line:]
+        end_line = [i for i in range(len(data_lines_part)) if "M4" in data_lines_part[i]][0]
+
+        footer = len(data_lines) - (begin_line+end_line)
+        df = _pd.read_fwf(prn_file,sep='\n',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
+        df['a_'+component] = ((df.theor_a * df.a_factor)/1000).round(5)
+
+
+        df.set_index('wave')
+        coeff = _pd.DataFrame([['Q1',1],['O1',1],['M1',1],['P1',1],['S1',1],['K1',1],['PSI1',1],['PHI1',1],['J1',1],['OO1',1],['14h',1],\
+                              ['MF',0],['MM',0],['SSA',0],\
+                  ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['wave','coeff']).set_index('wave')
+
+
+
+        df.set_index('wave',inplace=True)
+        df['coeff'] = coeff
+
+        df['phase_'+component]= (df['phase'] * -1) - lon*df['coeff']
+
+        df_blq_ampli.loc['a_'+component] =  df['a_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
+        df_blq_phase.loc['phase_'+component] =  df['phase_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
+    df_blq_phase.loc[['phase_v_eterna','phase_n_eterna'],['MF','MM','SSA']] +=180
+    df_blq_phase.loc[['phase_e_eterna'],['MF','MM','SSA']] -=180
+#     return df_blq_phase#.loc[['phase_v_eterna','phase_n_eterna']][['MF','MM','SSA']]
+    return _pd.concat([df_blq_ampli,df_blq_phase])
