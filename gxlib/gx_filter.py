@@ -19,9 +19,9 @@ def _filter_value(dataset,std_coeff=3):
     mask = (dataset['value']<=sigma_cut).min(axis=1)
     return dataset[mask]
 
-def _filter_sigma(dataset,std_coeff=3):
-    sigma_cut = dataset['sigma'].median() + dataset['sigma'].std()*std_coeff
-    mask = (dataset['sigma']<=sigma_cut).min(axis=1)
+def _filter_sigma(dataset):
+    sigma_cut = 0.1 #100 mm hard sigma cut ignoring clk sigma values
+    mask = (dataset.sigma.iloc[:,[1,2,3]]<=sigma_cut).min(axis=1)
     return dataset[mask]
 
 def _filter_clk(dataset):
@@ -32,11 +32,14 @@ def _filter_clk(dataset):
 def filter_tdps(tdps,std_coeff=3,margin=0.1):
     filtered_tdps = _np.ndarray((tdps.shape),dtype = object)
     for i in range(tdps.shape[0]):
-        filtered_tdps[i] = _filter_clk(dataset = tdps[i])
+
+        clk_filter = _filter_clk(dataset = tdps[i])
+        sigma_filter = _filter_sigma(dataset = clk_filter)
+        filtered_tdps[i] = sigma_filter
        
         # sigma_filter = _filter_sigma(dataset = clk_filter, std_coeff=std_coeff)
-        # print('Clk.Bias Filter: {:.2f}% left. Sigmas Filter: {:.2f}% left.'.format(clk_filter.shape[0]/tdps[i].shape[0]*100,sigma_filter.shape[0]/tdps[i].shape[0]*100))
-        print('Clk.Bias Filter: {:.2f} left.'.format(filtered_tdps[i].shape[0]/tdps[i].shape[0]*100))
+        print('Clk.Bias Filter: {:.2f} left. Sigmas Filter: {:.2f} left.'.format(clk_filter.shape[0]/tdps[i].shape[0]*100,sigma_filter.shape[0]/tdps[i].shape[0]*100))
+        # print('Clk.Bias Filter: {:.2f} left. Sigmas Filter: {:.2f} left.'.format(filtered_tdps[i].shape[0]/tdps[i].shape[0]*100))
     return filtered_tdps
 
 '''30-minute averaging here'''
