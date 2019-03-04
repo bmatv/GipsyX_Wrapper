@@ -25,7 +25,7 @@ def _filter_sigma(dataset,std_coeff=3):
     return dataset[mask]
 
 def _filter_clk(dataset):
-    mask = dataset.sigma.iloc[:,0] < 2e8
+    mask = dataset.sigma.iloc[:,0] < 1e8
     # mask =(dataset['value'].iloc[:,0].abs() > 0.01) & (dataset['value'].iloc[:,0].abs() <100)
     return dataset[mask]
     
