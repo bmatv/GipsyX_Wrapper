@@ -159,7 +159,9 @@ def _xyz2env(dataset,stations_list,reference_df):
         
         
         xyz_value = dataset[i]['value'].iloc[:,[1,2,3]] 
-        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[1,2,3]] 
+        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[1,2,3]]
+        xyz_sigma = dataset[i]['sigma'].iloc[:,[1,2,3]] 
+
         refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
 #             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
 #             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
@@ -169,11 +171,14 @@ def _xyz2env(dataset,stations_list,reference_df):
         diff_nomvalue = xyz_nomvalue - refxyz #XYZ
         
         diff_env_value = rot.dot(diff_value.T)*1000
-        diff_env_nomvalue = rot.dot(diff_nomvalue.T)*1000
+        diff_env_nomvalue = rot.dot(xyz_sigma.T)*1000
+
+        env_sigma = rot.dot(diff_value.T)*1000
         
         frame_value = _pd.DataFrame(diff_env_value, index=m_index_value).T
         frame_nomvalue = _pd.DataFrame(diff_env_nomvalue, index=m_index_nomvalue).T
-        envs[i] = _pd.concat((frame_value,frame_nomvalue),axis=1).set_index(dataset[i].index)
+        frame_sigma = _pd.DataFrame(env_sigma, index=m_index_nomvalue).T
+        envs[i] = _pd.concat((frame_value,frame_nomvalue,frame_sigma),axis=1).set_index(dataset[i].index)
     return envs
 
 def get_xyz_site(staDb_ref_xyz,site_name):
