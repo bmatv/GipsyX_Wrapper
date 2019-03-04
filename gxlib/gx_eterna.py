@@ -7,6 +7,7 @@ from gxlib.gx_filter import _stretch, _avg_30
 import sys as _sys,os as _os
 import shutil as _shutil
 from subprocess import Popen as _Popen, PIPE as _PIPE
+from multiprocessing import Pool
 #Converting staDb coordinates to llh for eterna ini file
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],
                                           _sys.version_info[0], _sys.version_info[1])
@@ -200,7 +201,7 @@ def get_staDb_llh(staDb_path):
                                                  stationList=stns))
     return _pd.DataFrame(llh_stdb.T,index=stns,columns=['LAT','LON','ELEV'])
 
-from multiprocessing import Pool
+
 def run_eterna(input_vars):
     eterna_exec,comp_path = input_vars
     process = _Popen([eterna_exec],cwd=comp_path,stdout=_PIPE)
@@ -257,8 +258,11 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
     #Running Eterna analysis of 3 components in parallel
     with Pool() as p:
         p.map(run_eterna, comp_path_list)
+        
+    return extract_et(tmp_station_path,llh['LON'])
 
-def extract_et(tmp_et_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
+def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
+
     if lon>180:
         lon-=360
     elif lon<-180:
@@ -269,7 +273,7 @@ def extract_et(tmp_et_path,lon=-5.28): #In development. Should extract lon from 
     df_blq_ampli = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
     df_blq_phase = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
     for component in components:
-        prn_file = _os.path.join(tmp_et_path,component,component+'.prn')
+        prn_file = _os.path.join(tmp_station_path,component,component+'.prn')
         with open(prn_file,'r') as file:
             data = file.read()
 
