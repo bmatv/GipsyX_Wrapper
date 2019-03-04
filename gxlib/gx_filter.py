@@ -36,7 +36,7 @@ def filter_tdps(tdps,std_coeff=3,margin=0.1):
        
         # sigma_filter = _filter_sigma(dataset = clk_filter, std_coeff=std_coeff)
         # print('Clk.Bias Filter: {:.2f}% left. Sigmas Filter: {:.2f}% left.'.format(clk_filter.shape[0]/tdps[i].shape[0]*100,sigma_filter.shape[0]/tdps[i].shape[0]*100))
-        print('Clk.Bias Filter: {:.2f}% left.'.format(clk_filter.shape[0]/tdps[i].shape[0]*100))
+        print('Clk.Bias Filter: {:.2f} left.'.format(tdps[i].shape[0]/tdps[i].shape[0]*100))
     return filtered_tdps
 
 '''30-minute averaging here'''
