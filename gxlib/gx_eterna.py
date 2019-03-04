@@ -74,6 +74,7 @@ def _get_trend(dataset,deg=1):
     return _pd.DataFrame(p[0]*x[:,_np.newaxis] + p[1],index = x,columns=dataset.columns)
 
 def _remove_outliers(dataset_env,coef=3):
+    '''Runs detrending of the data to normalize to zero'''
     detrend = dataset_env.value - _get_trend(dataset_env.value)   
     return detrend[(detrend.abs() <= detrend.std()*coef).min(axis=1)]
 
@@ -110,6 +111,7 @@ def _interp_short_gaps(dataset_avg):
     return dataset_avg
 
 def env2eterna(dataset):
+    '''Expects env dataset. Removes outliers via detrend'''
     filt1 = _remove_outliers(dataset)
     filt1_st = _stretch(filt1)
     filt1_avg = _avg_30(filt1_st)

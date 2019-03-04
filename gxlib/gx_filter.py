@@ -71,7 +71,7 @@ def _stretch(dataset):
     return stretched_dataset
 
 def _avg_30(dataset):
-    
+    '''Expects stretched dataset'''
     dataset_reshaped = dataset.values.reshape((int(dataset.shape[0]/6), 6 ,dataset.shape[1]))
     first_elements_rolled = _np.roll(dataset_reshaped[:,0,:],shift=-1,axis=0) #rolling up. So first element becomes last element of previous timeframe
     first_elements_rolled_reshaped = first_elements_rolled.reshape((first_elements_rolled.shape[0],1,first_elements_rolled.shape[1]))
