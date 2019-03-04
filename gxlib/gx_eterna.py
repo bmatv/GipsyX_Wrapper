@@ -259,6 +259,11 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
         p.map(run_eterna, comp_path_list)
 
 def extract_et(tmp_et_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
+    if lon>180:
+        lon-=360
+    elif lon<-180:
+        lon+=360
+    
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     components = ['v_eterna','e_eterna','n_eterna']
     df_blq_ampli = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
@@ -293,7 +298,11 @@ def extract_et(tmp_et_path,lon=-5.28): #In development. Should extract lon from 
 
         df_blq_ampli.loc['a_'+component] =  df['a_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
         df_blq_phase.loc['phase_'+component] =  df['phase_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
+    df_blq_phase.loc[['phase_e_eterna','phase_n_eterna']]+=180
+    
+    df_blq_phase[df_blq_phase>180]-=360
+    df_blq_phase[df_blq_phase<-180]+=360
+    
     df_blq_phase.loc[['phase_v_eterna','phase_n_eterna'],['MF','MM','SSA']] +=180
     df_blq_phase.loc[['phase_e_eterna'],['MF','MM','SSA']] -=180
-#     return df_blq_phase#.loc[['phase_v_eterna','phase_n_eterna']][['MF','MM','SSA']]
     return _pd.concat([df_blq_ampli,df_blq_phase])
