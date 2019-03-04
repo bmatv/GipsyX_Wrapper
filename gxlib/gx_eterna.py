@@ -30,7 +30,7 @@ def _write_ETERNA(dataset, filename,sampling = 300):
         
     #test harmonic dataset
 #     data = pandas.DataFrame(data=dataset,columns=['J2000_time','Data'])
-    dataset = dataset[(~_pd.isna(dataset.iloc[:,2]))]
+    # dataset = dataset[(~_pd.isna(dataset.iloc[:,2]))]
     data = _pd.DataFrame(index = dataset.index)
     time_int = dataset.index.values.astype(int)
     data['Time'] = time_int+ _J2000origin
