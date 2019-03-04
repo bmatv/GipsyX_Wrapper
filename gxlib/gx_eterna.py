@@ -304,9 +304,11 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
         df_blq_phase.loc['phase_'+component] =  df['phase_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
     df_blq_phase.loc[['phase_e_eterna','phase_n_eterna']]+=180
     
-    df_blq_phase[df_blq_phase>180]-=360
-    df_blq_phase[df_blq_phase<-180]+=360
+
     
     df_blq_phase.loc[['phase_v_eterna','phase_n_eterna'],['MF','MM','SSA']] +=180
     df_blq_phase.loc[['phase_e_eterna'],['MF','MM','SSA']] -=180
+
+    df_blq_phase[df_blq_phase>180]-=360
+    df_blq_phase[df_blq_phase<-180]+=360
     return _pd.concat([df_blq_ampli,df_blq_phase])
