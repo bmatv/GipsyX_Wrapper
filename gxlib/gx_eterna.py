@@ -16,7 +16,8 @@ if PYGCOREPATH not in _sys.path:
 import gcore.StationDataBase as StationDataBase
 
 
-def _write_ETERNA(dataset, filename,sampling = 300):
+def _write_ETERNA(dataset, filename,sampling):
+    '''sampling is 1800 for 30 min averaged files. Sampling detection may be done automatically if needed (histogram analysis of the dataset)'''
     def a(inp):
         return '{:8d}'.format(inp)
     def b(inp):
@@ -30,14 +31,14 @@ def _write_ETERNA(dataset, filename,sampling = 300):
         
     #test harmonic dataset
 #     data = pandas.DataFrame(data=dataset,columns=['J2000_time','Data'])
-    # dataset = dataset[(~_pd.isna(dataset.iloc[:,2]))]
+    dataset = dataset[~_pd.isna(dataset.iloc[:,0])]
     data = _pd.DataFrame(index = dataset.index)
     time_int = dataset.index.values.astype(int)
     data['Time'] = time_int+ _J2000origin
 
     data['Date_et'] = data['Time'].dt.strftime('%Y%m%d').astype(int)
     data['Time_et'] = data['Time'].dt.strftime('%H%M%S').astype(int)
-    data['Data'] = dataset.iloc[:,2]
+    data['Data'] = dataset.iloc[:,0]
 
     file_begin = 'C******************************************************************************\n'
     block_end = '\n99999999\n'
