@@ -205,9 +205,10 @@ def get_staDb_llh(staDb_path):
 def run_eterna(input_vars):
     eterna_exec,comp_path = input_vars
     process = _Popen([eterna_exec],cwd=comp_path,stdout=_PIPE)
-    out, err = process.communicate()
-    #print(err.decode())
-    print(out.decode())
+    process.communicate()
+    # out, err = process.communicate()
+    # print(err.decode())
+    # print(out.decode())
     
 def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path):
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
