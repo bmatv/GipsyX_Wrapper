@@ -273,6 +273,10 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     components = ['v_eterna','e_eterna','n_eterna']
     df_blq_ampli = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
     df_blq_phase = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    df_blq_ampli_stdv = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    df_blq_phase_stdv = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    
+    
     for component in components:
         prn_file = _os.path.join(tmp_station_path,component,component+'.prn')
         with open(prn_file,'r') as file:
@@ -287,6 +291,7 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
         footer = len(data_lines) - (begin_line+end_line)
         df = _pd.read_fwf(prn_file,sep='\n',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
         df['a_'+component] = ((df.theor_a * df.a_factor)/1000).round(5)
+        df['a_'+component + '_stdv'] = ((df.theor_a * df.a_stdv)/1000).round(5)
 
 
         df.set_index('wave')
@@ -300,9 +305,13 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
         df['coeff'] = coeff
 
         df['phase_'+component]= (df['phase'] * -1) - lon*df['coeff']
+        df['phase_'+component+'_stdv']= df['phase_stdv'] 
 
         df_blq_ampli.loc['a_'+component] =  df['a_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
         df_blq_phase.loc['phase_'+component] =  df['phase_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
+        df_blq_ampli_stdv.loc['a_'+component+ '_stdv'] =  df['a_'+component+ '_stdv'].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
+        df_blq_phase_stdv.loc['phase_'+component+'_stdv'] = df['phase_'+component+'_stdv'].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
+        
     df_blq_phase.loc[['phase_e_eterna','phase_n_eterna']]+=180
     
 
@@ -312,4 +321,7 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
 
     df_blq_phase[df_blq_phase>180]-=360
     df_blq_phase[df_blq_phase<-180]+=360
-    return _pd.concat([df_blq_ampli,df_blq_phase])
+    
+    blq = _pd.concat([df_blq_ampli,df_blq_phase,df_blq_ampli_stdv,df_blq_phase_stdv])
+
+    return blq
