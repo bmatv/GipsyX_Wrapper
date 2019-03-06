@@ -263,22 +263,18 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
     return extract_et(tmp_station_path,llh['LON'])
 
 def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
-
-    if lon>180:
-        lon-=360
-    elif lon<-180:
-        lon+=360
-    
+    lon-=360 if lon>180 else lon
+    lon+=360 if lon<-180 else lon
+        
+    components = ['east','north','up'] #should be in alphabetical order. Not sure why
     '''Function to return blq-like table from 3 component analysis of eterna.'''
-    components = ['v_eterna','e_eterna','n_eterna']
-    df_blq_ampli = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
-    df_blq_phase = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
-    df_blq_ampli_stdv = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
-    df_blq_phase_stdv = _pd.DataFrame(columns=['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
+    df_blq = _pd.DataFrame(columns = columns_mlevel,index = ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
     
-    
-    for component in components:
-        prn_file = _os.path.join(tmp_station_path,component,component+'.prn')
+    et_components = ['e_eterna','n_eterna','v_eterna']
+
+    for i in range(3):
+        prn_file = _os.path.join(tmp_station_path,et_components[i],et_components[i]+'.prn')
         with open(prn_file,'r') as file:
             data = file.read()
 
@@ -286,42 +282,27 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
         begin_line = [i for i in range(len(data_lines)) if "adjusted tidal parameters :" in data_lines[i]][0]+6
 
         data_lines_part = data_lines[begin_line:]
-        end_line = [i for i in range(len(data_lines_part)) if "M4" in data_lines_part[i]][0]
+        end_line = [i for i in range(len(data_lines_part)) if "M4" in data_lines_part[i]][0] #CORRECT!!!
 
         footer = len(data_lines) - (begin_line+end_line)
         df = _pd.read_fwf(prn_file,sep='\n',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
-        df['a_'+component] = ((df.theor_a * df.a_factor)/1000).round(5)
-        df['a_'+component + '_stdv'] = ((df.theor_a * df.a_stdv)/1000).round(5)
+        waves_extracted = df.wave.values
+        df.set_index(waves_extracted,inplace=True)
 
+        df_blq[components[i]]['amplitude']['value'].update(((df.theor_a * df.a_factor)/1000).round(5))
+        df_blq[components[i]]['amplitude']['std'].update(((df.theor_a * df.a_stdv)/1000).round(5))
 
-        df.set_index('wave')
         coeff = _pd.DataFrame([['Q1',1],['O1',1],['M1',1],['P1',1],['S1',1],['K1',1],['PSI1',1],['PHI1',1],['J1',1],['OO1',1],['14h',1],\
-                              ['MF',0],['MM',0],['SSA',0],\
-                  ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['wave','coeff']).set_index('wave')
+                               ['MF',0],['MM',0],['SSA',0],\
+                   ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['','coeff']).set_index('')
 
 
-
-        df.set_index('wave',inplace=True)
-        df['coeff'] = coeff
-
-        df['phase_'+component]= (df['phase'] * -1) - lon*df['coeff']
-        df['phase_'+component+'_stdv']= df['phase_stdv'] 
-
-        df_blq_ampli.loc['a_'+component] =  df['a_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
-        df_blq_phase.loc['phase_'+component] =  df['phase_'+component].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
-        df_blq_ampli_stdv.loc['a_'+component+ '_stdv'] =  df['a_'+component+ '_stdv'].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
-        df_blq_phase_stdv.loc['phase_'+component+'_stdv'] = df['phase_'+component+'_stdv'].loc[['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']].T
-        
-    df_blq_phase.loc[['phase_e_eterna','phase_n_eterna']]+=180
+        df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) - lon*coeff['coeff'])
+        df_blq[components[i]]['phase']['std'].update(df['phase_stdv'])
+    df_blq.update(df_blq[['east','north']].xs('phase',level=1,axis=1).xs('value',level=1,axis=1)+180)
+    df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1).loc[['MF','MM','SSA']] -180)
     
-
+    phase_values = df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)
+    df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)[df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)<180]+360)
     
-    df_blq_phase.loc[['phase_v_eterna','phase_n_eterna'],['MF','MM','SSA']] +=180
-    df_blq_phase.loc[['phase_e_eterna'],['MF','MM','SSA']] -=180
-
-    df_blq_phase[df_blq_phase>180]-=360
-    df_blq_phase[df_blq_phase<-180]+=360
-    
-    blq = _pd.concat([df_blq_ampli,df_blq_phase,df_blq_ampli_stdv,df_blq_phase_stdv])
-
-    return blq
+    return df_blq[['up','north','east']]
