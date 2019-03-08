@@ -1,4 +1,4 @@
-from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps
+from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex
 
 class gd2e_class:
     def __init__(self,
@@ -13,6 +13,7 @@ class gd2e_class:
                  VMF1_dir = '/mnt/Data/bogdanm/Products/VMF1_Products',
                  tropNom_type = '30h_tropNominalOut_VMF1.tdp',
                  IGS_logs_dir = '/mnt/Data/bogdanm/GNSS_data/BIGF_data/station_log_files',
+                 IONEX_products = '/mnt/Data/bogdanm/Products/IONEX_Products',
                  rate = 300,
                  gnss_products_dir = '/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final',
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
@@ -34,6 +35,11 @@ class gd2e_class:
         self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir)
         self.gnss_products_dir = gnss_products_dir
         self.ionex_type=ionex_type
+        self.IONEX_products = IONEX_products
+        self.ionex = gx_ionex.ionex(ionex_in_files_path=self.IONEX_products, #IONEX dir
+                                    ionex_type=self.ionex_type, #type of files
+                                    output_path=self.tmp_dir, #output dir that will have type|year files
+                                    num_cores=self.num_cores)
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
         self.mode = self._check_mode(mode)
@@ -110,3 +116,5 @@ class gd2e_class:
     def remove_gathers(self):
         gx_extract.rm_solutions_gathers(self.tmp_dir,self.project_name)
         gx_extract.rm_residuals_gathers(self.tmp_dir,self.project_name)
+
+    
