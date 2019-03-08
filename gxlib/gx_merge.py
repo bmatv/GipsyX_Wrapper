@@ -40,8 +40,8 @@ def get_merge_table(tmp_dir,mode=None):
             station_record = drinfo[i][(drinfo[i][:,-3] == True)&(drinfo[i][:,-2] == True)]
         
         if len(station_record) == 0:
-            print('No data found for mode {} for station {}'.format(mode,i))
-            
+            raise ValueError("No data found for mode {} for station {}".format(mode,i))
+
 #         station_record = gps_drinfo #filtered station record
         completeness = _np.zeros((len(station_record)),dtype=_np.int)
         drinfo_rec_time = (station_record[:,3].astype('datetime64[h]')-station_record[:,2].astype('datetime64[h]')).astype(_np.int)
