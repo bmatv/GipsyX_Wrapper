@@ -153,13 +153,16 @@ def _xyz2env(dataset,stations_list,reference_df):
         # Creating MultiIndex:
         arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
         arrays_nomvalue=[['nomvalue','nomvalue','nomvalue'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
+        arrays_sigma=[['sigma','sigma','sigma'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
         
         m_index_value = _pd.MultiIndex.from_arrays(arrays=arrays_value)
         m_index_nomvalue = _pd.MultiIndex.from_arrays(arrays=arrays_nomvalue)
+        m_index_sigma = _pd.MultiIndex.from_arrays(arrays=arrays_sigma)
         
-        
-        xyz_value = dataset[i]['value'].iloc[:,[1,2,3]] 
-        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[1,2,3]] 
+        xyz_value = dataset[i]['value'].iloc[:,[1,2,3]]
+        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[1,2,3]]
+        xyz_sigma = dataset[i]['sigma'].iloc[:,[1,2,3]]
+
         refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
 #             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
 #             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
@@ -170,10 +173,12 @@ def _xyz2env(dataset,stations_list,reference_df):
         
         diff_env_value = rot.dot(diff_value.T)*1000
         diff_env_nomvalue = rot.dot(diff_nomvalue.T)*1000
+        env_sigma = rot.dot(xyz_sigma.T)*1000
         
         frame_value = _pd.DataFrame(diff_env_value, index=m_index_value).T
         frame_nomvalue = _pd.DataFrame(diff_env_nomvalue, index=m_index_nomvalue).T
-        envs[i] = _pd.concat((frame_value,frame_nomvalue),axis=1).set_index(dataset[i].index)
+        frame_sigma = _pd.DataFrame(env_sigma, index=m_index_sigma).T
+        envs[i] = _pd.concat((frame_value,frame_nomvalue,frame_sigma),axis=1).set_index(dataset[i].index)
     return envs
 
 def get_xyz_site(staDb_ref_xyz,site_name):
@@ -192,3 +197,13 @@ def get_ref_xyz_sites(staDb_path):
     staDb_xyz['Station'] = xyz_table[0]
     staDb_xyz[['X','Y','Z']] = xyz_table[[4,5,6]].astype('float')
     return staDb_xyz
+
+def remove_30h(tmp_dir):
+    #'rnx_dr/SITE/YEAR/DAY/*_30h.dr.gz
+    files = _glob.glob(_os.path.join(tmp_dir,'rnx_dr/*/*/*/*_30h.dr.gz'))
+    for file in files: _os.remove(file)
+
+def remove_32h(tmp_dir):
+    #'rnx_dr/SITE/YEAR/DAY/*_32h.dr.gz
+    files = _glob.glob(_os.path.join(tmp_dir,'rnx_dr/*/*/*/*_32h.dr.gz'))
+    for file in files: _os.remove(file)

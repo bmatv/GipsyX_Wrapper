@@ -6,7 +6,7 @@ from subprocess import Popen as _Popen, PIPE as _PIPE
 from pandas.compat import StringIO as _StringIO
 from datetime import datetime as _datetime
 
-# _pd.options.display.max_colwidth = 100 #By default truncates text
+_pd.options.display.max_colwidth = 100 #By default truncates text
 
 def blq2hardisp(blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf.blq'):
     blq_file_read = _pd.read_csv(blq_file, comment='$', header=None)[:-2].values

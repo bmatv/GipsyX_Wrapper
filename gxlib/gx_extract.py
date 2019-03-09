@@ -32,6 +32,13 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
             print('Found', paths_tmp[i], 'Loading...')
             gather[i] = _pd.read_pickle(paths_tmp[i])
     return gather
+def rm_solutions_gathers(tmp_dir,project_name):
+    gathers = _glob.glob(_os.path.join(tmp_dir,'gd2e',project_name) + '/*/solutions.pickle')
+    for gather in gathers: _os.remove(gather)
+def rm_residuals_gathers(tmp_dir,project_name):
+    gathers = _glob.glob(_os.path.join(tmp_dir,'gd2e',project_name) + '/*/residuals.pickle')
+    for gather in gathers: _os.remove(gather)
+
 
 def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
     stations_list = _np.core.defchararray.upper(stations_list)
@@ -128,25 +135,17 @@ def _gather_tdps(station_files,num_cores):
 def _get_tdps_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
     Clips data to 24 hours of the same day if the file is bigger'''
-    tmp_solution = _np.load(file=file)['tdp']
-    tmp_residuals = _np.load(file=file)['finalResiduals']
+    tmp  = _np.load(file=file)
+    tmp_solution = tmp['tdp']
+    tmp_residuals = tmp['finalResiduals']
 
-    time_solution = tmp_solution[:,0].astype(int)
-    time_residuals = tmp_residuals[:,0].astype(int)
-
-    
-    if (time_solution[-1] - time_solution[0])/3600 > 3:
-        #checking the total length of the record. In case total length is less than 3 hours, when adding 3 hours it can return wrong day.
+    time_solution = tmp_solution[:,0]
+    time_residuals = tmp_residuals[:,0]
+    #begin_timeframe as file time median should always work
+    begin_timeframe = ((_np.median(time_solution).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    end_timeframe = begin_timeframe + 86400
         
-        #clipping to 24 hours on the fly. Solution and Residuals are cut with the same mask
-        begin_timeframe = ((time_solution[0] + J2000origin + _np.timedelta64(3,'h')).astype('datetime64[D]')- J2000origin).astype(int)
-        end_timeframe = begin_timeframe + 86400
-        
-        solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
-        residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
+    solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
+    residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
 
-        return solution,residuals
-    else:
-        #print('file too short ', file) 
-        #normally shouldn't happened as files were filtered after conversion and short files won't be here
-        return tmp_solution,tmp_residuals
+    return solution,residuals

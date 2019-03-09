@@ -16,9 +16,8 @@ def _gd2e(gd2e_set):
                         '-GNSSproducts', gd2e_set['gnss_products_dir'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
                         '-tdpInput', gd2e_set['tdp'],
-                        '-staDb', gd2e_set['staDb_path'],
-                        '-gdCov'], cwd=gd2e_set['output'],stdout=_PIPE)
-
+                        '-staDb', gd2e_set['staDb_path']], cwd=gd2e_set['output'],stdout=_PIPE)
+    # Do we really need a -gdCov option?
     out, err = process.communicate()
 
     # print(str(gd2e_set['year'])+'/'+gd2e_set['dayofyear'])
@@ -122,7 +121,8 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp_merge_table = merge_tables[station_index_in_drinfo]
     
     filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
-    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_30h.dr.gz'
+    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_32h.dr.gz'
+    #From now files are 32 hours to overcome GipsyX check if files is 30 hours then use one product day
                 
     tmp['filename'] = filename
     tmp['class'] = tmp_merge_table[:,0]

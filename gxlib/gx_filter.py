@@ -19,22 +19,27 @@ def _filter_value(dataset,std_coeff=3):
     mask = (dataset['value']<=sigma_cut).min(axis=1)
     return dataset[mask]
 
-def _filter_sigma(dataset,std_coeff=3):
-    sigma_cut = dataset['sigma'].median() + dataset['sigma'].std()*std_coeff
-    mask = (dataset['sigma']<=sigma_cut).min(axis=1)
+def _filter_sigma(dataset):
+    sigma_cut = 0.1 #100 mm hard sigma cut ignoring clk sigma values
+    mask = (dataset.sigma.iloc[:,[1,2,3]]<=sigma_cut).min(axis=1)
     return dataset[mask]
 
 def _filter_clk(dataset):
-    mask =(dataset['value'].iloc[:,0].abs() > 0.01) & (dataset['value'].iloc[:,0].abs() <100)
+    mask = dataset.sigma.iloc[:,0] < 3000
+    # mask =(dataset['value'].iloc[:,0].abs() > 0.01) & (dataset['value'].iloc[:,0].abs() <100)
     return dataset[mask]
     
 def filter_tdps(tdps,std_coeff=3,margin=0.1):
     filtered_tdps = _np.ndarray((tdps.shape),dtype = object)
     for i in range(tdps.shape[0]):
+
         clk_filter = _filter_clk(dataset = tdps[i])
-        filtered_tdps[i] = clk_filter
-        sigma_filter = _filter_sigma(dataset = clk_filter, std_coeff=std_coeff)
-        print('Clk.Bias Filter: {:.2f}% left. Sigmas Filter: {:.2f}% left.'.format(clk_filter.shape[0]/tdps[i].shape[0]*100,sigma_filter.shape[0]/tdps[i].shape[0]*100))
+        sigma_filter = _filter_sigma(dataset = clk_filter)
+        filtered_tdps[i] = sigma_filter
+       
+        # sigma_filter = _filter_sigma(dataset = clk_filter, std_coeff=std_coeff)
+        print('Clk.Bias Filter: {:.2f} left. Sigmas Filter: {:.2f} left.'.format(clk_filter.shape[0]/tdps[i].shape[0]*100,sigma_filter.shape[0]/tdps[i].shape[0]*100))
+        # print('Clk.Bias sigma Filter (<1e8): {:.2f} left. XYZ sigma Filter (<0.1 m): {:.2f} left.'.format(filtered_tdps[i].shape[0]/tdps[i].shape[0]*100))
     return filtered_tdps
 
 '''30-minute averaging here'''
@@ -71,7 +76,7 @@ def _stretch(dataset):
     return stretched_dataset
 
 def _avg_30(dataset):
-    
+    '''Expects stretched dataset'''
     dataset_reshaped = dataset.values.reshape((int(dataset.shape[0]/6), 6 ,dataset.shape[1]))
     first_elements_rolled = _np.roll(dataset_reshaped[:,0,:],shift=-1,axis=0) #rolling up. So first element becomes last element of previous timeframe
     first_elements_rolled_reshaped = first_elements_rolled.reshape((first_elements_rolled.shape[0],1,first_elements_rolled.shape[1]))
