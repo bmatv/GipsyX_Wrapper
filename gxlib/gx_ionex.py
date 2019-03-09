@@ -81,7 +81,7 @@ class ionex:
             merge_lists[i]=self._get_ionex_list(years_present[i],ionex_files_list)
         return merge_lists
     
-    def GIM_gen_header(self,merge_list,data_GIM_final):
+    def _GIM_gen_header(self,merge_list,data_GIM_final):
         '''
         No AUX section in the header needed! IGNORING IT
         LINE with # of MAPS is modified
@@ -160,7 +160,7 @@ class ionex:
             
             
             GIM_data[i] = self.get_ionex_data(self.merge_lists[i])
-            header = self.GIM_gen_header(self.merge_lists[i][:,3],GIM_data[i])
+            header = self._GIM_gen_header(self.merge_lists[i][:,3],GIM_data[i])
             with open(path+self.ionex_type+str(self.years_present[i]),'w') as output:
                 output.write(header)
                 #writing TEC data
