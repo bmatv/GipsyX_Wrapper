@@ -43,7 +43,6 @@ class gd2e_class:
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
         self.mode = self._check_mode(mode)
-        self.chalmers = gx_aux.get_chalmers(self.staDb_path)
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -118,4 +117,5 @@ class gd2e_class:
         gx_extract.rm_solutions_gathers(self.tmp_dir,self.project_name)
         gx_extract.rm_residuals_gathers(self.tmp_dir,self.project_name)
 
-    
+    def get_chalmers(self):
+        return gx_aux.get_chalmers(self.staDb_path)
