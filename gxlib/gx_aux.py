@@ -5,11 +5,12 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
 
+
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0, PYGCOREPATH)
 import gcore.EarthCoordTrans as _eo
-
+import gcore.StationDataBase as StationDataBase
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
 _regex_loc = _re.compile(r"2\.\W+S.+\W+City or Town\W+\:\s(.+|)\W+State or Province\W+\:\s(.+|)\W+Country\W+\:\s(.+|)\W+Tectonic Plate\W+\:\s(.+|)\W+.+\W+X.+\:\s(.+|)\W+Y..+\:\s(.+|)\W+Z.+\:\s(.+|)\W*Latitude.+\:\s(.+|)\W*Longitude.+\:\s(.+|)\W*Elevation.+\:\s(.+|)", _re.MULTILINE)
 _regex_rec = _re.compile(r"3\.\d+\s+R.+\W+\:\s(.+|)\W+Satellite System\W+\:\s(.+|)\W+Serial Number\W+\:\s(.+|)\W+Firmware Version\W+\:\s(.+|)\W+Elevation Cutoff Setting\W+\:\s(.+|)\W+Date Installed\W+\:\s(.{10}|)(.{1}|)(.{5}|)", _re.MULTILINE)
@@ -81,6 +82,25 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
                     format(ID=matches_ID[0][1], d_inst=ant[matchNum][12], t_inst=ant[matchNum][13] if ant[matchNum][13]!= '' else '00:00', ant_type=ant[matchNum][0],
                             radome_type=ant[matchNum][8] if ant[matchNum][8]!= '' else 'NONE', vertical=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
     return staDb_path
+
+def get_chalmers(staDb_PATH):
+    '''Converts staDb to input for http://holt.oso.chalmers.se/loading/
+    Name of station_________|	|Longitude (deg)	| Latitude (deg)	| Height (m) 
+    //sala                        11.9264         57.3958         0.0000
+    //ruler.................b................<...............<...............
+    // Records starting with // are treated as comments'''
+    staDb = StationDataBase.StationDataBase()  # creating staDb object
+    staDb.read(staDb_PATH)  # reading staDb into staDb object
+    
+    max_t = 3.0e8  # maximum time value for the dataset on which available sites will be added to OTL computation with SPOTL
+    names_stdb = _np.asarray(staDb.getStationList(), dtype=object)
+    llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
+                                                    stationList=staDb.getStationList()))
+    nllh = _np.column_stack((names_stdb, llh_stdb.T))
+
+    for station in nllh:
+        print('%-19.4s %15.4f %15.4f %15.4f'%(station[0],station[2],station[1],station[3]))
+
 
 def _dr_size(rnx_files_in_out):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
