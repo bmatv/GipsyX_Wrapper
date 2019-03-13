@@ -83,14 +83,14 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
                             radome_type=ant[matchNum][8] if ant[matchNum][8]!= '' else 'NONE', vertical=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
     return staDb_path
 
-def get_chalmers(staDb_PATH):
+def get_chalmers(staDb_path):
     '''Converts staDb to input for http://holt.oso.chalmers.se/loading/
     Name of station_________|	|Longitude (deg)	| Latitude (deg)	| Height (m) 
     //sala                        11.9264         57.3958         0.0000
     //ruler.................b................<...............<...............
     // Records starting with // are treated as comments'''
     staDb = StationDataBase.StationDataBase()  # creating staDb object
-    staDb.read(staDb_PATH)  # reading staDb into staDb object
+    staDb.read(staDb_path)  # reading staDb into staDb object
     
     max_t = 3.0e8  # maximum time value for the dataset on which available sites will be added to OTL computation with SPOTL
     names_stdb = _np.asarray(staDb.getStationList(), dtype=object)
