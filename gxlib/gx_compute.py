@@ -93,10 +93,25 @@ def _read_finalResiduals(path_dir):
     '''Reads finalResiduals.outComplete header: ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
                     ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']'''
     finalResiduals_path = path_dir + '/finalResiduals.out'
-    header = ['Time','T/R_ant','DataType','PF_res','elev_rec','azim_rec','elev_tran',' azimu_tran','status']
+    header = ['time','t_r_ant','datatype','pf_res','elev_rec','azim_rec','elev_tran','azimu_tran','status']
     #header has to be present to extract correct number of columns as status is often None
-    finalResiduals = _pd.read_table(finalResiduals_path,delim_whitespace=True,header=None,names=header)
-    return finalResiduals.values
+    
+    dtypes = {'time':int,
+          't_r_ant':object,
+          'datatype':'category',
+          'pf_res':'float64',
+          'elev_rec':'float32',
+          'azim_rec':'float32',
+          'elev_tran':'float32',
+          'azimu_tran':'float32',
+          'status':'category'}
+    
+    finalResiduals = _pd.read_csv(finalResiduals_path,delim_whitespace=True,header=None,names=header,dtype=dtypes,na_filter=True)
+    finalResiduals['rec'] = (finalResiduals['t_r_ant'].str.slice(1,5)).astype('category')
+    finalResiduals['trans'] = (finalResiduals['t_r_ant'].str.slice(9,-4)).astype('category')
+    finalResiduals['gnss'] = (finalResiduals['t_r_ant'].str.slice(9,10)).astype('category')
+    finalResiduals.drop('t_r_ant',axis=1,inplace=True)
+    return finalResiduals.set_index(['datatype','time'])
 
 
 def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path):
