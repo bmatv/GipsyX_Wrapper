@@ -80,14 +80,13 @@ def _get_tdps_pn(path_dir):
     Header can be changed with [columns.levels[0].to_numpy(), columns.levels[1].to_numpy()] but no major effect expected'''
     file = path_dir + '/smoothFinal.tdp'
     # A working prototype for fast read and extract of tdp data
-    tmp = _pd.read_csv(file, sep=r'\s+', header=None, names=['time','nomvalue', 'value', 'sigma', 'type'])
+    tmp = _pd.read_csv(file, delim_whitespace=True, header=None, names=['time','nomvalue', 'value', 'sigma', 'type'])
     
     station_types = tmp['type'].str.contains(pat = 'Station',regex =False)
     df = tmp[station_types]
     df = df.pivot(index='time',columns='type')
     header = df.columns
-    # reset_index() copies index field as a column back
-    return df.reset_index().to_numpy(), header.to_numpy()
+    return df.reset_index().to_numpy(),header.to_numpy()
 
 
 def _read_finalResiduals(path_dir):
