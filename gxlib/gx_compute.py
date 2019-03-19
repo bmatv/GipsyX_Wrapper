@@ -5,6 +5,8 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
+import pickle as _pickle
+import gzip as _gzip
 
 def _gd2e(gd2e_set):
     
@@ -52,8 +54,8 @@ def _gd2e(gd2e_set):
 
 def _dump_pkl_gz(datasets,filename,compresslevel=4):
     '''datasets is a list of datasets: [ds1,ds2,ds3]. Can be pandas df etc. converts to pickle and gzips'''
-    tmp_pickle = pickle.dumps(datasets)
-    with gzip.open(filename=filename, mode='w',compresslevel=compresslevel) as f: #9 is default
+    tmp_pickle = _pickle.dumps(datasets)
+    with _gzip.open(filename=filename, mode='w',compresslevel=compresslevel) as f: #9 is default
         f.write(data=tmp_pickle)
 
     
