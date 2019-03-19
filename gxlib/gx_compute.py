@@ -76,27 +76,21 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
     # return gd2e_table
 
 def _get_tdps_pn(path_dir):
-    '''Reads smoothFinal.tdp with pandas, pivots the data and converts to np array'''
+    '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
+    Header can be changed with [columns.levels[0].to_numpy(), columns.levels[1].to_numpy()] but no major effect expected'''
     file = path_dir + '/smoothFinal.tdp'
-
+    col_dtypes = {'time':'int','nomvalue':'float32', 'value':'float32', 'sigma':'float32', 'type':'category'}
     # A working prototype for fast read and extract of tdp data
-    df = _pd.read_table(file, sep='\s+', header=None, usecols=[0, 1, 2, 3, 4], names=['time','nomvalue', 'value', 'sigma', 'type'])
-    df = df.pivot_table(index='time', columns='type')
+    tmp = _pd.read_csv(file, sep='\s+', header=None, names=['time','nomvalue', 'value', 'sigma', 'type'])
     
-    columns = df.value.columns #extract columns' names for analysis. We need to extract only Station*
-    columns_df = _pd.Series(columns.values).str.split('.',expand=True)
-    selected_columns = columns[columns_df.iloc[:,1]=='Station']
-    # Create output through dictionary concat
-    extracted_data = _pd.concat({
-                                'sigma'  : df.sigma[selected_columns],
-                                'nomvalue': df.nomvalue[selected_columns],
-                                'value'   : df.value[selected_columns]
-                                },axis=1)
+    station_types = tmp['type'].str.contains(pat = 'Station',regex =False)
+    df = tmp[station_types]
+    df = df.pivot(index='time',columns='type')
+    header = df.columns
     
-    tdp = _np.column_stack((df.index.values,extracted_data.values))
-    tdp_header = extracted_data.columns.values
-    
-    return tdp,tdp_header
+
+    # reset_index() copies index field as a column back
+    return df.reset_index().to_numpy(), header.to_numpy()
 
 
 def _read_finalResiduals(path_dir):
