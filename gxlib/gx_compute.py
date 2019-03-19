@@ -80,7 +80,7 @@ def _get_tdps_pn(path_dir):
     Header can be changed with [columns.levels[0].to_numpy(), columns.levels[1].to_numpy()] but no major effect expected'''
     file = path_dir + '/smoothFinal.tdp'
     # A working prototype for fast read and extract of tdp data
-    tmp = _pd.read_csv(file, sep='\s+', header=None, names=['time','nomvalue', 'value', 'sigma', 'type'])
+    tmp = _pd.read_csv(file, sep=r'\s+', header=None, names=['time','nomvalue', 'value', 'sigma', 'type'])
     
     station_types = tmp['type'].str.contains(pat = 'Station',regex =False)
     df = tmp[station_types]
