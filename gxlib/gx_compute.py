@@ -79,7 +79,6 @@ def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
     Header can be changed with [columns.levels[0].to_numpy(), columns.levels[1].to_numpy()] but no major effect expected'''
     file = path_dir + '/smoothFinal.tdp'
-    col_dtypes = {'time':'int','nomvalue':'float32', 'value':'float32', 'sigma':'float32', 'type':'category'}
     # A working prototype for fast read and extract of tdp data
     tmp = _pd.read_csv(file, sep='\s+', header=None, names=['time','nomvalue', 'value', 'sigma', 'type'])
     
