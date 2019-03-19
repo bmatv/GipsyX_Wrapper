@@ -1,7 +1,49 @@
-#All on options
+penna_k_randomwalk_m4 = [[   
+    # Stochastic Adjustment State
+        ['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj', '1.0 5.7e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
+        # Trop section    
+        ['GRN_STATION_CLK_WHITE:Trop:GradEast', '0.0'],
+
+        ['GRN_STATION_CLK_WHITE:Trop:GradNorth', '0.0'],
+
+        ['GRN_STATION_CLK_WHITE:Trop:Mapping', 'VMF1'],
+        ['GRN_STATION_CLK_WHITE:Trop:Model', 'On'],
+        ['GRN_STATION_CLK_WHITE:Trop:WetZ', '0.1'],
+        #adjustment of troposphere
+        ['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
+        ['GRN_STATION_CLK_WHITE:Trop:GradNorth:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
+        ['GRN_STATION_CLK_WHITE:Trop:GradEast:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
+
+        # Station properties. e.g. CAMB. So we will get wetz etc in the output. Highly important!!!
+        ['Station', '`cat $STATIONLIST`'+'\nStation `staDb2TreeIn.py -s $STATIONLIST -y2kSecs $GLOBAL_EPOCH -d $STA_DB`'],
+        # VMF1dataDir path  
+        ['Station:VMF1dataDir', '/mnt/Data/bogdanm/Products/VMF1_Products'],
+        # Ion2nd
+        ['Global:Ion2nd','On'],
+        ['Global:Ion2nd:MagneticModel','IGRF'],
+        ['Global:Ion2nd:MagneticModel:IgrfCoefficientsFile', '$GOA_VAR/etc/igrf/igrf11coeffs.txt'],
+        ['Global:Ion2nd:StecModel', 'IONEX'],
+        ['Global:Ion2nd:StecModel:IonexFile:ShellHeight', '600.0e3'],
+        # GPS_BlockII as it is missing from default tree file
+        ['GPS_BlockII_Model', '=='],
+        ['GPS_BlockII_Model:AttitudeModel', 'gpsBlockII'],
+        # Satellite section needed for Gipsy to be able to extract satellite properties. Highly important!!!
+        ['Satellite','`cat $GNSSLIST`'+ '\nSatellite `pcm.py -file $GNSS_ANT_OFF_PCM -epoch $GLOBAL_EPOCH -sat $GNSSLIST -param Antenna1`'],
+
+        ['Global:Input:TimeDepParms:NameFilter:Satellite\.[C]\w*.*\.Clk\.Bias:Degree','0'],
+        ['Global:Input:TimeDepParms:NameFilter:Satellite\.[C]\w*.*\.Clk\.Bias:MaxFormalError','0.4'],
+        ['Global:Input:TimeDepParms:NameFilter:Satellite\.[C]\w*.*\.Clk\.Bias:Strict','On'],
+        ['Global:Input:TimeDepParms:NameFilter:Satellite\.[C]\w*.*\.Clk\.Bias:Strict:MaxDx','1.0e-6'],
+        # Section with namefilter for state
+        ['Global:Input:TimeDepParms:NameFilter:Station\..*\.State\.Pos\..*',' '],
+        ['Global:Input:TimeDepParms:NameFilter:Station\..*\.Trop.*',' '],
+    
+        ],
+        #Pop values. Values that will be eliminated
+        ['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj']]
 
 #Pseudorange
-pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
+_pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:DataBiasReference', 'GLONASS'],
@@ -12,7 +54,7 @@ pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath:Platforms', '.* R.*']]
 
-pseudo_range_gps = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
+_pseudo_range_gps = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:ElDepWeight', 'SqrtSin'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:PostSmoothEdit', '2e5 2e4 12.5 10 5 2.5'],
@@ -20,7 +62,7 @@ pseudo_range_gps = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:SignalPath:Platforms', '.* GPS.*']]
                     
 #Carrier Phase                  
-carrier_phase_glo = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
+_carrier_phase_glo = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias:StochasticAdj', '3.0e8 3.0e8 DATADRIVEN WHITENOISE'],
@@ -30,7 +72,7 @@ carrier_phase_glo = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath:Platforms', '.* R.*']]
 
-carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
+_carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:DataBias:StochasticAdj', '3.0e8 3.0e8 DATADRIVEN WHITENOISE'],
@@ -41,12 +83,12 @@ carrier_phase_gps = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:SignalPath:Platforms', '.* GPS.*']]
 
 # Tides section
-tides_all_on = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
+_tides_all_on = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:SolidTide', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:PoleTide', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', 'On']] #turning all components on manually
 
-tides_otl_off = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
+_tides_otl_off = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:SolidTide', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:PoleTide', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', 'Off']]#turning all components on manually
@@ -55,6 +97,6 @@ tides_otl_off = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
 
 #glo_sv_del = [['Satellite:Delete','R701 R802 R711 R712 R713 R714 R715 R716 R717 R718 R719 R720 R721 R722 R723 R724 R725 R726 R727 R728 R729 R730 R731 R732 R733 R734 R735 R736 R737 R738 R742 R743 R744 R745 R746 R747 R851 R852 R853 R856 R754 R854 R755 R855 R783 R787 R788 R789 R791 R792 R793 R794 R795 R796 R797 R798 R801']]
 
-rw_otl = [tides_all_on + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+rw_otl = [_tides_all_on + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
 
-rw_no_otl = [tides_otl_off + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+rw_no_otl = [_tides_otl_off + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
