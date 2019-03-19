@@ -49,6 +49,13 @@ def _gd2e(gd2e_set):
                         out = _np.asarray(out),
                         err = _np.asarray(err),
                         finalResiduals = finalResiduals)
+
+def _dump_pkl_gz(datasets,filename,compresslevel=4):
+    '''datasets is a list of datasets: [ds1,ds2,ds3]. Can be pandas df etc. converts to pickle and gzips'''
+    tmp_pickle = pickle.dumps(datasets)
+    with gzip.open(filename=filename, mode='w',compresslevel=compresslevel) as f: #9 is default
+        f.write(data=tmp_pickle)
+
     
 def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path):
     '''trees_df is the output of gen_trees. merge_tables = get_merge_table'''
