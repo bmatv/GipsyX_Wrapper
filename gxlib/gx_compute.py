@@ -24,10 +24,11 @@ def _gd2e(gd2e_set):
 
     # print(str(gd2e_set['year'])+'/'+gd2e_set['dayofyear'])
     #read tdp file (smooth0_0.tdp)
-    tdp, tdp_header = _get_tdps_pn(gd2e_set['output'])
+    solutions = _get_tdps_pn(gd2e_set['output'])
+    
     #read tree file
     debug_tree_file = gd2e_set['output']+'/debug.tree'
-    debug_tree = _pd.read_csv(debug_tree_file,sep='#',header=None,error_bad_lines=True).values
+    debug_tree = _pd.read_csv(debug_tree_file,sep='#',header=None,error_bad_lines=True)[0].values #numpy ndarray with debug.tree
     
     runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
         gd2e_set['filename'],gd2e_set['station'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
@@ -41,16 +42,8 @@ def _gd2e(gd2e_set):
     _rmtree(path=gd2e_set['output'])
     #create directory to store npz extracted data
     _os.makedirs(gd2e_set['output'])
-    _np.savez_compressed(file=gd2e_set['output']+'/gipsyx_out',
-                        tdp=tdp,
-                        tdp_header=tdp_header,
-                        debug_tree=debug_tree,
-                        runAgain=runAgain,
-                        rtgx_log=rtgx_log,
-                        rtgx_err=rtgx_err,
-                        out = _np.asarray(out),
-                        err = _np.asarray(err),
-                        finalResiduals = finalResiduals)
+    _dump_pkl_gz(datasets = [solutions,finalResiduals,debug_tree,runAgain,rtgx_log,rtgx_err,_np.asarray(out),_np.asarray(err)],
+                            filename=gd2e_set['output']+'/gipsyx_out.pkl.gz',compresslevel = 9)
 
 def _dump_pkl_gz(datasets,filename,compresslevel=4):
     '''datasets is a list of datasets: [ds1,ds2,ds3]. Can be pandas df etc. converts to pickle and gzips'''
