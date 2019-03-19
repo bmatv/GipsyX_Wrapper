@@ -85,8 +85,7 @@ def _get_tdps_pn(path_dir):
     station_types = tmp['type'].str.contains(pat = 'Station',regex =False)
     df = tmp[station_types]
     df = df.pivot(index='time',columns='type')
-    header = df.columns
-    return df.reset_index().to_numpy(),header.to_numpy()
+    return df
 
 
 def _read_finalResiduals(path_dir):
