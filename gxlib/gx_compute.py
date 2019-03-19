@@ -87,8 +87,6 @@ def _get_tdps_pn(path_dir):
     df = tmp[station_types]
     df = df.pivot(index='time',columns='type')
     header = df.columns
-    
-
     # reset_index() copies index field as a column back
     return df.reset_index().to_numpy(), header.to_numpy()
 
