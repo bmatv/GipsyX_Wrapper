@@ -4,8 +4,8 @@ import pandas as _pd
 import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
-import pickle as _pickle
-import gzip as _gzip
+import pyarrow as _pa
+import blosc as _blosc
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
@@ -19,15 +19,13 @@ _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Numb
 
 J2000origin = _np.datetime64('2000-01-01 12:00:00')
 
-def _read_pkl_gz(filename):
-    with _gzip.open(filename=filename, mode='r') as f:
-        return _pickle.loads(f.read())
+def _dump_write(filename,data,num_cores=24,cname='lz4'):
+    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
 
-def _dump_pkl_gz(datasets,filename,compresslevel=4):
-    '''datasets is a list of datasets: [ds1,ds2,ds3]. Can be pandas df etc. converts to pickle and gzips'''
-    tmp_pickle = _pickle.dumps(datasets)
-    with _gzip.open(filename=filename, mode='w',compresslevel=compresslevel) as f: #9 is default
-        f.write(data=tmp_pickle)
+    context = _pa.default_serialization_context()
+    serialized_data = context.serialize(data).to_buffer()
+    compressed = blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
+    with open(filename,'wb') as f: f.write(compressed)
 
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
