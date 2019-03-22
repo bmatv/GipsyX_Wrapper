@@ -6,6 +6,8 @@ from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
 
+from .gx_aux import _dump_write
+
 def _gd2e(gd2e_set):
     
     if not _os.path.exists(gd2e_set['output']):_os.makedirs(gd2e_set['output'])
@@ -20,28 +22,17 @@ def _gd2e(gd2e_set):
     # Do we really need a -gdCov option?
     out, err = process.communicate()
 
-    # print(str(gd2e_set['year'])+'/'+gd2e_set['dayofyear'])
-    #read tdp file (smooth0_0.tdp)
     solutions = _get_tdps_pn(gd2e_set['output'])
-    
-    #read tree file
-    debug_tree_file = gd2e_set['output']+'/debug.tree'
-    debug_tree = _pd.read_csv(debug_tree_file,sep='#',header=None,error_bad_lines=True)[0].values #numpy ndarray with debug.tree
-    
+    residuals = _get_residuals(gd2e_set['output'])
+    debug_tree = _get_debug_tree(gd2e_set['output'])
     runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
         gd2e_set['filename'],gd2e_set['station'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
-    
-    rtgx_log = _pd.read_csv(gd2e_set['output']+'/rtgx_ppp_0.tree.log0_0',sep='\n',header=None).values
-    rtgx_err = _pd.read_csv(gd2e_set['output']+'/rtgx_ppp_0.tree.err0_0',sep='\n',header=None).values
+    rtgx_log = _get_rtgx_log(gd2e_set['output'])
+    rtgx_err = _get_rtgx_err(gd2e_set['output'])
 
-    finalResiduals = _read_finalResiduals(gd2e_set['output'])
-
-    #Kill folder with all files after reading
-    _rmtree(path=gd2e_set['output'])
-    #create directory to store npz extracted data
-    _os.makedirs(gd2e_set['output'])
-    _dump_pkl_gz(datasets = [solutions,finalResiduals,debug_tree,runAgain,rtgx_log,rtgx_err,_np.asarray(out),_np.asarray(err)],
-                            filename=gd2e_set['output']+'/gipsyx_out.pkl.gz',compresslevel = 9)
+    _rmtree(path=gd2e_set['output']);_os.makedirs(gd2e_set['output'])
+    _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
+                            filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
    
 def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path):
     '''trees_df is the output of gen_trees. merge_tables = get_merge_table'''
@@ -80,8 +71,13 @@ def _get_tdps_pn(path_dir):
     df = df.pivot(index='time',columns='type')
     return df
 
+def _get_debug_tree(path_dir):
+    file = path_dir + '/debug.tree'
+    debug_tree = _pd.read_csv(file,sep='#',header=None,error_bad_lines=True)[0]
+    return debug_tree
 
-def _read_finalResiduals(path_dir):
+    
+def _get_residuals(path_dir):
     '''Reads finalResiduals.outComplete header: ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
                     ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']'''
     finalResiduals_path = path_dir + '/finalResiduals.out'
@@ -104,6 +100,13 @@ def _read_finalResiduals(path_dir):
     finalResiduals['gnss'] = (finalResiduals['t_r_ant'].str.slice(9,10)).astype('category')
     finalResiduals.drop('t_r_ant',axis=1,inplace=True)
     return finalResiduals.set_index(['datatype','time'])
+
+def _get_rtgx_log(path_dir):
+    rtgx_log = _pd.read_csv(path_dir+'/rtgx_ppp_0.tree.log0_0',sep='\n',header=None,index_col=None).squeeze()
+    return rtgx_log
+def _get_rtgx_err(path_dir):
+    rtgx_err = _pd.read_csv(path_dir+'/rtgx_ppp_0.tree.err0_0',sep='\n',header=None,index_col=None).squeeze()
+    return rtgx_err
 
 
 def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path):
