@@ -24,9 +24,16 @@ def _dump_write(filename,data,num_cores=24,cname='lz4'):
 
     context = _pa.default_serialization_context()
     serialized_data = context.serialize(data).to_buffer()
-    compressed = blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
+    compressed = _blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
     with open(filename,'wb') as f: f.write(compressed)
 
+def _dump_read(filename):
+    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
+    with open(filename,'rb') as f:
+        decompressed = _blosc.decompress(f.read())
+    deserialized = _pa.deserialize(decompressed)
+    return deserialized
+    
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
     #Making staDb directory in tmp folder 
