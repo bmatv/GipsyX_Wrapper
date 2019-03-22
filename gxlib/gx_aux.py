@@ -33,7 +33,7 @@ def _dump_read(filename):
         decompressed = _blosc.decompress(f.read())
     deserialized = _pa.deserialize(decompressed)
     return deserialized
-    
+
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
     #Making staDb directory in tmp folder 
