@@ -143,6 +143,6 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     #Check if files exist (from what left):
     file_exists = _np.zeros(tmp.shape[0],dtype=int)
     for j in range(tmp.shape[0]):
-        file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.pkl.gz')
+        file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.zstd')
     tmp['file_exists']=file_exists
     return tmp
