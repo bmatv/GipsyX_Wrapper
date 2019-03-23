@@ -118,3 +118,58 @@ def igs2jpl(begin,end,products_type,products_dir,repro2=True,num_cores=None):
     
     tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp')
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
+
+
+
+from gcore.GNSSproducts import FetchGNSSproducts
+
+def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True):
+    begin64 = _np.datetime64(begin).astype('datetime64[D]')
+    end64 = _np.datetime64(end).astype('datetime64[D]')
+    products_day = _np.arange(begin64,end64)
+    products_begin = ((products_day - _np.timedelta64(3,'h')) - _J2000origin).astype(int)
+    products_end = (products_day + _np.timedelta64(27,'h') - _J2000origin).astype(int)
+    
+    
+    dayofyear_str = (_pd.Series(products_day).dt.dayofyear).astype(str).str.zfill(3)
+    year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
+    
+    output_merged_dir = _os.path.abspath(GNSSproducts_dir)
+    target_dir = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.path.basename(output_merged_dir)+'_30h_init')) +'/' + year_str + '/'+ dayofyear_str
+    
+
+    
+    repository = _np.ndarray((products_day.shape),object)
+    h24 = _np.ndarray((products_day.shape),bool)
+    
+    repository.fill(GNSSproducts_dir)
+    h24.fill(h24_bool)
+    return _np.column_stack([products_begin,products_end,repository,target_dir,h24])
+
+
+def _gen_orbclk(input_set):
+    startTime = input_set[0]
+    endTime = input_set[1]
+    GNSSproducts = input_set[2]
+    targetDir = input_set[3]
+    hr24 = input_set[4]
+    
+    #check if target folder exists and create one if not
+    if not _os.path.exists(targetDir):
+        _os.makedirs(targetDir)
+    
+    fetchGNSSproducts = FetchGNSSproducts()
+    fetchGNSSproducts.targetDir = targetDir
+    fetchGNSSproducts.repository = GNSSproducts
+    fetchGNSSproducts.highRate = False
+    fetchGNSSproducts.quat = False
+    fetchGNSSproducts.prodType = 'fid' #metavar='nf|nnr|fid', default='fid'
+    '''type of products to fetch. Can be fiducial-free (nf), no-net-rotation (nnr) or fiducial (fid).
+    Note that this only applies if you are fetching final-type products. Default is fid.'''
+    fetchGNSSproducts.hr24=hr24
+        
+    intersection = False
+    makeShadowFile = True
+    
+    productStr, satList = fetchGNSSproducts.makeFiles(startTime,endTime, intersection=intersection,shad = makeShadowFile)
+    return productStr, satList
