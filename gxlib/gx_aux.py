@@ -4,7 +4,7 @@ import pandas as _pd
 import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
-import pyarrow as _pa
+import pyarrow as _pa 
 import blosc as _blosc
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
@@ -200,8 +200,8 @@ def _xyz2env(dataset,stations_list,reference_df):
         xyz_sigma = dataset[i]['sigma'].iloc[:,[1,2,3]]
 
         refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
-#             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
-#             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
+        # refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
+        # refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
         rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
 
         diff_value = xyz_value - refxyz #XYZ
@@ -222,7 +222,7 @@ def get_xyz_site(staDb_ref_xyz,site_name):
     return staDb_ref_xyz[staDb_ref_xyz['Station'] == site_name][['X','Y','Z']].squeeze().values #Squeeze to series. Not to create array in array
 
 def get_ref_xyz_sites(staDb_path):
-    '''Function reads staDb file provided'''
+    '''Function reads staDb file provided. Uses pandas, as default staDb object can not return XYZ coordinates???'''
     read = _pd.read_csv(staDb_path,delimiter='\s+',names=list(range(11)))
     positions = read[read.iloc[:,1]=='STATE']
     # refxyz = get_xyz_site(positions)
