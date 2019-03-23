@@ -4,7 +4,7 @@ import os as _os, sys as _sys
 
 _sys.path.append('..')
 
-from trees_options import carrier_phase_glo, carrier_phase_gps, pseudo_range_glo, pseudo_range_gps
+from trees_options import _carrier_phase_glo, _carrier_phase_gps, _pseudo_range_glo, _pseudo_range_gps
 
 _PYGCOREPATH="{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],
                             _sys.version_info[0], _sys.version_info[1])
@@ -26,8 +26,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
 
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
-    GPS_DataLink = pseudo_range_gps + carrier_phase_gps
-    GLONASS_DataLink = pseudo_range_glo + carrier_phase_glo
+    GPS_DataLink = _pseudo_range_gps + _carrier_phase_gps
+    GLONASS_DataLink = _pseudo_range_glo + _carrier_phase_glo
     if mode == 'GPS':
         DataLink = GPS_DataLink
     elif mode == 'GLONASS':

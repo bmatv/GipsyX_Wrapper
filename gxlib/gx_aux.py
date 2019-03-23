@@ -4,7 +4,8 @@ import pandas as _pd
 import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
-
+import pyarrow as _pa 
+import blosc as _blosc
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
@@ -17,6 +18,21 @@ _regex_rec = _re.compile(r"3\.\d+\s+R.+\W+\:\s(.+|)\W+Satellite System\W+\:\s(.+
 _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Number\W+:\s(\w+\s?\w+?|)\W+Antenna.+:\s(.+|)\W+Marker->ARP Up.+:\s(.+|)\W+Marker->ARP North.+:\s(.+|)\W+Marker->ARP East.+:\s(.+|)\W+Alignment from True N\W+:\s(.+|)\W+Antenna Radome Type\W+:\s(.+|)\W+Radome Serial Number\W+:\s(.+|)\W+Antenna Cable Type\W+:\s(.+|)\W+Antenna Cable Length\W+:\s(.+|)\W+Date Installed\W+:\s(.{10})T?(.{5}|)Z?\W+Date Removed\W+\:(?:\s\(?(.{10})T(.{5}|)Z?|)\W+Additional Information\W+:\s(.+|)\W+", _re.MULTILINE)
 
 J2000origin = _np.datetime64('2000-01-01 12:00:00')
+
+def _dump_write(filename,data,num_cores=24,cname='lz4'):
+    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
+
+    context = _pa.default_serialization_context()
+    serialized_data = context.serialize(data).to_buffer()
+    compressed = _blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
+    with open(filename,'wb') as f: f.write(compressed)
+
+def _dump_read(filename):
+    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
+    with open(filename,'rb') as f:
+        decompressed = _blosc.decompress(f.read())
+    deserialized = _pa.deserialize(decompressed)
+    return deserialized
 
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
@@ -184,8 +200,8 @@ def _xyz2env(dataset,stations_list,reference_df):
         xyz_sigma = dataset[i]['sigma'].iloc[:,[1,2,3]]
 
         refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
-#             refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
-#             refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
+        # refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
+        # refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
         rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
 
         diff_value = xyz_value - refxyz #XYZ
@@ -206,7 +222,7 @@ def get_xyz_site(staDb_ref_xyz,site_name):
     return staDb_ref_xyz[staDb_ref_xyz['Station'] == site_name][['X','Y','Z']].squeeze().values #Squeeze to series. Not to create array in array
 
 def get_ref_xyz_sites(staDb_path):
-    '''Function reads staDb file provided'''
+    '''Function reads staDb file provided. Uses pandas, as default staDb object can not return XYZ coordinates???'''
     read = _pd.read_csv(staDb_path,delimiter='\s+',names=list(range(11)))
     positions = read[read.iloc[:,1]=='STATE']
     # refxyz = get_xyz_site(positions)
