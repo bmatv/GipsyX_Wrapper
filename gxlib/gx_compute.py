@@ -15,7 +15,7 @@ def _gd2e(gd2e_set):
                         '-drEditedFile', gd2e_set['filename'],
                         '-recList', gd2e_set['station'],
                         '-runType', 'PPP',
-                        '-GNSSproducts', gd2e_set['gnss_products_dir'],
+                        '-orbClk', gd2e_set['orbClk_path'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
                         '-tdpInput', gd2e_set['tdp'],
                         '-staDb', gd2e_set['staDb_path']], cwd=gd2e_set['output'],stdout=_PIPE)
@@ -131,7 +131,8 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp = tmp.join(other=trees_df,on='year')
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
     tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+station+'/'+tmp['year']+ '/' + tmp['dayofyear']
-    tmp['gnss_products_dir'] = gnss_products_dir
+    # tmp['gnss_products_dir'] = gnss_products_dir
+    tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'] + '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
 
     tmp['station'] = station
