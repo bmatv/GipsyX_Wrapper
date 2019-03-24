@@ -102,7 +102,7 @@ def _merge(merge_set):
     Sample input:
     drMerge.py -i isba0940.15o.dr ohln0940.15o.dr -start 2015-04-04 00:00:00 -end 2015-04-04 04:00:00
     '''
-    if not _os.path.isfile((merge_set[4])[:-6]+'_32h.dr.gz'):
+    if not _os.path.isfile((merge_set[4])[:-6]+'_30h.dr.gz'):
         #Computing time boundaries of the merge. merge_set[1] is file begin time
         merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 3,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
         merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(27,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
@@ -120,14 +120,10 @@ def dr_merge(merge_table,stations_list,num_cores):
 
     for i in range(len(stations_list)):
         num_cores = num_cores if len(merge_table[i]) > num_cores else len(merge_table[i])
-        chunksize = int(_np.ceil(len(merge_table[i]) / num_cores))
         merge_table_class3 = merge_table[i][merge_table[i][:,0]==3]
 
         print(stations_list[i],'station binary files merging (class_3 only)...')
-        print ('Number of files to process:', len(merge_table_class3),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
-        pool = _Pool(processes=num_cores)
+        print ('Number of files to process:', len(merge_table_class3),'| Adj. num_cores:', num_cores)
 
-        pool.map_async(func=_merge, iterable=merge_table_class3, chunksize=chunksize)
-        pool.close()
-        pool.join()
-        print('| Done!')
+        with _Pool(processes = num_cores) as p:
+                    list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3), total=merge_table_class3.shape[0]))
