@@ -75,11 +75,11 @@ def get_merge_table(tmp_dir,mode=None):
         end_n_hour=_np.roll(station_record[:,3],-1).astype('datetime64[h]')
 
 
-        B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))&(start_c_day-start_p_hour >= _np.timedelta64(4,'[h]'))
+        B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))&(start_c_day-start_p_hour >= _np.timedelta64(3,'[h]'))
 
         B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))&(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]')) #value should be positive
 
-        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(28,'[h]')) #start_c_day is the same as end_c_day
+        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(27,'[h]')) #start_c_day is the same as end_c_day
         
         B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))&(start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) #check if next file is next day without missing days in between 
         
@@ -104,11 +104,11 @@ def _merge(merge_set):
     '''
     if not _os.path.isfile((merge_set[4])[:-6]+'_32h.dr.gz'):
         #Computing time boundaries of the merge. merge_set[1] is file begin time
-        merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 4,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
-        merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(28,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 3,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(27,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
 
         drMerge_proc = _Popen(['drMerge', merge_begin, merge_end,\
-                    _os.path.basename(merge_set[4])[:-6]+'_32h.dr.gz',\
+                    _os.path.basename(merge_set[4])[:-6]+'_30h.dr.gz',\
                     merge_set[3], merge_set[4], merge_set[5] ],\
                     cwd=_os.path.dirname(merge_set[4]))
         drMerge_proc.wait()
