@@ -2,7 +2,7 @@ import numpy as _np
 import os as _os
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
-
+import tqdm as _tqdm
 from .gx_aux import J2000origin
 
 
