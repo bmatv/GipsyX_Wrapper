@@ -111,6 +111,7 @@ class gd2e_class:
                               A_Vertical=A_Vertical,
                               num_cores = self.num_cores)
     def remove_merged(self):
+        '''Removes merged dr files, be it 30h file or 32h file'''
         gx_aux.remove_30h(self.tmp_dir)
         gx_aux.remove_32h(self.tmp_dir)
     def remove_gathers(self):
