@@ -15,7 +15,7 @@ def _gd2e(gd2e_set):
                         '-drEditedFile', gd2e_set['filename'],
                         '-recList', gd2e_set['station'],
                         '-runType', 'PPP',
-                        '-orbClk', gd2e_set['orbClk_path'],
+                        '-orbClk', gd2e_set['orbClk_path'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
                         '-tdpInput', gd2e_set['tdp'],
                         '-staDb', gd2e_set['staDb_path']], cwd=gd2e_set['output'],stdout=_PIPE)
@@ -121,8 +121,7 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp_merge_table = merge_tables[station_index_in_drinfo]
     
     filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
-    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_32h.dr.gz'
-    #From now files are 32 hours to overcome GipsyX check if files is 30 hours then use one product day
+    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_30h.dr.gz'
                 
     tmp['filename'] = filename
     tmp['class'] = tmp_merge_table[:,0]
@@ -131,6 +130,7 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp = tmp.join(other=trees_df,on='year')
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
     tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+station+'/'+tmp['year']+ '/' + tmp['dayofyear']
+    
     # tmp['gnss_products_dir'] = gnss_products_dir
     tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'] + '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
