@@ -25,8 +25,8 @@ def _gd2e(gd2e_set):
     solutions = _get_tdps_pn(gd2e_set['output'])
     residuals = _get_residuals(gd2e_set['output'])
     debug_tree = _get_debug_tree(gd2e_set['output'])
-    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
-        gd2e_set['filename'],gd2e_set['station'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
+    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
+        gd2e_set['filename'],gd2e_set['station'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
     rtgx_log = _get_rtgx_log(gd2e_set['output'])
     rtgx_err = _get_rtgx_err(gd2e_set['output'])
 
@@ -130,7 +130,7 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp = tmp.join(other=trees_df,on='year')
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
     tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+station+'/'+tmp['year']+ '/' + tmp['dayofyear']
-    
+
     # tmp['gnss_products_dir'] = gnss_products_dir
     tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'] + '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
