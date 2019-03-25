@@ -309,7 +309,7 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
 
 
 
-def analyze_env(stations_list,eterna_path,tmp_dir,staDb_path,envs,project_name):
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
 
     for i in range(blq_array.shape[0]):
