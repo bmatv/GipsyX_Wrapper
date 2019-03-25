@@ -3,7 +3,7 @@ import pandas as _pd
 import glob as _glob
 import os as _os
 from multiprocessing import Pool as _Pool 
-from .gx_aux import J2000origin
+from .gx_aux import J2000origin, _dump_read, _dump_write
 
 '''Extraction of solutions from npz'''
 def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
@@ -135,17 +135,13 @@ def _gather_tdps(station_files,num_cores):
 def _get_tdps_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
     Clips data to 24 hours of the same day if the file is bigger'''
-    tmp  = _np.load(file=file)
-    tmp_solution = tmp['tdp']
-    tmp_residuals = tmp['finalResiduals']
+    tmp_solution,tmp_residuals = _dump_read(file)[:2]
 
-    time_solution = tmp_solution[:,0]
-    time_residuals = tmp_residuals[:,0]
     #begin_timeframe as file time median should always work
-    begin_timeframe = ((_np.median(time_solution).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    begin_timeframe = ((_np.median(tmp_solution.index).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
     end_timeframe = begin_timeframe + 86400
         
-    solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
-    residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
+    solution = tmp_solution[(tmp_solution.index >= begin_timeframe) & (tmp_solution.index < end_timeframe)]
+    residuals = tmp_residuals[(tmp_residuals.index.get_level_values(1) >= begin_timeframe) & (tmp_residuals.index.get_level_values(1) < end_timeframe)]
 
     return solution,residuals
