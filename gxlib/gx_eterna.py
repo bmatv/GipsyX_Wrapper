@@ -223,7 +223,7 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
         _os.makedirs(tmp_station_path)
 
             
-#     env_et = env2eterna(env_dataset)
+    # env_et = env2eterna(env_dataset)
     env_et = env_dataset
     components = ['e_eterna','n_eterna','v_eterna']
     for i in range(len(components)):
@@ -252,11 +252,11 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
         with open(project_path,'w') as project_file:
             project_file.write(components[i])
 
-        #Executing ETERNA
-#             run_eterna(eterna_exec,comp_path)
+        # Executing ETERNA
+        # run_eterna(eterna_exec,comp_path)
         comp_path_list.append([eterna_exec,comp_path])
 
-    #Running Eterna analysis of 3 components in parallel
+    # Running Eterna analysis of 3 components in parallel
     with Pool() as p:
         p.map(run_eterna, comp_path_list)
         
