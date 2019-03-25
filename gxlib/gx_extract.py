@@ -3,21 +3,13 @@ import pandas as _pd
 import glob as _glob
 import os as _os
 from multiprocessing import Pool as _Pool 
-from .gx_aux import J2000origin, _dump_read, _dump_write
+from .gx_aux import J2000origin, _dump_read, _dump_write, _check_stations
 import tqdm as _tqdm
 import blosc as _blosc
 
 '''Extraction of solutions from npz'''
 def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
-
-    stations_list = _np.core.defchararray.upper(stations_list)
-
-    #check if station from input is in the folder
-    gd2e_stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
-    station_exists = _np.isin(stations_list,gd2e_stations_list)
-
-    checked_stations = stations_list[station_exists==True]
-
+    checked_stations = _check_stations(stations_list = stations_list,tmp_dir=tmp_dir,project_name=project_name)
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
     paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.zstd'
@@ -94,7 +86,7 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     _blosc.set_nthreads(24) #using 24 threads for efficient compression of extracted data
     solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.zstd'
     residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.zstd'
-    
+
     print('Compressing and saving extracted gathers')
     _dump_write(data=stacked_solutions,filename=solutions_file,cname='zstd')
     _dump_write(data=stacked_residuals,filename=residuals_file,cname='zstd')
