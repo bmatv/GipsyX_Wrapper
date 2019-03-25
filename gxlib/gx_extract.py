@@ -89,15 +89,15 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     stacked_residuals = _pd.concat(tmp_data[:,1])
     # For residuals trans column should be converted to category again
     stacked_residuals['trans'] = stacked_residuals['trans'].astype('category')
-    print(station_name, 'extraction finished')
+    # print(station_name, 'extraction finished')
 
     solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.lz4'
     _dump_write(data=stacked_solutions,filename=solutions_file,cname='lz4')
-    print(station_name, 'solutions successfully saved')
+    # print(station_name, 'solutions successfully saved')
 
     residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.lz4'
     _dump_write(data=stacked_residuals,filename=residuals_file,cname='lz4')
-    print(station_name, 'residuals successfully saved')
+    # print(station_name, 'residuals successfully saved')
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
