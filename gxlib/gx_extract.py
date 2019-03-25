@@ -80,7 +80,7 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     All stations all years.
     '''
 
-    station_files = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + station_name + '/*/*/*.zstd'))
+    station_files = _np.asarray(sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + station_name + '/*/*/*.zstd')))
     tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
 
     # Stacking list of tmp tdps and residuals into one np array
@@ -101,7 +101,7 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
     get_tdps_pandas,numpy'''
-    num_cores = num_cores if len(station_files) > num_cores else len(station_files)
+    num_cores = num_cores if station_files.shape[0] > num_cores else station_files.shape[0]
     #  chunksize = int(np.ceil(len(station_files) / num_cores)) #20-30 is the best
     chunksize = 20
  
