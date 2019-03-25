@@ -21,7 +21,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
     #Create a list of paths to get data from
     paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.pickle'
 
-    gather = _np.ndarray((checked_stations), dtype=object)
+    gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
 
     for i in range(n_stations):
@@ -54,7 +54,7 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
     #Create a list of paths to get data from
     paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.lz4'
 
-    gather = _np.ndarray((checked_stations), dtype=object)
+    gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
 
     for i in range(n_stations):
