@@ -93,12 +93,11 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
 
     _blosc.set_nthreads(24) #using 24 threads for efficient compression of extracted data
     solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.zstd'
-    _dump_write(data=stacked_solutions,filename=solutions_file,cname='zstd')
-    # print(station_name, 'solutions successfully saved')
-
     residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.zstd'
+    
+    print('Compressing and saving extracted gathers')
+    _dump_write(data=stacked_solutions,filename=solutions_file,cname='zstd')
     _dump_write(data=stacked_residuals,filename=residuals_file,cname='zstd')
-    # print(station_name, 'residuals successfully saved')
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
