@@ -21,18 +21,18 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
     #Create a list of paths to get data from
     paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.pickle'
 
-    gather = _np.ndarray((n_stations), dtype=object)
+    gather = _np.ndarray((checked_stations), dtype=object)
     '''This loader can be multithreaded'''
 
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
             print('No gather file for {} station in {}.\n Running extract_tdps for the dataset.'.format(checked_stations[i],project_name))
-            extract_tdps(tmp_dir,project_name,num_cores)
-            gather[i] = _pd.read_pickle(paths_tmp[i])
-        else:
-            print('Found', paths_tmp[i], 'Loading...')
-            gather[i] = _pd.read_pickle(paths_tmp[i])
+            extract_tdps(tmp_dir,project_name,checked_stations[i],num_cores)
+
+        print('Found', paths_tmp[i], 'Loading...')
+        gather[i] = _dump_read(paths_tmp[i])
     return gather
+
 def rm_solutions_gathers(tmp_dir,project_name):
     gathers = _glob.glob(_os.path.join(tmp_dir,'gd2e',project_name) + '/*/solutions.pickle')
     for gather in gathers: _os.remove(gather)
@@ -52,19 +52,18 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
 
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.pickle'
+    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.lz4'
 
-    gather = _np.ndarray((n_stations), dtype=object)
+    gather = _np.ndarray((checked_stations), dtype=object)
     '''This loader can be multithreaded'''
 
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
             print('No gather file for {} station in {}.\n Running extract_tdps for the dataset.'.format(checked_stations[i],project_name))
-            extract_tdps(tmp_dir,project_name,num_cores)
-            gather[i] = _pd.read_pickle(paths_tmp[i])  
-        else:
-            print('Found', paths_tmp[i], 'Loading...')
-            gather[i] = _pd.read_pickle(paths_tmp[i])
+            extract_tdps(tmp_dir,project_name,checked_stations[i],num_cores)
+
+        print('Found', paths_tmp[i], 'Loading...')
+        gather[i] = _dump_read(paths_tmp[i])
     return gather
 
 def extract_tdps(tmp_dir,project_name,station_name,num_cores):
