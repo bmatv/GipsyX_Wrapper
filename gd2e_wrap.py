@@ -17,6 +17,7 @@ class gd2e_class:
                  rate = 300,
                  gnss_products_dir = '/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final',
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
+                 eterna_path='/home/bogdanm/Desktop/otl/eterna',
                  num_cores = 8):
         
         self.project_name = project_name
@@ -43,6 +44,7 @@ class gd2e_class:
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
         self.mode = self._check_mode(mode)
+        self.eterna_path=eterna_path
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -121,6 +123,12 @@ class gd2e_class:
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
 
-    def analyze_env(self,station_i):
-        gx_eterna.analyse_et(env_dataset = self.envs[station_i],eterna_path= '/home/bogdanm/Desktop/otl/eterna',
-        self.stations_list[station[i]],self.project_name,self.tmp_dir,self.staDb_path)
+    def analyze_env(self):
+        return gx_eterna.analyze_env(
+                                    self.envs,
+                                    self.stations_list,
+                                    self.eterna_path,
+                                    self.tmp_dir,
+                                    self.staDb_path,
+                                    self.project_name
+                                    )
