@@ -306,3 +306,14 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)[df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)<180]+360)
     
     return df_blq[['up','north','east']]
+
+
+
+def analyze_env(stations_list,eterna_path,tmp_dir,staDb_path,envs,project_name):
+    blq_array = _np.ndarray((len(stations_list)),dtype=object)
+
+    for i in range(blq_array.shape[0]):
+        # runnig eterna analyse on each env
+        
+        blq_array[i] = analyse_et(envs[i],'/home/bogdanm/Desktop/otl/eterna',stations_list[i],project_name,tmp_dir,staDb_path)
+        return blq_array
