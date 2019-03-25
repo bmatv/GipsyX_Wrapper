@@ -112,9 +112,13 @@ def _interp_short_gaps(dataset_avg):
     dataset_avg.loc[update.index] = update
     return dataset_avg
 
-def env2eterna(dataset):
-    '''Expects env dataset. Removes outliers via detrend'''
-    filt1 = _remove_outliers(dataset)
+def env2eterna(dataset,remove_outliers):
+    '''Expects env dataset. Removes outliers via detrend
+    remove_outliers is bool (detrend and filter on 3*std)'''
+
+    if remove_outliers: filt1 = _remove_outliers(dataset) #Turning off and on the detrending
+    else: filt1 = dataset
+
     filt1_st = _stretch(filt1)
     filt1_avg = _avg_30(filt1_st)
     return _interp_short_gaps(filt1_avg)
@@ -210,7 +214,7 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path):
+def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers):
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
@@ -223,8 +227,7 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
         _os.makedirs(tmp_station_path)
 
             
-    # env_et = env2eterna(env_dataset)
-    env_et = env_dataset
+    env_et = env2eterna(env_dataset,remove_outliers)
     components = ['e_eterna','n_eterna','v_eterna']
     for i in range(len(components)):
         comp_path = _os.path.join(tmp_station_path,components[i])
@@ -306,9 +309,6 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)[df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)<180]+360)
     
     return df_blq[['up','north','east']]
-
-
-
 def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
 
