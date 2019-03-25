@@ -1,4 +1,4 @@
-from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex
+from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex, gx_eterna
 
 class gd2e_class:
     def __init__(self,
@@ -120,3 +120,7 @@ class gd2e_class:
 
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
+
+    def analyze_env(self,station_i):
+        gx_eterna.analyse_et(env_dataset = self.envs[station_i],eterna_path= '/home/bogdanm/Desktop/otl/eterna',
+        self.stations_list[station[i]],self.project_name,self.tmp_dir,self.staDb_path)
