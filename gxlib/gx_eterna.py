@@ -117,7 +117,7 @@ def env2eterna(dataset,remove_outliers):
     remove_outliers is bool (detrend and filter on 3*std)'''
 
     if remove_outliers: filt1 = _remove_outliers(dataset) #Turning off and on the detrending
-    else: filt1 = dataset
+    else: filt1 = dataset.value
 
     filt1_st = _stretch(filt1)
     filt1_avg = _avg_30(filt1_st)
