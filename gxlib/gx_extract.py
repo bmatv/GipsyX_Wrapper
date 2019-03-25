@@ -5,6 +5,7 @@ import os as _os
 from multiprocessing import Pool as _Pool 
 from .gx_aux import J2000origin, _dump_read, _dump_write
 import tqdm as _tqdm
+import blosc as _blosc
 
 '''Extraction of solutions from npz'''
 def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
@@ -19,7 +20,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
 
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.lz4'
+    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.zstd'
 
     gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
@@ -52,7 +53,7 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
 
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.lz4'
+    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.zstd'
 
     gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
@@ -90,12 +91,13 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     stacked_residuals['trans'] = stacked_residuals['trans'].astype('category')
     # print(station_name, 'extraction finished')
 
-    solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.lz4'
-    _dump_write(data=stacked_solutions,filename=solutions_file,cname='lz4')
+    _blosc.set_nthreads(24) #using 24 threads for efficient compression of extracted data
+    solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.zstd'
+    _dump_write(data=stacked_solutions,filename=solutions_file,cname='zstd')
     # print(station_name, 'solutions successfully saved')
 
-    residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.lz4'
-    _dump_write(data=stacked_residuals,filename=residuals_file,cname='lz4')
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.zstd'
+    _dump_write(data=stacked_residuals,filename=residuals_file,cname='zstd')
     # print(station_name, 'residuals successfully saved')
 
 def _gather_tdps(station_files,num_cores):
