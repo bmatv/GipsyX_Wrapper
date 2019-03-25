@@ -125,7 +125,7 @@ class gd2e_class:
 
     def analyze_env(self,remove_outliers=True):
         return gx_eterna.analyze_env(
-                                    self.envs,
+                                    self.envs(),
                                     self.stations_list,
                                     self.eterna_path,
                                     self.tmp_dir,
