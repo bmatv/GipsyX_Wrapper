@@ -123,12 +123,13 @@ class gd2e_class:
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
 
-    def analyze_env(self):
+    def analyze_env(self,remove_outliers=True):
         return gx_eterna.analyze_env(
                                     self.envs,
                                     self.stations_list,
                                     self.eterna_path,
                                     self.tmp_dir,
                                     self.staDb_path,
-                                    self.project_name
+                                    self.project_name,
+                                    remove_outliers
                                     )
