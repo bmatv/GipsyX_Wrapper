@@ -15,7 +15,8 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
     paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.zstd'
 
     gather = _np.ndarray((n_stations), dtype=object)
-    '''This loader can be multithreaded'''
+    '''This loader can be multithreaded or compression change of the threads'''
+    
 
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]): 
