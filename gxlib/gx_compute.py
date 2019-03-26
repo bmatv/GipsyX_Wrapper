@@ -42,7 +42,9 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
     #loading list of analysed stations from drinfo npz file
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
     drinfo_stations_list = drinfo_file['stations_list']
-    print('---{}---'.format(project_name)
+
+    print('---{}---'.format(project_name))
+
     for i in range(len(stations_list)):
         tmp = _gen_gd2e_table_station(trees_df,drinfo_stations_list, stations_list[i], years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
 
