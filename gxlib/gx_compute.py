@@ -42,22 +42,20 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
     #loading list of analysed stations from drinfo npz file
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
     drinfo_stations_list = drinfo_file['stations_list']
-    
+    print('---{}---'.format(project_name)
     for i in range(len(stations_list)):
         tmp = _gen_gd2e_table_station(trees_df,drinfo_stations_list, stations_list[i], years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
 
         if tmp[tmp['file_exists']==0].shape[0] ==0:
             gd2e_table[i] = None
-            print('---{}---\n{} is already processed'.format(project_name,stations_list[i]))
+            print('{} is already processed'.format(stations_list[i]))
         else:
             gd2e_table[i] = tmp[tmp['file_exists']==0].to_records()#converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
             num_cores = num_cores if len(gd2e_table[i]) > num_cores else len(gd2e_table[i])
-            print('---{}---\nProcessing station {}...\nNumber of files to be processed: {}\nAdjusted number of cores: {}'.format(project_name,stations_list[i],gd2e_table[i].shape[0],num_cores))
+            print('Processing station {}...\n# files to process: {}\nAdjusted number of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
 
             with _Pool(processes = num_cores) as p:
                 list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
-                # print('----Done!----')
-    # return gd2e_table
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
