@@ -327,3 +327,12 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
 
 
     return blq_array
+
+def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path):
+    blq_array = _np.ndarray((len(stations_list)),dtype=object)
+    env_et = env2eterna(envs[i],remove_outliers)
+    synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+
+    blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+
+    return blq_array
