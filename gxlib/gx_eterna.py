@@ -308,6 +308,7 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
 
     df_blq.update(df_blq.loc(axis=1)[:,['phase',],['value',]].loc[['MF','MM','SSA']] -180)
     df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] < -180] += 360
+    df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] > 180] -= 360
     
     return df_blq[['up','east','north']]
 
