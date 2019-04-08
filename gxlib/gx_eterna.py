@@ -225,8 +225,8 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
         _shutil.rmtree(tmp_station_path)
     if not _os.path.exists(tmp_station_path):
         _os.makedirs(tmp_station_path)
-        
-         
+
+
     components = ['e_eterna','n_eterna','v_eterna']
     for i in range(len(components)):
         comp_path = _os.path.join(tmp_station_path,components[i])
@@ -309,18 +309,21 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     
     return df_blq[['up','north','east']]
 
-def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl):
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
 
     if not restore_otl:
         for i in range(blq_array.shape[0]):
-            # runnig eterna analyse on each env
-            
-            blq_array[i] = analyse_et(envs[i],'/home/bogdanm/Desktop/otl/eterna',stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+            # runing eterna analyse on each env
+            env_et = env2eterna(envs[i],remove_outliers)
+            blq_array[i] = analyse_et(env_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
     else:
         for i in range(blq_array.shape[0]):
-            synth_otl = gen_synth_otl(dataset = envs[i])
-
+            # If restore otl -> ge synthetic otl and add back to the env signal and run analyse on each component
+            env_et = env2eterna(envs[i],remove_outliers)
+            synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+            restored_et = env_et + synth_otl
+            blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
 
 
     return blq_array
