@@ -265,9 +265,9 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     return extract_et(tmp_station_path,llh['LON'])
 
 def extract_et(tmp_station_path,lon): #In development. Should extract lon from staDb to do proper correction of the phase
-    lon-=360 if lon>180 else lon
-    lon+=360 if lon<-180 else lon
-        
+    lon-=360 if lon>180 else 0 #as the operator is -= then else will be -=parameter !!!
+    lon+=360 if lon<-180 else 0
+    
     components = ['east','north','up'] #should be in alphabetical order. Not sure why
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
@@ -299,13 +299,15 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
                    ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['','coeff']).set_index('')
 
 
-        df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) - lon*coeff['coeff'])
+        df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) + lon*coeff['coeff'])
         df_blq[components[i]]['phase']['std'].update(df['phase_stdv'])
-    df_blq.update(df_blq[['east','north']].xs('phase',level=1,axis=1).xs('value',level=1,axis=1)+180)
-    df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1).loc[['MF','MM','SSA']] -180)
-    
-    phase_values = df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)
-    df_blq.update(phase_values[phase_values<180]+360)
+        
+    df_blq.update(df_blq.loc(axis=1)[['east','north'],['phase',],['value',]]+180)
+        
+        
+
+    df_blq.update(df_blq.loc(axis=1)[:,['phase',],['value',]].loc[['MF','MM','SSA']] -180)
+    df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] < -180] += 360
     
     return df_blq[['up','east','north']]
 
