@@ -220,7 +220,7 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
     commdat_path = _os.path.join(eterna_path,'commdat')
     comp_path_list = []
     tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_et')
-        
+    print(tmp_station_path)    
     if _os.path.exists(tmp_station_path):
         _shutil.rmtree(tmp_station_path)
     if not _os.path.exists(tmp_station_path):
@@ -309,6 +309,7 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)[df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)<180]+360)
     
     return df_blq[['up','north','east']]
+
 def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
 
