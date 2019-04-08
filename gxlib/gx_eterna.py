@@ -329,8 +329,8 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
 
 def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path):
     '''This is a test method that should return same parameters as input blq file'''
+    blq_array = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(blq_array.shape[0]):
-        blq_array = _np.ndarray((len(stations_list)),dtype=object)
         env_et = env2eterna(envs[i],remove_outliers)
         synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
 
