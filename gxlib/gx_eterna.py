@@ -3,6 +3,7 @@ import pandas as _pd
 
 from gxlib.gx_aux import J2000origin as _J2000origin
 from gxlib.gx_filter import _stretch, _avg_30
+from gxlib.gx_hardisp import gen_synth_otl
 
 import sys as _sys,os as _os
 import shutil as _shutil
@@ -214,7 +215,7 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers):
+def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers):
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
@@ -224,9 +225,8 @@ def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_p
         _shutil.rmtree(tmp_station_path)
     if not _os.path.exists(tmp_station_path):
         _os.makedirs(tmp_station_path)
-
-            
-    env_et = env2eterna(env_dataset,remove_outliers)
+        
+         
     components = ['e_eterna','n_eterna','v_eterna']
     for i in range(len(components)):
         comp_path = _os.path.join(tmp_station_path,components[i])
@@ -309,11 +309,18 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     
     return df_blq[['up','north','east']]
 
-def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers):
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
 
-    for i in range(blq_array.shape[0]):
-        # runnig eterna analyse on each env
-        
-        blq_array[i] = analyse_et(envs[i],'/home/bogdanm/Desktop/otl/eterna',stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+    if not restore_otl:
+        for i in range(blq_array.shape[0]):
+            # runnig eterna analyse on each env
+            
+            blq_array[i] = analyse_et(envs[i],'/home/bogdanm/Desktop/otl/eterna',stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+    else:
+        for i in range(blq_array.shape[0]):
+            synth_otl = gen_synth_otl(dataset = envs[i])
+
+
+
     return blq_array
