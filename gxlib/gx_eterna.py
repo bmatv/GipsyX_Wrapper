@@ -325,7 +325,7 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
             # If restore otl -> ge synthetic otl and add back to the env signal and run analyse on each component
             env_et = env2eterna(envs[i],remove_outliers)
             synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
-            restored_et = env_et - synth_otl
+            restored_et = env_et + synth_otl
             blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
 
     return blq_array
