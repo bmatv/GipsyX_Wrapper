@@ -307,7 +307,7 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
     phase_values = df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)
     df_blq.update(phase_values[phase_values<180]+360)
     
-    return df_blq[['up','north','east']]
+    return df_blq[['up','east','north']]
 
 def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
