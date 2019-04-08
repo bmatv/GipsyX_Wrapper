@@ -35,9 +35,13 @@ def reformat_blq(blq_string):
     amplitude = df.iloc[:3].round(5).to_string(header=None,index=None) #rounding values and string conversion round(5)
     amplitude = _pd.Series(amplitude).str.split('\n',expand=True).T.squeeze().str.split(expand=True).stack().str.lstrip('0').unstack() #formatting with no zero ahead
     
-    phase = df.iloc[3:].round(1).to_string(header=None,index=None) #rounding values and string conversion round(1)
-    phase = _pd.Series(phase).str.split('\n',expand=True).T.squeeze().str.split(expand=True).stack().str.lstrip('0').unstack()
-    return _pd.concat([amplitude,phase]).to_string(header=None,index=None)
+    def a(inp):
+        return '{:>6}'.format(inp)
+    def b(inp):
+        return '{:>7}'.format(inp)
+    phase = df.iloc[3:].round(1).to_string(header=None,index=None,formatters=[b,a,a,a,a,a,a,a,a,a,a])
+
+    return amplitude.to_string(header=None,index=None).replace("  "," ") + '\n' + phase
 
 def gen_synth_otl(dataset,station_name,hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',sampling = 1800):
     '''Expects stretched dataset. Otherwise can get wrong sampling. Outputs (T, E, N, V) array'''
