@@ -299,7 +299,7 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
                    ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['','coeff']).set_index('')
 
 
-        df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) + lon*coeff['coeff'])
+        df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) - lon*coeff['coeff'])
         df_blq[components[i]]['phase']['std'].update(df['phase_stdv'])
         
     df_blq.update(df_blq.loc(axis=1)[['east','north'],['phase',],['value',]]+180)
