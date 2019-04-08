@@ -267,7 +267,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
 def extract_et(tmp_station_path,lon): #In development. Should extract lon from staDb to do proper correction of the phase
     lon-=360 if lon>180 else 0 #as the operator is -= then else will be -=parameter !!!
     lon+=360 if lon<-180 else 0
-    
+    print(lon)
     components = ['east','north','up'] #should be in alphabetical order. Not sure why
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
