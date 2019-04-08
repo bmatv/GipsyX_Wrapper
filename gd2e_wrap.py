@@ -139,3 +139,18 @@ class gd2e_class:
                                     sampling = sampling,
                                     hardisp_path = self.hardisp_path,
                                     )
+
+    def test_analyze(self,remove_outliers=True,sampling=1800):
+        '''remove_outliers has no sense here. This is just to get begin and end of the timeline'''
+        return gx_eterna.test_analyze(
+                                    self.envs(),
+                                    self.stations_list,
+                                    self.eterna_path,
+                                    self.tmp_dir,
+                                    self.staDb_path,
+                                    self.project_name,
+                                    remove_outliers,
+                                    blq_file = self.blq_file,
+                                    sampling = sampling,
+                                    hardisp_path = self.hardisp_path,
+                                    )
