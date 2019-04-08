@@ -325,14 +325,15 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
             restored_et = env_et + synth_otl
             blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
 
-
     return blq_array
 
 def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path):
-    blq_array = _np.ndarray((len(stations_list)),dtype=object)
-    env_et = env2eterna(envs[i],remove_outliers)
-    synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+    '''This is a test method that should return same parameters as input blq file'''
+    for i in range(blq_array.shape[0]):
+        blq_array = _np.ndarray((len(stations_list)),dtype=object)
+        env_et = env2eterna(envs[i],remove_outliers)
+        synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
 
-    blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+        blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
 
     return blq_array
