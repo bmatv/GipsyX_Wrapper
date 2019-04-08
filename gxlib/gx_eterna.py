@@ -66,7 +66,7 @@ def _write_ETERNA(dataset, filename,sampling):
         file.write(out_buf)
         
 def _get_trend(dataset,deg=1):
-    '''returns''' 
+    '''returns trend for env eterna dataset''' 
     dataset = dataset[(~_np.isnan(dataset)).min(axis=1)].copy()
 
     x = dataset.index.values
@@ -76,8 +76,8 @@ def _get_trend(dataset,deg=1):
     return _pd.DataFrame(p[0]*x[:,_np.newaxis] + p[1],index = x,columns=dataset.columns)
 
 def _remove_outliers(dataset_env,coef=3):
-    '''Runs detrending of the data to normalize to zero'''
-    detrend = dataset_env.value - _get_trend(dataset_env.value)   
+    '''Runs detrending of the data to normalize to zero. expects ENV values as input. No sigmas'''
+    detrend = dataset_env - _get_trend(dataset_env)   
     return detrend[(detrend.abs() <= detrend.std()*coef).min(axis=1)]
 
 def _fill_block(block_):
