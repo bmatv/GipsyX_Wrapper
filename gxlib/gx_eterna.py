@@ -214,7 +214,7 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers):
+def analyse_et  :
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
@@ -317,4 +317,4 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
         # runnig eterna analyse on each env
         
         blq_array[i] = analyse_et(envs[i],'/home/bogdanm/Desktop/otl/eterna',stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
-        return blq_array
+    return blq_array
