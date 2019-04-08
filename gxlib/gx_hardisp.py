@@ -58,7 +58,7 @@ def gen_synth_otl(dataset,station_name,hardisp_path = '/home/bogdanm/Desktop/otl
                                 str(begin.minute), 
                                 str(begin.second), str(n_observations), str(sampling)],
                                 stdin=_PIPE, stdout=_PIPE, stderr=_PIPE)
-    out = _StringIO((process.communicate(input=form_input_blq(input_blq).encode())[0]).decode())
+    out = _StringIO((process.communicate(input=reformat_blq(input_blq).encode())[0]).decode())
     
     synth_otl = _pd.read_csv(out, error_bad_lines=False, header=None,
                            delim_whitespace=True, names=['dU', 'dS', 'dW']) *1000 #convert to mm as returns in m
