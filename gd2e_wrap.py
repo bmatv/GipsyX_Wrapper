@@ -18,6 +18,7 @@ class gd2e_class:
                  gnss_products_dir = '/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final',
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                  eterna_path='/home/bogdanm/Desktop/otl/eterna',
+                 hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
                  num_cores = 8):
         
         self.project_name = project_name
@@ -45,6 +46,7 @@ class gd2e_class:
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
         self.mode = self._check_mode(mode)
         self.eterna_path=eterna_path
+        self.hardisp_path = hardisp_path
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -123,7 +125,7 @@ class gd2e_class:
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
 
-    def analyze_env(self,remove_outliers=True):
+    def analyze_env(self,remove_outliers=True,restore_otl=True,sampling=1800):
         return gx_eterna.analyze_env(
                                     self.envs(),
                                     self.stations_list,
@@ -131,5 +133,9 @@ class gd2e_class:
                                     self.tmp_dir,
                                     self.staDb_path,
                                     self.project_name,
-                                    remove_outliers
+                                    remove_outliers,
+                                    restore_otl=restore_otl,
+                                    blq_file = self.blq_file,
+                                    sampling = sampling,
+                                    hardisp_path = self.hardisp_path,
                                     )
