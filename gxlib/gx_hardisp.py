@@ -43,7 +43,7 @@ def reformat_blq(blq_string):
 
     return amplitude.to_string(header=None,index=None).replace("  "," ") + '\n' + phase
 
-def gen_synth_otl(dataset,station_name,hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',sampling = 1800):
+def gen_synth_otl(dataset,station_name,hardisp_path,blq_file,sampling):
     '''Expects stretched dataset. Otherwise can get wrong sampling. Outputs (T, E, N, V) array'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
     begin_J2000 = dataset.index[0];end_J2000 = dataset.index[-1]
