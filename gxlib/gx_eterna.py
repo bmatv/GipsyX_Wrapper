@@ -264,7 +264,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
         
     return extract_et(tmp_station_path,llh['LON'])
 
-def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
+def extract_et(tmp_station_path,lon): #In development. Should extract lon from staDb to do proper correction of the phase
     lon-=360 if lon>180 else lon
     lon+=360 if lon<-180 else lon
         
