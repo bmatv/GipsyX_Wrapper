@@ -259,7 +259,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
         comp_path_list.append([eterna_exec,comp_path])
 
     # Running Eterna analysis of 3 components in parallel
-    with Pool() as p:
+    with Pool(3) as p:
         p.map(run_eterna, comp_path_list)
         
     return extract_et(tmp_station_path,llh['LON'])
