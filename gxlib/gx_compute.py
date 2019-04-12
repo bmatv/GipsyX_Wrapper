@@ -54,7 +54,7 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
         else:
             gd2e_table[i] = tmp[tmp['file_exists']==0].to_records()#converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
             num_cores = num_cores if len(gd2e_table[i]) > num_cores else len(gd2e_table[i])
-            print('Processing station {}...\n# files to process: {}\nAdjusted number of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
+            print('Processing {}... | # files left: {} | Adj. # of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
 
             with _Pool(processes = num_cores) as p:
                 list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
