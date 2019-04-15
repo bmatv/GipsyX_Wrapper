@@ -7,6 +7,7 @@ class gd2e_class:
                  years_list,
                  tree_options,
                  mode,
+                 cddis=False,
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
@@ -47,6 +48,7 @@ class gd2e_class:
         self.mode = self._check_mode(mode)
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
+        self.cddis=cddis
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -56,7 +58,7 @@ class gd2e_class:
     # def analyse(self):
     #     return gx_aux.analyse(rnx_files=self.rnx_files,stations_list=self.stations_list,years_list=self.years_list)
     def rnx2dr(self):
-        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores)
+        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis)
 
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
