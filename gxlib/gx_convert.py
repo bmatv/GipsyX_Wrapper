@@ -28,14 +28,19 @@ def select_rnx(stations_list,years_list,rnx_dir,cddis=False):
     return station_files 
 
 
-def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir):
+def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=False):
     '''Creates an array of output paths for input rnx files. Concatanates it to the input rnx paths [[input_path,output path],...]. 
     This array is used for rnx to dr conversion. Input is the result of in gx_lib.aux.select_rnx function'''
     rnx_in_out = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
         if rnx_files[i]  is not None:
             tmp = _pd.Series(rnx_files[i]).str.split('/',expand=True)
-            rnx_in_out[i] = _np.column_stack((rnx_files[i], 
+            if cddis:
+                rnx_in_out[i] = _np.column_stack((rnx_files[i], 
+                                            (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-4]
+                                            +'/'+ tmp.iloc[:,-3]+'/'+ tmp.iloc[:,-1]+'.dr.gz').values))  
+            else:    
+                rnx_in_out[i] = _np.column_stack((rnx_files[i], 
                                             (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-3]
                                             +'/'+ tmp.iloc[:,-2]+'/'+ tmp.iloc[:,-1]+'.dr.gz').values))
         else:
