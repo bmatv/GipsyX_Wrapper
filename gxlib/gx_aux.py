@@ -143,7 +143,7 @@ def _dr_size(rnx_files_in_out):
 
         size_array[i] = _np.column_stack((rnx_files_in_out[i],tmp))
         bad_files[i] = rnx_files_in_out[i][tmp==20]
-        good_files[i] = rnx_files_in_out[i][tmp!=20]
+        good_files[i] = rnx_files_in_out[i][tmp>20]
 
     return size_array,bad_files,good_files        
 
