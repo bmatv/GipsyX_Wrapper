@@ -26,6 +26,7 @@ class gd2e_class:
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.tmp_dir=tmp_dir
+        self.cddis=cddis
         self.stations_list=stations_list
         self.years_list=years_list
         self.num_cores = num_cores
@@ -48,7 +49,7 @@ class gd2e_class:
         self.mode = self._check_mode(mode)
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
-        self.cddis=cddis
+        
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
