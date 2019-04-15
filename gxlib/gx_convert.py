@@ -6,13 +6,20 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 
-def select_rnx(stations_list,years_list,rnx_dir):
+def select_rnx(stations_list,years_list,rnx_dir,cddis=False):
+    '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...'''
+    
+    rnx_dir = _os.path.abspath(rnx_dir)
     station_files = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
         tmp =[]
         for j in range(0, len(years_list)):
+            if cddis:
+                j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
+            else:    
+                j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
             
-            j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
+            
             if len(j_year_files) > 0:
                 tmp.append(j_year_files)
                 station_files[i] = _np.concatenate(tmp)
