@@ -1,4 +1,4 @@
-from gd2e_wrap import gd2e_class, gx_convert, gx_aux, gx_ionex, gx_eterna
+from gd2e_wrap import gd2e_class, gx_convert, gx_aux, gx_ionex, gx_eterna, gx_merge, gx_tdps
 from gxlib import gx_hardisp
 import trees_options
 import pandas as _pd
@@ -82,6 +82,16 @@ class mGNSS_class:
         
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
+        
+    def dr_merge(self):
+        '''This is the only stage where merge_table is being executed with mode=None'''
+        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None)
+        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list)
+        
+    def gen_tropNom(self):
+        '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
+        Generates zenith tropnominals from VMF1 model files.'''
+        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
         
     def mode2label(self,mode):
         '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
