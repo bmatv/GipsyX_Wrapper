@@ -24,7 +24,7 @@ def select_rnx(stations_list,years_list,rnx_dir,cddis=False):
                 tmp.append(j_year_files)
                 station_files[i] = _np.concatenate(tmp)
             else:
-                print('No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
+                print('gx_convert.select_rnx: No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
     return station_files 
 
 
@@ -59,7 +59,7 @@ def _2dr(rnx2dr_path):
 
 def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
-    rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=False)
+    rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=cddis)
     num_cores = int(num_cores) #safety precaution if str value is specified
 #         display(self.analyse())
     for i in range(len(stations_list)):
