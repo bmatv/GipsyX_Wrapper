@@ -77,7 +77,8 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
 
         print(drinfo_years_list[i],'year tropnominals generation...',end=' ')
         print ('Number of files to process:', len(tropnom_param),'| Adj. num_cores:', num_cores)
-
+        
+        # tqdm implementation will produce lots of bars because of for loop pools
         for i in range(step_size):
             try:
                 pool = _Pool(num_cores)
@@ -86,10 +87,6 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
                 pool.close()
                 pool.join()
         print('| Done!')
-    # return tropnom_param
-
-            # with _Pool(processes = num_cores) as p:
-            #             list(_tqdm.tqdm_notebook(p.imap(_gen_VMF1_tropNom, tropnom_param[_np.arange(i, len(tropnom_param), step_size)]), total=merge_table_class3.shape[0]))
 '''
 Creating tdp files with synth signal for X Y Z
 penna values test. staDb NomValues | synth values | 1
