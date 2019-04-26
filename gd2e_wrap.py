@@ -20,7 +20,8 @@ class gd2e_class:
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                  eterna_path='/home/bogdanm/Desktop/otl/eterna',
                  hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
-                 num_cores = 8):
+                 num_cores = 8,
+                 ElMin=7):
         
         self.project_name = project_name
         self.IGS_logs_dir = IGS_logs_dir
@@ -49,6 +50,7 @@ class gd2e_class:
         self.mode = self._check_mode(mode)
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
+        self.ElMin=ElMin
         
 
     def _check_mode(self,mode):
@@ -77,7 +79,8 @@ class gd2e_class:
         tmp_dir=self.tmp_dir,
         tree_options=self.tree_options,
         blq_file=self.blq_file, 
-        mode = self.mode)
+        mode = self.mode,
+        ElMin=self.ElMin)
     def gd2e(self):
         '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir,mode=self.mode)
