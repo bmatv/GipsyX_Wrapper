@@ -17,7 +17,19 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
-    Expects mode to be one of the following: [None, 'GPS', 'GLONASS','GPS+GLONASS']. Will be fetched by gd2e_wrap automatically'''
+    Expects mode to be one of the following: [None, 'GPS', 'GLONASS','GPS+GLONASS']. Will be fetched by gd2e_wrap automatically
+    
+    #Bos test cutoff angle (ElMin)
+
+    # [['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:ElMin', '7'],
+
+
+    # ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GPS:ElMin', '7'],
+
+    # ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:ElMin', '7'],
+
+    # ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GPS:ElMin', '7'],
+    '''
 
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:

@@ -50,7 +50,7 @@ _pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:StochasticAdj', '1.0e4 3.40e-4 DATADRIVEN RANDOMWALK'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:ElMin', '7'],
-['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:ElDepWeight', 'SqrtSin']
+['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:ElDepWeight', 'SqrtSin'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:PostSmoothEdit', '2e5 2e4 25 20 10 5'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath:Platforms', '.* R.*']]
@@ -96,6 +96,7 @@ _tides_otl_off = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:SolidTide', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:PoleTide', 'On'],
 ['GRN_STATION_CLK_WHITE:Tides:OceanLoad', 'Off']]#turning all components on manually
+
 
 #gps_sv_del = [['Satellite:Delete','GPS01 GPS02 GPS03 GPS04 GPS05 GPS06 GPS08 GPS09 GPS10 GPS11 GPS13 GPS14 GPS15 GPS16 GPS17 GPS18 GPS19 GPS20 GPS21 GPS22 GPS23 GPS24 GPS25 GPS26 GPS27 GPS28 GPS29 GPS30 GPS31 GPS32 GPS33 GPS34 GPS35 GPS36 GPS37 GPS38 GPS39 GPS40 GPS41 GPS43 GPS44 GPS45 GPS46 GPS47 GPS48 GPS49 GPS50 GPS51 GPS52 GPS53 GPS54 GPS55 GPS56 GPS57 GPS58 GPS59 GPS60 GPS61 GPS62 GPS63 GPS64 GPS65 GPS66 GPS67 GPS68 GPS69 GPS71 GPS72 GPS73 GPS70']]
 
