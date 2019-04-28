@@ -242,7 +242,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
 
 
     if not eterna_exists:
-        print('Processing', station_name,'with Eterna...')
+        print('Processing', station_name,'with Eterna...',end=' | ')
 
         _os.makedirs(tmp_station_path)
         for i in range(len(components)):
