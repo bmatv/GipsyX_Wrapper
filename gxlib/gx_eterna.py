@@ -228,9 +228,16 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
 
     
     components = ['e_eterna','n_eterna','v_eterna']
-    for i in range(len(components)):
-        comp_path = _os.path.join(tmp_station_path,components[i])
-        if (not _os.path.exists(_os.path.join(comp_path,components[i]+'.prn')) or (force==True):
+    components_exist = []
+    for component in components:
+        prn_exists = _os.path.exists(_os.path.join(tmp_station_path,component,component+'.prn'))
+        components_exist.append(prn_exists)
+    eterna_exists = _np.min(components_exist) #if at least one is missing -> False
+
+    if ~eterna_exists or force==True:
+
+        for i in range(len(components)):
+            comp_path = _os.path.join(tmp_station_path,components[i])
             _os.makedirs(comp_path)
             #create a symlink to commdat folder as needed for eterna
             _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
