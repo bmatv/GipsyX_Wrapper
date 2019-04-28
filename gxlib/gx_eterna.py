@@ -225,6 +225,14 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_otl_et' if otl_env else 'tmp_et')
     
     components = ['e_eterna','n_eterna','v_eterna']
+
+    if force: #force removes eterna tmp folders
+        print('Using "force" option', end=' | ')
+        if _os.path.exists(tmp_station_path):
+            _shutil.rmtree(tmp_station_path)
+        if not _os.path.exists(tmp_station_path):
+            _os.makedirs(tmp_station_path)
+
     components_exist = []
     for component in components:
         prn_exists = _os.path.exists(_os.path.join(tmp_station_path,component,component+'.prn'))
@@ -232,14 +240,13 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     eterna_exists = _np.min(components_exist) #if at least one is missing -> False
 
     llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
-    
-    if ~eterna_exists or force==True:
 
-        if _os.path.exists(tmp_station_path):
-            _shutil.rmtree(tmp_station_path)
-        if not _os.path.exists(tmp_station_path):
-            _os.makedirs(tmp_station_path)
 
+
+    if ~eterna_exists:
+        print('Processing', station_name,'with Eterna...')
+
+        _os.makedirs(tmp_station_path)
         for i in range(len(components)):
             comp_path = _os.path.join(tmp_station_path,components[i])
             _os.makedirs(comp_path)
