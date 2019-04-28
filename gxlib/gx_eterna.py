@@ -215,7 +215,7 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers):
+def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force):
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
@@ -226,41 +226,42 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     if not _os.path.exists(tmp_station_path):
         _os.makedirs(tmp_station_path)
 
-
+    
     components = ['e_eterna','n_eterna','v_eterna']
     for i in range(len(components)):
         comp_path = _os.path.join(tmp_station_path,components[i])
-        _os.makedirs(comp_path)
-        #create a symlink to commdat folder as needed for eterna
-        _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
-        #Writing Eterna dat file for specific component and station
-        _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800)
+        if not _os.path.exists(_os.path.join(comp_path,components[i]+'.prn') or force==True:
+            _os.makedirs(comp_path)
+            #create a symlink to commdat folder as needed for eterna
+            _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
+            #Writing Eterna dat file for specific component and station
+            _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800)
 
-        #Writing ini file for specific component and station
-        ini_path = _os.path.join(comp_path,components[i]+'.ini')
-        llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
-        with open(ini_path,'w') as ini_file:
-            ini_file.write('''SENSORNAME= {}\nSAMPLERATE= {}\nSTATLATITU= {}\nSTATLONITU= {}\nSTATELEVAT= {}\nTEXTHEADER= {} {} {} {} '''
-                           .format(station_name,'1800',llh['LAT'],llh['LON'],llh['ELEV'],station_name,'GNSS station',llh['LAT'],llh['LON'] ))
-            ini_file.write(ini_extra)
+            #Writing ini file for specific component and station
+            ini_path = _os.path.join(comp_path,components[i]+'.ini')
+            llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
+            with open(ini_path,'w') as ini_file:
+                ini_file.write('''SENSORNAME= {}\nSAMPLERATE= {}\nSTATLATITU= {}\nSTATLONITU= {}\nSTATELEVAT= {}\nTEXTHEADER= {} {} {} {} '''
+                            .format(station_name,'1800',llh['LAT'],llh['LON'],llh['ELEV'],station_name,'GNSS station',llh['LAT'],llh['LON'] ))
+                ini_file.write(ini_extra)
 
-        #Touch empty default.ini file
-        def_ini_path = _os.path.join(comp_path,'default.ini')
-        with open(def_ini_path,'w'):
-            _os.utime(def_ini_path, None)
+            #Touch empty default.ini file
+            def_ini_path = _os.path.join(comp_path,'default.ini')
+            with open(def_ini_path,'w'):
+                _os.utime(def_ini_path, None)
 
-        #Writing project file
-        project_path = _os.path.join(comp_path,'project')
-        with open(project_path,'w') as project_file:
-            project_file.write(components[i])
+            #Writing project file
+            project_path = _os.path.join(comp_path,'project')
+            with open(project_path,'w') as project_file:
+                project_file.write(components[i])
 
-        # Executing ETERNA
-        # run_eterna(eterna_exec,comp_path)
-        comp_path_list.append([eterna_exec,comp_path])
+            # Executing ETERNA
+            # run_eterna(eterna_exec,comp_path)
+            comp_path_list.append([eterna_exec,comp_path])
 
-    # Running Eterna analysis of 3 components in parallel
-    with Pool(3) as p:
-        p.map(run_eterna, comp_path_list)
+        # Running Eterna analysis of 3 components in parallel
+        with Pool(3) as p:
+            p.map(run_eterna, comp_path_list)
         
     return extract_et(tmp_station_path,llh['LON'])
 
@@ -312,7 +313,7 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
     
     return df_blq[['up','east','north']]
 
-def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path):
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force):
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
 
     if not restore_otl:
@@ -326,17 +327,17 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
             env_et = env2eterna(envs[i],remove_outliers)
             synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
             restored_et = env_et + synth_otl
-            blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+            blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force)
 
     return blq_array
 
-def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path):
+def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path,force):
     '''This is a test method that should return same parameters as input blq file'''
     blq_array = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(blq_array.shape[0]):
         env_et = env2eterna(envs[i],remove_outliers)
-        synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+        synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i]+'/tmp_synth_otl',hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
 
-        blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+        blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force)
 
     return blq_array

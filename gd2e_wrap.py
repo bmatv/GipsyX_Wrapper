@@ -131,7 +131,7 @@ class gd2e_class:
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
 
-    def analyze_env(self,remove_outliers=True,restore_otl=True,sampling=1800):
+    def analyze_env(self,remove_outliers=True,restore_otl=True,sampling=1800,force=False):
         return gx_eterna.analyze_env(
                                     self.envs(),
                                     self.stations_list,
@@ -146,7 +146,7 @@ class gd2e_class:
                                     hardisp_path = self.hardisp_path,
                                     )
 
-    def test_analyze(self,remove_outliers=True,sampling=1800):
+    def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
         '''remove_outliers has no sense here. This is just to get begin and end of the timeline'''
         return gx_eterna.test_analyze(
                                     self.envs(),
