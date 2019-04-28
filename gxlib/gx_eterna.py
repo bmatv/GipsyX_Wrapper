@@ -231,6 +231,8 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
         components_exist.append(prn_exists)
     eterna_exists = _np.min(components_exist) #if at least one is missing -> False
 
+    llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
+    
     if ~eterna_exists or force==True:
 
         if _os.path.exists(tmp_station_path):
@@ -248,7 +250,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
 
             #Writing ini file for specific component and station
             ini_path = _os.path.join(comp_path,components[i]+'.ini')
-            llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
+            
             with open(ini_path,'w') as ini_file:
                 ini_file.write('''SENSORNAME= {}\nSAMPLERATE= {}\nSTATLATITU= {}\nSTATLONITU= {}\nSTATELEVAT= {}\nTEXTHEADER= {} {} {} {} '''
                             .format(station_name,'1800',llh['LAT'],llh['LON'],llh['ELEV'],station_name,'GNSS station',llh['LAT'],llh['LON'] ))
