@@ -215,12 +215,15 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force):
-    '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
+def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force,otl_env=False):
+    '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)
+    otl_env switch means creating tmp_otl_et directory and not standard tmp_et'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
     comp_path_list = []
-    tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_et')
+
+    tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_otl_et' if otl_env else 'tmp_et')
+
     if _os.path.exists(tmp_station_path):
         _shutil.rmtree(tmp_station_path)
     if not _os.path.exists(tmp_station_path):
