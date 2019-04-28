@@ -278,6 +278,9 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
         # Running Eterna analysis of 3 components in parallel
         with Pool(3) as p:
             p.map(run_eterna, comp_path_list)
+
+    if eterna_exists and not force:
+        print('Found previous Eterna session. Loading as not forced...', end=' | ')
         
     return extract_et(tmp_station_path,llh['LON'])
 
