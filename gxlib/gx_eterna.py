@@ -230,8 +230,6 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
         print('Using "force" option', end=' | ')
         if _os.path.exists(tmp_station_path):
             _shutil.rmtree(tmp_station_path)
-        if not _os.path.exists(tmp_station_path):
-            _os.makedirs(tmp_station_path)
 
     components_exist = []
     for component in components:
@@ -243,7 +241,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
 
 
 
-    if ~eterna_exists:
+    if not eterna_exists:
         print('Processing', station_name,'with Eterna...')
 
         _os.makedirs(tmp_station_path)
