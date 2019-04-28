@@ -223,12 +223,6 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     comp_path_list = []
 
     tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_otl_et' if otl_env else 'tmp_et')
-
-    if _os.path.exists(tmp_station_path):
-        _shutil.rmtree(tmp_station_path)
-    if not _os.path.exists(tmp_station_path):
-        _os.makedirs(tmp_station_path)
-
     
     components = ['e_eterna','n_eterna','v_eterna']
     components_exist = []
@@ -238,6 +232,11 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     eterna_exists = _np.min(components_exist) #if at least one is missing -> False
 
     if ~eterna_exists or force==True:
+
+        if _os.path.exists(tmp_station_path):
+            _shutil.rmtree(tmp_station_path)
+        if not _os.path.exists(tmp_station_path):
+            _os.makedirs(tmp_station_path)
 
         for i in range(len(components)):
             comp_path = _os.path.join(tmp_station_path,components[i])
