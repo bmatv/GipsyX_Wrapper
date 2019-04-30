@@ -20,10 +20,10 @@ class gd2e_class:
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                  eterna_path='/home/bogdanm/Desktop/otl/eterna',
                  hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
-                 num_cores = 8,
-                 ElMin=7, # degrees
-                 pos_s = 0.57, # mm/sqrt(s)
-                 wetz_s = 0.1 # mm/sqrt(s)
+                 num_cores = 8, # integer of string
+                 ElMin=7,       # degrees
+                 pos_s = 0.57,  # mm/sqrt(s)
+                 wetz_s = 0.1   # mm/sqrt(s)
                  ): 
         
         self.project_name = project_name
