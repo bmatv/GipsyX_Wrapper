@@ -151,6 +151,7 @@ class gd2e_class:
                                     blq_file = self.blq_file,
                                     sampling = sampling,
                                     hardisp_path = self.hardisp_path,
+                                    force=force
                                     )
 
     def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
@@ -166,4 +167,5 @@ class gd2e_class:
                                     blq_file = self.blq_file,
                                     sampling = sampling,
                                     hardisp_path = self.hardisp_path,
+                                    force = force
                                     )
