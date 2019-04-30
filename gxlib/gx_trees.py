@@ -13,13 +13,32 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin=7):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin='7', pos_s = '0.57', wetz_s = '0.1'):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
     Expects mode to be one of the following: [None, 'GPS', 'GLONASS','GPS+GLONASS']. Will be fetched by gd2e_wrap automatically
     
+    BOS TEST
     Bos' test cutoff angle (ElMin). If differs from default - updates all *ElMin keys with value specified
+
+    PANNA TEST
+    For penna's tests coordinate process noise of:
+    COORDINATE PROCESS NOISE (RANDOMWALK)
+    Default expression for trees script is GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj = '1.0 5.7e-4 $GLOBAL_DATA_RATE RANDOMWALK'
+    [0.0032, 0.01,0.032,0.1,0.18,0.32, 0.57, 1, 1.8, 3.2, 10,32,100,320] mm/sqrt(s)
+    were used. The most important values are [0.1,0.18,0.32, 0.57, 1, 1.8, 3.2] from the center of the list. 0.57 mm/sqrt(s) is the one used for processing
+
+    ([['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj','1.0 {:.1E} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]])
+
+    ZENITH WET DELAY (RANDOMWALK) 
+    Default expression for trees script is 'GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1e-4 $GLOBAL_DATA_RATE RANDOMWALK'
+    ZWD values of [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100] mm/sqrt(s). 
+    Most important are: [0.001,0.0032, 0.057, 0.1,0.18,0.32,1] mm/sqrt(s)
+
+    ([['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1E} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]])
+
+
     '''
 
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -27,6 +46,12 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin=7):
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
 
     tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
+
+    # adding coordinate process noise
+    tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj','1.0 {:.1E} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(pos_s)/1000)]]
+    # adding zenith wet delay process noise
+    tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1E} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
+
 
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
     GPS_DataLink = _pseudo_range_gps + _carrier_phase_gps
