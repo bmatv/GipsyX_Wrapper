@@ -5,17 +5,23 @@ import pandas as _pd
 import os as _os
 
 class mGNSS_class:
+    '''
+    1.rnx2dr()
+    2.get_drInfo()
+    3.drMerge()
+    4.gen_tropNom()
+    '''
     def __init__(self,
                 project_name,
                 stations_list,
                 years_list,
                 tree_options,
                 rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
-                tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
-                blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_complete.blq',
+                tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX/bigf_tmpX/',
+                blq_file = '/mnt/Data/bogdanm/Products/otl/ocnld_coeff/bigf_complete.blq',
                 VMF1_dir = '/mnt/Data/bogdanm/Products/VMF1_Products',
                 tropNom_type = '30h_tropNominalOut_VMF1.tdp',
-                IGS_logs_dir = '/mnt/Data/bogdanm/GNSS_data/BIGF_data/station_log_files',
+                IGS_logs_dir = '/mnt/Data/bogdanm/GNSS_data/station_log_files/',
                 IONEX_products = '/mnt/Data/bogdanm/Products/IONEX_Products',
                 rate = 300,
                 gnss_products_dir = '/mnt/Data/bogdanm/Products/IGS_GNSS_Products/igs2gipsyx/es2_30h_init/',
@@ -23,6 +29,9 @@ class mGNSS_class:
                 eterna_path='/home/bogdanm/Desktop/otl/eterna',
                 hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
                 num_cores = 8,
+                ElMin = 7,
+                pos_s = 0.57, # mm/sqrt(s)
+                wetz_s = 0.1, # mm/sqrt(s)
                 cddis = False):
         
         self.project_name = project_name
@@ -46,6 +55,7 @@ class mGNSS_class:
                                     ionex_type=self.ionex_type, #type of files
                                     output_path=self.tmp_dir, #output dir that will have type|year files
                                     num_cores=self.num_cores)
+        self.ElMin=ElMin
         self.rate=rate
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
@@ -75,7 +85,16 @@ class mGNSS_class:
                 ionex_type=self.ionex_type, #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                 eterna_path=self.eterna_path,
                 hardisp_path = self.hardisp_path,
-                num_cores = self.num_cores)
+                num_cores = self.num_cores,
+                ElMin = self.ElMin,
+                pos_s = self.pos_s,
+                wetz_s = self.wetz_s)
+    
+    def gen_trees(self):
+        self.gps.gen_trees()
+        self.glo.gen_trees()
+        self.gps_glo.gen_trees()
+        
     
     def rnx2dr(self):
         gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis)
@@ -91,7 +110,7 @@ class mGNSS_class:
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
         Generates zenith tropnominals from VMF1 model files.'''
-        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
+        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.gps.staDb_path)
         
     def mode2label(self,mode):
         '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
@@ -133,11 +152,37 @@ class mGNSS_class:
                 gather.append(tmp_mGNSS)
             gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
         else:
+            print('Found mGNSS gather file', self.project_name + ".zstd" )
             gather = gx_aux._dump_read(gather_path)
         
         return gather
     
-    def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800):
+    def gather_residuals_mGNSS(self):
+        return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
+    
+#     def gather_residuals_mGNSS(self):
+#         resid_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '_resid.zstd')
+#         if not _os.path.exists(resid_path):
+#             gps_resid = self.gps.residuals()
+#             glo_resid = self.glo.residuals()
+#             gps_glo_resid = self.gps_glo.residuals()
+#             gather = []
+#             for i in range(1): #using gps residuals 
+#                 tmp_gps,tmp_glo,tmp_gps_glo = (gps_resid[i].reset_index().set_index(['time','trans','datatype']),
+#                                                glo_resid[i].reset_index().set_index(['time','trans','datatype']),
+#                                                gps_glo_resid[i].reset_index().set_index(['time','trans','datatype']))
+                
+#                 tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+#                 gather.append(tmp_mGNSS)
+                
+# #             gx_aux._dump_write(data = gather,filename=resid_path,num_cores=24,cname='zstd')
+# #         else:
+# #             gather = gx_aux._dump_read(resid_path)
+
+#         return gather
+    
+    def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False):
+        '''If force == True -> reruns Eterna even if Eterna files exist'''
         gather = self.gather_mGNSS()
         tmp_blq=[]
         if not restore_otl:
@@ -146,9 +191,9 @@ class mGNSS_class:
                 glo_et = gx_eterna.env2eterna(gather[i]['GLONASS'],remove_outliers)
                 gps_glo_et = gx_eterna.env2eterna(gather[i]['GPS+GLONASS'],remove_outliers)
                 
-                tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers)
-                tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers)
-                tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers)
+                tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
+                tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers,force)
+                tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers,force)
                 
                 tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 tmp_blq.append(tmp_mGNSS)
@@ -167,18 +212,213 @@ class mGNSS_class:
                 gps_glo_et+=synth_otl
                 
                 #snth analysis to double check. Analysis is done in gps project for now
-                tmp_synth = gx_eterna.analyse_et(synth_otl,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers)
+                tmp_synth = gx_eterna.analyse_et(synth_otl,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force,otl_env=True)
                 
-                tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers)
-                tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers)
-                tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers)
+                tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
+                tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers,force)
+                tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers,force)
                 
                 tmp_mGNSS = _pd.concat([self._update_mindex(tmp_synth,'OTL'),self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 tmp_blq.append(tmp_mGNSS)
                 
         return tmp_blq
     
+    
+    def spectra(self,restore_otl = True,remove_outliers=True,sampling=1800):
+        gather = self.gather_mGNSS()
+        tmp=[]
+        if not restore_otl:
+            for i in range(len(gather)): #looping through stations
+                gps_et = gx_eterna.env2eterna(gather[i]['GPS'],remove_outliers)
+                glo_et = gx_eterna.env2eterna(gather[i]['GLONASS'],remove_outliers)
+                gps_glo_et = gx_eterna.env2eterna(gather[i]['GPS+GLONASS'],remove_outliers)
+                
+                tmp_gps = get_spectra(gps_et)
+                tmp_glo = get_spectra(glo_et)                    
+                tmp_gps_glo = get_spectra(gps_glo_et)
+
+                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp.append(tmp_mGNSS)
+                
+        else:
+            
+            for i in range(len(gather)): #looping through stations
+                gps_et = gx_eterna.env2eterna(gather[i]['GPS'],remove_outliers)
+                glo_et = gx_eterna.env2eterna(gather[i]['GLONASS'],remove_outliers)
+                gps_glo_et = gx_eterna.env2eterna(gather[i]['GPS+GLONASS'],remove_outliers)
+                #timeframe is the same so we can take any of three. gps_et in this case
+                synth_otl = gx_hardisp.gen_synth_otl(dataset = gps_et,station_name = self.stations_list[i],hardisp_path=self.hardisp_path,blq_file=self.blq_file,sampling=sampling)
+                
+                gps_et+=synth_otl
+                glo_et+=synth_otl
+                gps_glo_et+=synth_otl
+                
+
+                tmp_gps = get_spectra(gps_et)
+                tmp_glo = get_spectra(glo_et)                    
+                tmp_gps_glo = get_spectra(gps_glo_et)
+
+                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp.append(tmp_mGNSS)
+                
+        return tmp
+    
+    
     def gd2e(self):
         for project in [self.gps,self.glo,self.gps_glo]:
             project.gd2e()
 #mode should be different automatically
+
+
+
+#PARZEN window function
+from scipy import signal
+import numpy as _np
+
+
+def gen_parzen(samples,fraction):
+    window = _np.ones(samples)
+    samples_fraction = round(samples*fraction)
+
+    parzen_window =  signal.parzen(samples_fraction,)
+
+    parzen_window_left = parzen_window[:round(parzen_window.shape[0]/2)]
+    parzen_window_right = parzen_window[round(parzen_window.shape[0]/2):]
+
+    window[:parzen_window_left.shape[0]] = parzen_window_left
+    window[-parzen_window_right.shape[0]:] = parzen_window_right
+#     return parzen_window_left.shape,parzen_window_right.shape
+    return window
+
+def get_spectra(data):
+    data.fillna(0,inplace=True)
+    constellation_spectra = []
+    for component in data:
+        comp_spectrum = _np.asarray(signal.welch(data[component].values,fs=48,return_onesided=True,window=gen_parzen(14016,0.1)))
+        tmp_df = _pd.DataFrame(data = comp_spectrum[1],index = comp_spectrum[0], columns = [component])
+        constellation_spectra.append(tmp_df)
+    constellation_spectra_df = _pd.concat(constellation_spectra,axis=1)
+    return constellation_spectra_df
+
+
+import numpy as _np
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+def plot_tree(blq_df,station_name,normalize=True):
+    
+#     otl_c = blq_df.index.values
+    otl_c = ['M2', 'S2', 'N2', 'K2', 'K1', 'O1', 'P1','Q1']
+    
+    blq_df = blq_df.loc[otl_c].copy().astype(float) #SSA PMTH phase std: could not convert string to float: '*********'
+    coeff95 = 1.96
+    
+    amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
+    phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
+    
+    std_a = blq_df.xs(key = ('amplitude','std'),axis=1,level = (2,3),drop_level=True)*1000
+    std_p = blq_df.xs(key = ('phase','std'),axis=1,level = (2,3),drop_level=True)
+
+    x = _np.sin(_np.deg2rad(phase)) * amplitude
+    y = _np.cos(_np.deg2rad(phase)) * amplitude
+    
+    if normalize:
+        x_norm = x['OTL']
+        x['OTL'] -= x_norm
+        x['GPS'] -= x_norm
+        x['GLONASS'] -= x_norm
+        x['GPS+GLONASS'] -= x_norm
+        
+        y_norm = y['OTL']
+        y['OTL'] -= y_norm
+        y['GPS'] -= y_norm
+        y['GLONASS'] -= y_norm
+        y['GPS+GLONASS'] -= y_norm
+        
+        
+    #Get scale:
+    x_scale = x.abs().max().max()
+    y_scale = y.abs().max().max()
+    scale = _np.ceil(_np.max([x_scale,y_scale]))
+#We need to normalize with x and y!!!
+# 
+    
+    semiAxisA = std_a
+    semiAxisP = _np.tan(_np.deg2rad(std_p))*amplitude
+    
+    table = _pd.concat([x.unstack(),y.unstack(),(semiAxisA*2*coeff95).unstack(),(semiAxisP*2*coeff95).unstack(),phase.unstack()],axis=1)
+    table.columns=['x','y','width','height','angle']
+
+    
+
+    
+    fig,ax=plt.subplots(ncols = 4,nrows=2,figsize=(15,10))
+    coord_c = ['up','east','north']
+    color = ['c','b','y']
+    
+    for j in range(len(otl_c)):
+
+        for i in range(len(coord_c)):
+
+
+            otl_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['OTL']
+           
+            gps_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['GPS']
+            glo_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['GLONASS']
+            gps_glo_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['GPS+GLONASS']
+            
+            
+
+            
+
+            otl_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',color=color[i],marker='+') #label='OTL'+' '+ coord_c[i],
+            gps_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',c='red',marker='+',label='GPS' if (i ==0)&(j==0) else None)
+            glo_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',c='green',marker='+',label='GLONASS'if (i ==0)&(j==0) else None)
+            gps_glo_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',c='k',marker='+',label='GPS+GLONASS'if (i ==0)&(j==0) else None)
+
+
+
+            ax.flat[j].plot(_pd.concat([otl_xy,gps_xy])['x'].values,_pd.concat([otl_xy,gps_xy])['y'].values,c=color[i],zorder=0)
+            ax.flat[j].plot(_pd.concat([otl_xy,glo_xy])['x'].values,_pd.concat([otl_xy,glo_xy])['y'].values,c=color[i],zorder=0)
+            ax.flat[j].plot(_pd.concat([otl_xy,gps_glo_xy])['x'].values,_pd.concat([otl_xy,gps_glo_xy])['y'].values,c=color[i],zorder=0,label=coord_c[i] if j==0 else None)
+            ax.flat[j].autoscale(tight=True)
+
+            ax.flat[j].add_patch(mpatches.Ellipse(xy=(gps_xy[['x','y']].values[0]), width=gps_xy['width'], height=gps_xy['height'],angle=gps_xy['angle'],fc='None',edgecolor='r')) #X4 for 95% confidence
+            ax.flat[j].add_patch(mpatches.Ellipse(xy=(glo_xy[['x','y']].values[0]), width=glo_xy['width'], height=glo_xy['height'],angle=glo_xy['angle'],fc='None',edgecolor='g')) #X4 for 95% confidence
+            ax.flat[j].add_patch(mpatches.Ellipse(xy=(gps_glo_xy[['x','y']].values[0]), width=gps_glo_xy['width'], height=gps_glo_xy['height'],angle=gps_glo_xy['angle'],fc='None',edgecolor='k')) #X4 for 95% confidence
+    
+        
+            
+    
+    #     legend(codes=3)
+    #     print()
+    #     ax.legend(handles, labels,loc=3,frameon=False)    
+            ax.flat[j].set_xlim(-scale,scale)
+            ax.flat[j].set_aspect('equal','datalim')
+#             ax[j].autoscale()
+            ax.flat[j].set_title(otl_c[j])
+            ax.flat[j].grid()
+            ax.flat[j].set(xlabel="", ylabel="")
+    # plt.tight_layout()
+    ax.flat[0].get_legend().remove()
+    fig.legend(loc='lower center',ncol=6)
+    fig.suptitle(station_name+' station OTL phasors', fontsize=16)
+#     fig.tight_layout(rect=(0,0.05,1,1))
+    plt.show()
+    print(scale)
+
+import matplotlib.pyplot as plt
+# plt.style.use('ggplot')
+plt.style.use('default')
+def plot_specta(mGNSSspectra_df):
+    components = mGNSSspectra_df.columns.levels[1][::-1]
+    n_components = components.shape[0]
+    fig, ax = plt.subplots(ncols=n_components)
+    ms = 2
+    for i in range(n_components):
+        mGNSSspectra_df[['GLONASS','GPS','GPS+GLONASS']].iloc[1:].xs(key = components[i],level=1,axis=1,drop_level =True)\
+        .plot(ax=ax[i],logx=True,logy=True,sharey=True,sharex=True,figsize=(12,4),alpha=0.5,style='.',ms=ms,legend=[False if i==1 else True]) #style=['red','green','royalblue']
+        ax[i].get_legend().remove()
+        ax[i].set_title(components[i], position=(0.5, 0.9))
+        if i ==0:fig.legend(loc='lower center',markerscale=10/ms,ncol=3,)
+    fig.tight_layout(rect=(0,0.05,1,1))
+    plt.show()
