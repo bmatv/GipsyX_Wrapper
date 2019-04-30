@@ -61,6 +61,9 @@ class mGNSS_class:
         self.hardisp_path = hardisp_path
         self.mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
         
+        self.pos_s = pos_s
+        self.wetz_s = wetz_s
+        
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
