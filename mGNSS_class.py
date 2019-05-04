@@ -24,7 +24,7 @@ class mGNSS_class:
                 IGS_logs_dir = '/mnt/Data/bogdanm/GNSS_data/station_log_files/',
                 IONEX_products = '/mnt/Data/bogdanm/Products/IONEX_Products',
                 rate = 300,
-                gnss_products_dir = '/mnt/Data/bogdanm/Products/IGS_GNSS_Products/igs2gipsyx/es2_30h_init/',
+                gnss_products_dir = '/mnt/Data/bogdanm/Products/IGS_GNSS_Products/init/es2_30h_init/',
                 ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                 eterna_path='/home/bogdanm/Desktop/otl/eterna',
                 hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
