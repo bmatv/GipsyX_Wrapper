@@ -339,7 +339,7 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
         for i in range(blq_array.shape[0]):
             # runing eterna analyse on each env
             env_et = env2eterna(envs[i],remove_outliers)
-            blq_array[i] = analyse_et(env_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers)
+            blq_array[i] = analyse_et(env_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers, force)
     else:
         for i in range(blq_array.shape[0]):
             # If restore otl -> ge synthetic otl and add back to the env signal and run analyse on each component
