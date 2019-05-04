@@ -55,9 +55,11 @@ class gd2e_class:
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
         self.ElMin=ElMin
-        self.pos_s = pos_s
-        self.wetz_s = wetz_s
+
         self.PPPtype = self._check_PPPtype(PPPtype)
+
+        self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
+        self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
         
 
     def _check_mode(self,mode):

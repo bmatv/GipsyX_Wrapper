@@ -61,7 +61,7 @@ class mGNSS_class:
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
         self.mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
-        self.PPPtype = _check_PPPtype(PPPtype)     
+        self.PPPtype = self._check_PPPtype(PPPtype)     
         
           
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
