@@ -13,7 +13,7 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
@@ -45,10 +45,19 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
 
-    tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
+    PPPtypes = ['static','kinematic']
+    if PPPtype not in PPPtypes:
+        raise ValueError("Invalid PPP type. Expected one of: %s" % PPPtypes)
 
-    # adding coordinate process noise
-    tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj','1.0 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(pos_s)/1000)]]
+    tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
+    
+    '''Static or Kinematic PPP. Kinematic is default'''
+    if PPPtype == 'kinematic':
+        # adding coordinate process noise
+        tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj','1.0 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(pos_s)/1000)]]
+    if PPPtype == 'static':
+        tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','1.0']]
+
     # adding zenith wet delay process noise
     tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
 

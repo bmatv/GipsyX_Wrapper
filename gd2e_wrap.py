@@ -23,7 +23,8 @@ class gd2e_class:
                  num_cores = 8, # integer of string
                  ElMin=7,       # degrees
                  pos_s = 0.57,  # mm/sqrt(s)
-                 wetz_s = 0.1   # mm/sqrt(s)
+                 wetz_s = 0.1,   # mm/sqrt(s)
+                 PPPtype = 'kinematic'
                  ): 
         
         self.project_name = project_name
@@ -56,6 +57,7 @@ class gd2e_class:
         self.ElMin=ElMin
         self.pos_s = pos_s
         self.wetz_s = wetz_s
+        self.PPPtype = PPPtype
         
 
     def _check_mode(self,mode):
@@ -87,7 +89,8 @@ class gd2e_class:
         mode = self.mode,
         ElMin=self.ElMin,
         pos_s = self.pos_s,
-        wetz_s = self.wetz_s)
+        wetz_s = self.wetz_s,
+        PPPtype = self.PPPtype)
     def gd2e(self):
         '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir,mode=self.mode)
