@@ -105,8 +105,3 @@ _tides_otl_off = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
 rw_otl = [_tides_all_on + penna_k_randomwalk[0],penna_k_randomwalk[1]]
 
 rw_no_otl = [_tides_otl_off + penna_k_randomwalk[0],penna_k_randomwalk[1]]
-
-
-static_otl = [_tides_all_on + penna_k_randomwalk[0],penna_k_randomwalk[1]]
-
-static_no_otl = [_tides_otl_off + penna_k_randomwalk[0],penna_k_randomwalk[1]]
