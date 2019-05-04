@@ -1,4 +1,4 @@
-penna_k_randomwalk_m4 = [[   
+penna_k_randomwalk = [[   
     # Stochastic Adjustment State
         # ['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj', '1.0 5.7e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
         # Trop section    
@@ -102,6 +102,11 @@ _tides_otl_off = [['GRN_STATION_CLK_WHITE:Tides:All', 'On'],
 
 #glo_sv_del = [['Satellite:Delete','R701 R802 R711 R712 R713 R714 R715 R716 R717 R718 R719 R720 R721 R722 R723 R724 R725 R726 R727 R728 R729 R730 R731 R732 R733 R734 R735 R736 R737 R738 R742 R743 R744 R745 R746 R747 R851 R852 R853 R856 R754 R854 R755 R855 R783 R787 R788 R789 R791 R792 R793 R794 R795 R796 R797 R798 R801']]
 
-rw_otl = [_tides_all_on + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+rw_otl = [_tides_all_on + penna_k_randomwalk[0],penna_k_randomwalk[1]]
 
-rw_no_otl = [_tides_otl_off + penna_k_randomwalk_m4[0],penna_k_randomwalk_m4[1]]
+rw_no_otl = [_tides_otl_off + penna_k_randomwalk[0],penna_k_randomwalk[1]]
+
+
+static_otl = [_tides_all_on + penna_k_randomwalk[0],penna_k_randomwalk[1]]
+
+static_no_otl = [_tides_otl_off + penna_k_randomwalk[0],penna_k_randomwalk[1]]
