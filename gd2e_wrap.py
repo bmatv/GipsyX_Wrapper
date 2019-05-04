@@ -26,8 +26,8 @@ class gd2e_class:
                  wetz_s = 0.1,   # mm/sqrt(s)
                  PPPtype = 'kinematic'
                  ): 
-        
-        self.project_name = project_name
+        self.PPPtype = self._check_PPPtype(PPPtype)
+        self.project_name = '{}_static'.format(project_name) if PPPtype=='static' else project_name
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.tmp_dir=tmp_dir
@@ -56,7 +56,7 @@ class gd2e_class:
         self.hardisp_path = hardisp_path
         self.ElMin=ElMin
 
-        self.PPPtype = self._check_PPPtype(PPPtype)
+        
 
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
