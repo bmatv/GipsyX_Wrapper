@@ -57,13 +57,18 @@ class gd2e_class:
         self.ElMin=ElMin
         self.pos_s = pos_s
         self.wetz_s = wetz_s
-        self.PPPtype = PPPtype
+        self.PPPtype = self._check_PPPtype(PPPtype)
         
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
         if mode not in modes:  raise ValueError("Invalid mode. Expected one of: %s" % modes)
         else: return mode
+
+    def _check_PPPtype(self,PPPtype):
+        PPPtypes = ['static', 'kinematic']
+        if PPPtype not in PPPtypes:  raise ValueError("Invalid PPPtype. Expected one of: %s" % PPPtypes)
+        else: return PPPtype
     
     # def analyse(self):
     #     return gx_aux.analyse(rnx_files=self.rnx_files,stations_list=self.stations_list,years_list=self.years_list)

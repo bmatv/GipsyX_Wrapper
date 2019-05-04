@@ -61,15 +61,24 @@ class mGNSS_class:
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
         self.mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
+        self.PPPtype = _check_PPPtype(PPPtype)     
         
-        self.pos_s = pos_s
-        self.wetz_s = wetz_s
+          
+        self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
+        self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
-        self.PPPtype = PPPtype
+
         
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
+
+
+
+    def _check_PPPtype(self,PPPtype):
+        PPPtypes = ['static', 'kinematic']
+        if PPPtype not in PPPtypes:  raise ValueError("Invalid PPPtype. Expected one of: %s" % PPPtypes)
+        else: return PPPtype
         
     def init_gd2e(self, mode):
         '''Initialize gd2e instance wth above parameters but unique mode and updates the poroject_name regarding the mode selected'''
@@ -94,7 +103,7 @@ class mGNSS_class:
                 num_cores = self.num_cores,
                 ElMin = self.ElMin,
                 pos_s = self.pos_s,
-                wetz_s = self.wetz_s if self.PPPtype=='kinematic' else 0.05, #penna's value for static
+                wetz_s = self.wetz_s,
                 PPPtype = self.PPPtype)
     
     def gen_trees(self):
