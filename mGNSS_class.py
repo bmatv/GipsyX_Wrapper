@@ -128,14 +128,7 @@ class mGNSS_class:
         common_index = self._get_common_index(gps,glo,gps_glo)
         return gps.loc[common_index],glo.loc[common_index],gps_glo.loc[common_index]
     
-    def _update_mindex(self, dataframe, lvl_name):
-        '''Inserts a top level named as lvl_name into dataframe_in'''
-        mindex_df = dataframe.columns.to_frame(index=False)
-        mindex_df.insert(loc = 0,column = 'add',value = lvl_name)
-
-        dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
-        return dataframe
-    
+   
     def gather_mGNSS(self):
         gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '.zstd')
         '''get envs. For each station do common index, create unique levels and concat'''
@@ -151,7 +144,7 @@ class mGNSS_class:
                 tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_envs[i],glo = glo_envs[i], gps_glo = gps_glo_envs[i])
 
                 #update column levels
-                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 gather.append(tmp_mGNSS)
             gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
         else:
@@ -162,27 +155,6 @@ class mGNSS_class:
     
     def gather_residuals_mGNSS(self):
         return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
-    
-#     def gather_residuals_mGNSS(self):
-#         resid_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '_resid.zstd')
-#         if not _os.path.exists(resid_path):
-#             gps_resid = self.gps.residuals()
-#             glo_resid = self.glo.residuals()
-#             gps_glo_resid = self.gps_glo.residuals()
-#             gather = []
-#             for i in range(1): #using gps residuals 
-#                 tmp_gps,tmp_glo,tmp_gps_glo = (gps_resid[i].reset_index().set_index(['time','trans','datatype']),
-#                                                glo_resid[i].reset_index().set_index(['time','trans','datatype']),
-#                                                gps_glo_resid[i].reset_index().set_index(['time','trans','datatype']))
-                
-#                 tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
-#                 gather.append(tmp_mGNSS)
-                
-# #             gx_aux._dump_write(data = gather,filename=resid_path,num_cores=24,cname='zstd')
-# #         else:
-# #             gather = gx_aux._dump_read(resid_path)
-
-#         return gather
     
     def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False):
         '''If force == True -> reruns Eterna even if Eterna files exist'''
@@ -198,7 +170,7 @@ class mGNSS_class:
                 tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers,force)
                 tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers,force)
                 
-                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 tmp_blq.append(tmp_mGNSS)
                 
         else:
@@ -221,7 +193,7 @@ class mGNSS_class:
                 tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers,force)
                 tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers,force)
                 
-                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_synth,'OTL'),self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([_update_mindex(tmp_synth,'OTL'),_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 tmp_blq.append(tmp_mGNSS)
                 
         return tmp_blq
@@ -240,7 +212,7 @@ class mGNSS_class:
                 tmp_glo = get_spectra(glo_et)                    
                 tmp_gps_glo = get_spectra(gps_glo_et)
 
-                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 tmp.append(tmp_mGNSS)
                 
         else:
@@ -261,7 +233,7 @@ class mGNSS_class:
                 tmp_glo = get_spectra(glo_et)                    
                 tmp_gps_glo = get_spectra(gps_glo_et)
 
-                tmp_mGNSS = _pd.concat([self._update_mindex(tmp_gps,'GPS'),self._update_mindex(tmp_glo,'GLONASS'),self._update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 tmp.append(tmp_mGNSS)
                 
         return tmp
@@ -304,9 +276,10 @@ def get_spectra(data):
     return constellation_spectra_df
 
 
-import numpy as _np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+
+
 def plot_tree(blq_df,station_name,normalize=True):
     
 #     otl_c = blq_df.index.values
@@ -341,9 +314,8 @@ def plot_tree(blq_df,station_name,normalize=True):
     #Get scale:
     x_scale = x.abs().max().max()
     y_scale = y.abs().max().max()
-    scale = _np.ceil(_np.max([x_scale,y_scale]))
-#We need to normalize with x and y!!!
-# 
+    scale = _np.round(_np.max([x_scale,y_scale]))
+
     
     semiAxisA = std_a
     semiAxisP = _np.tan(_np.deg2rad(std_p))*amplitude
@@ -389,9 +361,6 @@ def plot_tree(blq_df,station_name,normalize=True):
             ax.flat[j].add_patch(mpatches.Ellipse(xy=(glo_xy[['x','y']].values[0]), width=glo_xy['width'], height=glo_xy['height'],angle=glo_xy['angle'],fc='None',edgecolor='g')) #X4 for 95% confidence
             ax.flat[j].add_patch(mpatches.Ellipse(xy=(gps_glo_xy[['x','y']].values[0]), width=gps_glo_xy['width'], height=gps_glo_xy['height'],angle=gps_glo_xy['angle'],fc='None',edgecolor='k')) #X4 for 95% confidence
     
-        
-            
-    
     #     legend(codes=3)
     #     print()
     #     ax.legend(handles, labels,loc=3,frameon=False)    
@@ -407,7 +376,7 @@ def plot_tree(blq_df,station_name,normalize=True):
     fig.suptitle(station_name+' station OTL phasors', fontsize=16)
 #     fig.tight_layout(rect=(0,0.05,1,1))
     plt.show()
-    print(scale)
+#     print(scale)
 
 import matplotlib.pyplot as plt
 # plt.style.use('ggplot')
@@ -425,3 +394,12 @@ def plot_specta(mGNSSspectra_df):
         if i ==0:fig.legend(loc='lower center',markerscale=10/ms,ncol=3,)
     fig.tight_layout(rect=(0,0.05,1,1))
     plt.show()
+    
+    
+def _update_mindex(dataframe, lvl_name):
+    '''Inserts a top level named as lvl_name into dataframe_in'''
+    mindex_df = dataframe.columns.to_frame(index=False)
+    mindex_df.insert(loc = 0,column = 'add',value = lvl_name)
+
+    dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
+    return dataframe
