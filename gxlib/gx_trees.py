@@ -55,11 +55,15 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     if PPPtype == 'kinematic':
         # adding coordinate process noise
         tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj','1.0 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(pos_s)/1000)]]
-    if PPPtype == 'static':
-        tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','1.0']]
+        # adding zenith wet delay process noise
+        tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
 
-    # adding zenith wet delay process noise
-    tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
+
+    if PPPtype == 'static':
+        wetz_s = 0.05 #mm/sqrt(s) is the value Penna used for static processing. Only one solution is needed for no_synth and synth
+        tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','1.0']]
+        tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
+
 
 
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation

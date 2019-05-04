@@ -32,6 +32,7 @@ class mGNSS_class:
                 ElMin = 7,
                 pos_s = 0.57, # mm/sqrt(s)
                 wetz_s = 0.1, # mm/sqrt(s)
+                PPPtype = 'kinematic',
                 cddis = False):
         
         self.project_name = project_name
@@ -63,6 +64,8 @@ class mGNSS_class:
         
         self.pos_s = pos_s
         self.wetz_s = wetz_s
+
+        self.PPPtype = PPPtype
         
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
@@ -91,7 +94,8 @@ class mGNSS_class:
                 num_cores = self.num_cores,
                 ElMin = self.ElMin,
                 pos_s = self.pos_s,
-                wetz_s = self.wetz_s)
+                wetz_s = self.wetz_s if self.PPPtype=='kinematic' else 0.05, #penna's value for static
+                PPPtype = self.PPPtype)
     
     def gen_trees(self):
         self.gps.gen_trees()
