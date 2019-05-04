@@ -291,7 +291,7 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
     components = ['east','north','up'] #should be in alphabetical order. Not sure why
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
-    df_blq = _pd.DataFrame(columns = columns_mlevel,index = ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    df_blq = _pd.DataFrame(columns = columns_mlevel,index = ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA','14h'])
     
     et_components = ['e_eterna','n_eterna','v_eterna']
 
