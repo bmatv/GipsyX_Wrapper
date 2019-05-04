@@ -1,7 +1,4 @@
 penna_k_randomwalk = [[   
-    # Stochastic Adjustment State
-        # ['GRN_STATION_CLK_WHITE:State:Pos:StochasticAdj', '1.0 5.7e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
-        # Trop section    
         ['GRN_STATION_CLK_WHITE:Trop:GradEast', '0.0'],
 
         ['GRN_STATION_CLK_WHITE:Trop:GradNorth', '0.0'],
@@ -9,8 +6,6 @@ penna_k_randomwalk = [[
         ['GRN_STATION_CLK_WHITE:Trop:Mapping', 'VMF1'],
         ['GRN_STATION_CLK_WHITE:Trop:Model', 'On'],
         ['GRN_STATION_CLK_WHITE:Trop:WetZ', '0.1'],
-        #adjustment of troposphere
-        # ['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj', '0.5 1e-4 $GLOBAL_DATA_RATE RANDOMWALK'],
         ['GRN_STATION_CLK_WHITE:Trop:GradNorth:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
         ['GRN_STATION_CLK_WHITE:Trop:GradEast:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
 
