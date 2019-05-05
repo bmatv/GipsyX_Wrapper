@@ -67,7 +67,7 @@ class mGNSS_class:
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
-        self.project_name = self.project_name_construct() #static projects are marked as project_name_[mode]_static
+        self.project_name = self.project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
         
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
@@ -78,7 +78,7 @@ class mGNSS_class:
         if PPPtype not in PPPtypes:  raise ValueError("Invalid PPPtype. Expected one of: %s" % PPPtypes)
         else: return PPPtype
 
-    def project_name_construct(self):
+    def project_name_construct(self,project_name):
         '''pos_s and wetz_s are im mm/sqrt(s)'''
         if self.PPPtype!='kinematic':
             project_name = '{}_{}_{}'.format(str(project_name),str(self.pos_s),str(self.wetz_s))
