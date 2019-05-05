@@ -186,7 +186,7 @@ def _gen_penna_tdp_file(np_set):
         #tdp_xyz[i]['NominalValue'] = 0.0 #Zeroing nominals
         tdp_xyz[i]['Sigma'] = 1.0
 
-        tdp = _pd.concat([tdp,tdp_xyz[i]])
+        tdp = _pd.concat([tdp,tdp_xyz[i]],sort=False)
 
     output_file = path2tdp_file + '_penna'
     tdp_concat = _pd.concat([tropNom_table,tdp]).sort_values(by=['Time','Name'])
