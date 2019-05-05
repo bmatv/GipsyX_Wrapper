@@ -133,6 +133,10 @@ class mGNSS_class:
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
         Generates zenith tropnominals from VMF1 model files.'''
         gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.gps.staDb_path)
+
+    def gen_synth_tropNom(self):
+        '''First, run gen_tropNom. This script will create files based on original tropNoms'''
+        gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir, staDb_path = self.gps.staDb_path, period=13.9585147, num_cores = self.num_cores, A_East=2, A_North=4, A_Vertical=6)
         
     def mode2label(self,mode):
         '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
