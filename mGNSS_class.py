@@ -35,7 +35,7 @@ class mGNSS_class:
                 PPPtype = 'kinematic',
                 cddis = False):
         
-        self.project_name = project_name
+        self.project_name = self.project_name_construct()
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.cddis=cddis
@@ -73,12 +73,18 @@ class mGNSS_class:
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
 
-
-
     def _check_PPPtype(self,PPPtype):
         PPPtypes = ['static', 'kinematic']
         if PPPtype not in PPPtypes:  raise ValueError("Invalid PPPtype. Expected one of: %s" % PPPtypes)
         else: return PPPtype
+
+    def project_name_construct(self):
+        '''pos_s and wetz_s are im mm/sqrt(s)'''
+        if self.PPPtype!='kinematic':
+            project_name = '{}_{}_{}'.format(str(project_name),str(self.pos_s),str(self.wetz_s))
+        if self.PPPtype=='static':
+            project_name = '{}_static'.format(str(project_name))
+        return project_name
         
     def init_gd2e(self, mode):
         '''Initialize gd2e instance wth above parameters but unique mode and updates the poroject_name regarding the mode selected'''
@@ -144,6 +150,30 @@ class mGNSS_class:
    
     def gather_mGNSS(self):
         gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '.zstd')
+        '''get envs. For each station do common index, create unique levels and concat'''
+        
+        if not _os.path.exists(gather_path):
+            gps_envs = self.gps.envs()
+            glo_envs = self.glo.envs()
+            gps_glo_envs = self.gps_glo.envs()
+
+            gather = []
+            for i in range(len(self.stations_list)):
+                #get common index
+                tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_envs[i],glo = glo_envs[i], gps_glo = gps_glo_envs[i])
+
+                #update column levels
+                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                gather.append(tmp_mGNSS)
+            gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
+        else:
+            print('Found mGNSS gather file', self.project_name + ".zstd" )
+            gather = gx_aux._dump_read(gather_path)
+        
+        return gather
+
+    def gather_mGNSS(self):
+        # gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '.zstd')
         '''get envs. For each station do common index, create unique levels and concat'''
         
         if not _os.path.exists(gather_path):
