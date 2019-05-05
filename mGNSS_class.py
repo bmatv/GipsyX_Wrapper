@@ -35,7 +35,7 @@ class mGNSS_class:
                 PPPtype = 'kinematic',
                 cddis = False):
         
-        self.project_name = self.project_name_construct()
+        self.project_name = self.project_name_construct() #static projects are marked as project_name_[mode]_static
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.cddis=cddis
