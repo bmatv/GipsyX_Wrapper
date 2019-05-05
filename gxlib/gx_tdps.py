@@ -118,7 +118,7 @@ def write_tdp(output_file, tdp_concat):
     def tdp_name(inp):
         return '{0:<25}'.format(inp)
     with open(output_file, 'w') as file:
-            file.write(' ' + tdp_concat.to_string(columns=['Time','NominalValue','Value','Sigma','Name'],
+            file.write(tdp_concat.to_string(columns=['Time','NominalValue','Value','Sigma','Name'],
                       formatters={'Time': tdp_num,
                                   'NominalValue': tdp_num,
                                   'Value': tdp_num,
