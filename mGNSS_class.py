@@ -149,7 +149,11 @@ class mGNSS_class:
     
    
     def gather_mGNSS(self):
-        gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '.zstd')
+        env_dir =  _os.path.join(self.tmp_dir,'gd2e','env_gathers')
+        if not _os.path.exists(env_dir):
+            _os.makedirs(env_dir)
+
+        gather_path =  _os.path.join(env_dir,self.project_name + '.zstd')
         '''get envs. For each station do common index, create unique levels and concat'''
         
         if not _os.path.exists(gather_path):
@@ -167,7 +171,7 @@ class mGNSS_class:
                 gather.append(tmp_mGNSS)
             gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
         else:
-            print('Found mGNSS gather file', self.project_name + ".zstd" )
+            # print('Found mGNSS gather file', self.project_name + ".zstd" )
             gather = gx_aux._dump_read(gather_path)
         
         return gather
