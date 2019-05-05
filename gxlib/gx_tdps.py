@@ -202,9 +202,9 @@ def gen_penna_tdp(tmp_path,
     1. Read staDb file (staDb has to have information on all the stations in the dataset)
     2. Extract stations names and positions. Create rot for each station.
     3. Glob all tdp files
-    4. Loop throught tdp files list. Read each file
+    4. Loop throught tdp files list. Read each file. All years and DOYs that are present in the directory!!!
     5. For each file extract time values. Generate synth waves.
-    6. Rotate for each station and create tdp output lines for each station
+    6. Rotate for each station [in staDb?] and create tdp output lines for each station. staDb is generated on the fly from the list of stations fetched
     7. Concatanate outputs and append to input tdp file 
     '''
     files = _np.asarray(sorted(_glob.glob(tmp_path+'/tropNom/*/*/30h_tropNominalOut_VMF1.tdp')))
