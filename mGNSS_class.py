@@ -80,7 +80,7 @@ class mGNSS_class:
 
     def project_name_construct(self,project_name):
         '''pos_s and wetz_s are im mm/sqrt(s)'''
-        if self.PPPtype!='kinematic':
+        if self.PPPtype=='kinematic':
             project_name = '{}_{}_{}'.format(str(project_name),str(self.pos_s),str(self.wetz_s))
         if self.PPPtype=='static':
             project_name = '{}_static'.format(str(project_name))
