@@ -193,8 +193,8 @@ def _gen_penna_tdp_file(np_set):
     write_tdp(tdp_concat=tdp_concat,output_file=output_file)
     # print(output_file)
 
-def gen_penna_tdp(tmp_path='/mnt/Data/bogdanm/tmp_GipsyX',
-            staDb_path = '/home/bogdanm/Desktop/GipsyX_trees/staDb/bigf.staDb',
+def gen_penna_tdp(tmp_path,
+            staDb_path,
             period=13.9585147,
             num_cores = 25,
             A_East=2, A_North=4, A_Vertical=6):
