@@ -179,3 +179,15 @@ class gd2e_class:
                                     hardisp_path = self.hardisp_path,
                                     force = force
                                     )
+    def wetz(self):
+        wetz = _np.ndarray((self.filtered_solutions().shape),dtype = object)
+        for i in range(filtered_tdps.shape[0]):
+            dataframe = self.filtered_solutions()[i].value #Only value part is used
+            #find column needed
+            columns = dataframe.columns
+            wetz_column_name = columns[_pd.Series(columns).str.contains('WetZ')].values[0]
+            wetz[i] = dataframe[['.Station.CAMO.Trop.WetZ',]]
+        return wetz
+
+        
+        
