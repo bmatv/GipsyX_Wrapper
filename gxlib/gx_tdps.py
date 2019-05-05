@@ -140,7 +140,7 @@ def _gen_penna_tdp_file(np_set):
     A_N = np_set[4]
     A_V = np_set[5]
     rot_ndarray = np_set[6]
-    tropNom_table = _pd.read_csv(path2tdp_file,delim_whitespace=True,header=None,names=['Time','NominalValue','Value','Sigma','Name'],sep='\t') #reading tdp file with pandas
+    tropNom_table = _pd.read_csv(path2tdp_file,delim_whitespace=True,header=None,names=['Time','NominalValue','Value','Sigma','Name'],sep='\s') #reading tdp file with pandas
         
     df = _pd.DataFrame()
     df['Time'] = tropNom_table['Time'].unique()
