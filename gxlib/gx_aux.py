@@ -253,3 +253,13 @@ def remove_32h(tmp_dir):
     #'rnx_dr/SITE/YEAR/DAY/*_32h.dr.gz
     files = _glob.glob(_os.path.join(tmp_dir,'rnx_dr/*/*/*/*_32h.dr.gz'))
     for file in files: _os.remove(file)
+
+def wetz(tdps):
+    wetz = _np.ndarray((tdps.shape),dtype = object)
+    for i in range(wetz.shape[0]):
+        dataframe = tdps[i].value #Only value part is used
+        #find column needed
+        columns = dataframe.columns
+        wetz_column_name = columns[_pd.Series(columns).str.contains('WetZ')].values[0]
+        wetz[i] = dataframe[['.Station.CAMO.Trop.WetZ',]]
+    return wetz
