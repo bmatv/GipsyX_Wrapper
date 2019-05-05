@@ -27,7 +27,7 @@ class gd2e_class:
                  PPPtype = 'kinematic'
                  ): 
         self.PPPtype = self._check_PPPtype(PPPtype)
-        self.project_name = '{}_static'.format(project_name) if PPPtype=='static' else project_name
+        self.project_name = project_name 
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.tmp_dir=tmp_dir
