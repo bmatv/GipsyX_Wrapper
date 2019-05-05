@@ -261,5 +261,5 @@ def wetz(tdps):
         #find column needed
         columns = dataframe.columns
         wetz_column_name = columns[_pd.Series(columns).str.contains('WetZ')].values[0]
-        wetz[i] = dataframe[['.Station.CAMO.Trop.WetZ',]]
+        wetz[i] = dataframe[[wetz_column_name,]]
     return wetz
