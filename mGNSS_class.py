@@ -173,7 +173,11 @@ class mGNSS_class:
         return gather
 
     def gather_wetz(self):
-        gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '_wetz.zstd')
+        wetz_dir =  _os.path.join(self.tmp_dir,'gd2e','wetz_gathers')
+        if not _os.path.exists(wetz_dir):
+            _os.makedirs(wetz_dir)
+
+        gather_path =  _os.path.join(wetz_dir,self.project_name + '_wetz.zstd')
         '''get envs. For each station do common index, create unique levels and concat'''
         
         if not _os.path.exists(gather_path):
