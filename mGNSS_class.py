@@ -35,7 +35,7 @@ class mGNSS_class:
                 PPPtype = 'kinematic',
                 cddis = False):
         
-        self.project_name = self.project_name_construct() #static projects are marked as project_name_[mode]_static
+        
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.cddis=cddis
@@ -67,7 +67,7 @@ class mGNSS_class:
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
-
+        self.project_name = self.project_name_construct() #static projects are marked as project_name_[mode]_static
         
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
