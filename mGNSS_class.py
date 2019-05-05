@@ -172,26 +172,26 @@ class mGNSS_class:
         
         return gather
 
-    def gather_mGNSS(self):
-        # gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + '.zstd')
+    def gather_wetz(self):
+        gather_path =  _os.path.join(self.tmp_dir,'gd2e',self.project_name + 'wetz.zstd')
         '''get envs. For each station do common index, create unique levels and concat'''
         
         if not _os.path.exists(gather_path):
-            gps_envs = self.gps.envs()
-            glo_envs = self.glo.envs()
-            gps_glo_envs = self.gps_glo.envs()
+            gps_wetz = self.gps.wetz()
+            glo_wetz = self.glo.wetz()
+            gps_glo_wetz = self.gps_glo.wetz()
 
             gather = []
             for i in range(len(self.stations_list)):
                 #get common index
-                tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_envs[i],glo = glo_envs[i], gps_glo = gps_glo_envs[i])
+                tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_wetz[i],glo = glo_wetz[i], gps_glo = gps_glo_wetz[i])
 
                 #update column levels
                 tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 gather.append(tmp_mGNSS)
             gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
         else:
-            print('Found mGNSS gather file', self.project_name + ".zstd" )
+            # print('Found mGNSS gather file', self.project_name + ".zstd" )
             gather = gx_aux._dump_read(gather_path)
         
         return gather
