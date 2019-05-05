@@ -19,7 +19,7 @@ def get_merge_table(tmp_dir,mode=None):
     tmp_dir is expected to have drinfo.npz file produced by get_drinfo function
     Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 32 hours files centered on the midday.
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
-    drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz',allow_pickle=True) #should overwrite to dump_zstd
+    drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz',allow_pickle=True) #should overwrite to dump_zstd. This is a new security change inroduced to numpy
     drinfo = drinfo_file['drinfo']
     
     modes = [None, 'GPS', 'GLONASS','GPS+GLONASS']
