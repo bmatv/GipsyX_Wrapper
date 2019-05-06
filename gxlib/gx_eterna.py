@@ -3,6 +3,7 @@ import pandas as _pd
 
 from gxlib.gx_aux import J2000origin as _J2000origin
 from gxlib.gx_filter import _stretch, _avg_30
+from gxlib.gx_hardisp import gen_synth_otl
 
 import sys as _sys,os as _os
 import shutil as _shutil
@@ -112,9 +113,13 @@ def _interp_short_gaps(dataset_avg):
     dataset_avg.loc[update.index] = update
     return dataset_avg
 
-def env2eterna(dataset):
-    '''Expects env dataset. Removes outliers via detrend'''
-    filt1 = _remove_outliers(dataset)
+def env2eterna(dataset,remove_outliers):
+    '''Expects env dataset. Removes outliers via detrend
+    remove_outliers is bool (detrend and filter on 3*std)'''
+
+    if remove_outliers: filt1 = _remove_outliers(dataset) #Turning off and on the detrending
+    else: filt1 = dataset.value
+
     filt1_st = _stretch(filt1)
     filt1_avg = _avg_30(filt1_st)
     return _interp_short_gaps(filt1_avg)
@@ -167,6 +172,7 @@ WAVEGROUPI=  1.036291  1.044801  1.000000   .000000 J1    #ETERNA wavegroup
 WAVEGROUPI=  1.064840  1.071084  1.000000   .000000 SO1   #ETERNA wavegroup
 WAVEGROUPI=  1.072582  1.080945  1.000000   .000000 OO1   #ETERNA wavegroup
 WAVEGROUPI=  1.099160  1.216398  1.000000   .000000 NU1   #ETERNA wavegroup
+WAVEGROUPI=  1.645000  1.725000  1.000000   .000000 14h   #ANALYZE wave group
 WAVEGROUPI=  1.719380  1.837970  1.000000   .000000 EPS2  #ETERNA wavegroup
 WAVEGROUPI=  1.853919  1.862429  1.000000   .000000 2N2   #ETERNA wavegroup
 WAVEGROUPI=  1.863633  1.872143  1.000000   .000000 MU2   #ETERNA wavegroup
@@ -182,7 +188,6 @@ WAVEGROUPI=  2.031287  2.047391  1.000000   .000000 ETA2  #ETERNA wavegroup
 WAVEGROUPI=  2.067578  2.182844  1.000000   .000000 2K2   #ETERNA wavegroup
 WAVEGROUPI=  2.753243  3.081255  1.000000   .000000 M3    #ETERNA wavegroup
 WAVEGROUPI=  3.791963  3.937898  1.000000   .000000 M4    #ETERNA wavegroup
-
 
 #METEOPARAM=         0      3.20airpress. hPa             #ANALYZE meteorol.
 #STORENEQSY=         1
@@ -210,66 +215,83 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_dataset,eterna_path,station_name,project_name,tmp_dir,staDb_path):
-    '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)'''
+def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force,otl_env=False):
+    '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)
+    otl_env switch means creating tmp_otl_et directory and not standard tmp_et'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
     comp_path_list = []
-    tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_et')
-        
-    if _os.path.exists(tmp_station_path):
-        _shutil.rmtree(tmp_station_path)
-    if not _os.path.exists(tmp_station_path):
-        _os.makedirs(tmp_station_path)
 
-            
-#     env_et = env2eterna(env_dataset)
-    env_et = env_dataset
+    tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_otl_et' if otl_env else 'tmp_et')
+    
     components = ['e_eterna','n_eterna','v_eterna']
-    for i in range(len(components)):
-        comp_path = _os.path.join(tmp_station_path,components[i])
-        _os.makedirs(comp_path)
-        #create a symlink to commdat folder as needed for eterna
-        _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
-        #Writing Eterna dat file for specific component and station
-        _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800)
 
-        #Writing ini file for specific component and station
-        ini_path = _os.path.join(comp_path,components[i]+'.ini')
-        llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
-        with open(ini_path,'w') as ini_file:
-            ini_file.write('''SENSORNAME= {}\nSAMPLERATE= {}\nSTATLATITU= {}\nSTATLONITU= {}\nSTATELEVAT= {}\nTEXTHEADER= {} {} {} {} '''
-                           .format(station_name,'1800',llh['LAT'],llh['LON'],llh['ELEV'],station_name,'GNSS station',llh['LAT'],llh['LON'] ))
-            ini_file.write(ini_extra)
+    if force: #force removes eterna tmp folders
+        print('Using "force" option', end=' | ')
+        if _os.path.exists(tmp_station_path):
+            _shutil.rmtree(tmp_station_path)
 
-        #Touch empty default.ini file
-        def_ini_path = _os.path.join(comp_path,'default.ini')
-        with open(def_ini_path,'w'):
-            _os.utime(def_ini_path, None)
+    components_exist = []
+    for component in components:
+        prn_exists = _os.path.exists(_os.path.join(tmp_station_path,component,component+'.prn'))
+        components_exist.append(prn_exists)
+    eterna_exists = _np.min(components_exist) #if at least one is missing -> False
 
-        #Writing project file
-        project_path = _os.path.join(comp_path,'project')
-        with open(project_path,'w') as project_file:
-            project_file.write(components[i])
+    llh = (get_staDb_llh(staDb_path).loc[station_name]).round(4)
 
-        #Executing ETERNA
-#             run_eterna(eterna_exec,comp_path)
-        comp_path_list.append([eterna_exec,comp_path])
 
-    #Running Eterna analysis of 3 components in parallel
-    with Pool() as p:
-        p.map(run_eterna, comp_path_list)
+
+    if not eterna_exists:
+        print('Processing', station_name,'with Eterna...',end=' | ')
+
+        _os.makedirs(tmp_station_path)
+        for i in range(len(components)):
+            comp_path = _os.path.join(tmp_station_path,components[i])
+            _os.makedirs(comp_path)
+            #create a symlink to commdat folder as needed for eterna
+            _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
+            #Writing Eterna dat file for specific component and station
+            _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800)
+
+            #Writing ini file for specific component and station
+            ini_path = _os.path.join(comp_path,components[i]+'.ini')
+            
+            with open(ini_path,'w') as ini_file:
+                ini_file.write('''SENSORNAME= {}\nSAMPLERATE= {}\nSTATLATITU= {}\nSTATLONITU= {}\nSTATELEVAT= {}\nTEXTHEADER= {} {} {} {} '''
+                            .format(station_name,'1800',llh['LAT'],llh['LON'],llh['ELEV'],station_name,'GNSS station',llh['LAT'],llh['LON'] ))
+                ini_file.write(ini_extra)
+
+            #Touch empty default.ini file
+            def_ini_path = _os.path.join(comp_path,'default.ini')
+            with open(def_ini_path,'w'):
+                _os.utime(def_ini_path, None)
+
+            #Writing project file
+            project_path = _os.path.join(comp_path,'project')
+            with open(project_path,'w') as project_file:
+                project_file.write(components[i])
+
+            # Executing ETERNA
+            # run_eterna(eterna_exec,comp_path)
+            comp_path_list.append([eterna_exec,comp_path])
+
+        # Running Eterna analysis of 3 components in parallel
+        with Pool(3) as p:
+            p.map(run_eterna, comp_path_list)
+
+    if eterna_exists and not force:
+        print('Found previous Eterna session for', station_name + '. Extracting processed as not forced.', end=' | ')
         
     return extract_et(tmp_station_path,llh['LON'])
 
-def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon from staDb to do proper correction of the phase
-    lon-=360 if lon>180 else lon
-    lon+=360 if lon<-180 else lon
-        
+def extract_et(tmp_station_path,lon): #In development. Should extract lon from staDb to do proper correction of the phase
+    lon-=360 if lon>180 else 0 #as the operator is -= then else will be -=parameter !!!
+    lon+=360 if lon<-180 else 0
+    print(lon)
     components = ['east','north','up'] #should be in alphabetical order. Not sure why
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
-    df_blq = _pd.DataFrame(columns = columns_mlevel,index = ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA'])
+    df_blq = _pd.DataFrame(columns = columns_mlevel,index = ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA','14h'])
     
     et_components = ['e_eterna','n_eterna','v_eterna']
 
@@ -299,10 +321,42 @@ def extract_et(tmp_station_path,lon=-5.28): #In development. Should extract lon 
 
         df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) - lon*coeff['coeff'])
         df_blq[components[i]]['phase']['std'].update(df['phase_stdv'])
-    df_blq.update(df_blq[['east','north']].xs('phase',level=1,axis=1).xs('value',level=1,axis=1)+180)
-    df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1).loc[['MF','MM','SSA']] -180)
+        
+    df_blq.update(df_blq.loc(axis=1)[['east','north'],['phase',],['value',]]+180)
+        
+        
+
+    df_blq.update(df_blq.loc(axis=1)[:,['phase',],['value',]].loc[['MF','MM','SSA']] -180)
+    df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] < -180] += 360
+    df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] > 180] -= 360
     
-    phase_values = df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)
-    df_blq.update(df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)[df_blq.xs('phase',level=1,axis=1).xs('value',level=1,axis=1)<180]+360)
-    
-    return df_blq[['up','north','east']]
+    return df_blq[['up','east','north']]
+
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force):
+    blq_array = _np.ndarray((len(stations_list)),dtype=object)
+
+    if not restore_otl:
+        for i in range(blq_array.shape[0]):
+            # runing eterna analyse on each env
+            env_et = env2eterna(envs[i],remove_outliers)
+            blq_array[i] = analyse_et(env_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers, force)
+    else:
+        for i in range(blq_array.shape[0]):
+            # If restore otl -> ge synthetic otl and add back to the env signal and run analyse on each component
+            env_et = env2eterna(envs[i],remove_outliers)
+            synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+            restored_et = env_et + synth_otl
+            blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force)
+
+    return blq_array
+
+def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path,force):
+    '''This is a test method that should return same parameters as input blq file'''
+    blq_array = _np.ndarray((len(stations_list)),dtype=object)
+    for i in range(blq_array.shape[0]):
+        env_et = env2eterna(envs[i],remove_outliers)
+        synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i]+'/tmp_synth_otl',hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+
+        blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force)
+
+    return blq_array

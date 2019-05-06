@@ -58,7 +58,7 @@ def _gen_windows(dataset):
 
     return (time_frame_out - J2000origin).astype(_np.float64)
 
-def _stretch(dataset):
+def _stretch(dataset,sampling=300):
     '''
     Stretches the dataset on timeline putting None values where gaps are.
     To be consistent, takes begin of the start year as timeseries start time
@@ -67,7 +67,7 @@ def _stretch(dataset):
 
     MultiIndex_columns = dataset.columns
     timewindow  = _gen_windows(dataset)
-    df_theoretical = _pd.DataFrame(index = _np.arange(timewindow[0],timewindow[1],300))#input sampling of the dataset(5 mins)
+    df_theoretical = _pd.DataFrame(index = _np.arange(timewindow[0],timewindow[1],sampling))#input sampling of the dataset(5 mins)
 
     dataset_tmp = dataset.copy()
     dataset_tmp.columns = dataset.columns.to_series().values # flatten dataset columns so join won't produce warnings

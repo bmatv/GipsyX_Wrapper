@@ -3,35 +3,30 @@ import pandas as _pd
 import glob as _glob
 import os as _os
 from multiprocessing import Pool as _Pool 
-from .gx_aux import J2000origin
+from .gx_aux import J2000origin, _dump_read, _dump_write, _check_stations
+import tqdm as _tqdm
+import blosc as _blosc
 
 '''Extraction of solutions from npz'''
 def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
-
-    stations_list = _np.core.defchararray.upper(stations_list)
-
-    #check if station from input is in the folder
-    gd2e_stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
-    station_exists = _np.isin(stations_list,gd2e_stations_list)
-
-    checked_stations = stations_list[station_exists==True]
-
+    checked_stations = _check_stations(stations_list = stations_list,tmp_dir=tmp_dir,project_name=project_name)
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.pickle'
+    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/solutions.zstd'
 
     gather = _np.ndarray((n_stations), dtype=object)
-    '''This loader can be multithreaded'''
+    '''This loader can be multithreaded or compression change of the threads'''
+    
 
     for i in range(n_stations):
-        if not _os.path.exists(paths_tmp[i]):
+        if not _os.path.exists(paths_tmp[i]): 
             print('No gather file for {} station in {}.\n Running extract_tdps for the dataset.'.format(checked_stations[i],project_name))
-            extract_tdps(tmp_dir,project_name,num_cores)
-            gather[i] = _pd.read_pickle(paths_tmp[i])
-        else:
-            print('Found', paths_tmp[i], 'Loading...')
-            gather[i] = _pd.read_pickle(paths_tmp[i])
+            extract_tdps(tmp_dir,project_name,checked_stations[i],num_cores)
+
+        print('Found', paths_tmp[i], 'Loading...')
+        gather[i] = _dump_read(paths_tmp[i])
     return gather
+
 def rm_solutions_gathers(tmp_dir,project_name):
     gathers = _glob.glob(_os.path.join(tmp_dir,'gd2e',project_name) + '/*/solutions.pickle')
     for gather in gathers: _os.remove(gather)
@@ -51,7 +46,7 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
 
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
-    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.pickle'
+    paths_tmp = tmp_dir + '/gd2e/'+ project_name + '/' + _np.asarray(checked_stations,dtype=object) + '/residuals.zstd'
 
     gather = _np.ndarray((n_stations), dtype=object)
     '''This loader can be multithreaded'''
@@ -59,14 +54,13 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]):
             print('No gather file for {} station in {}.\n Running extract_tdps for the dataset.'.format(checked_stations[i],project_name))
-            extract_tdps(tmp_dir,project_name,num_cores)
-            gather[i] = _pd.read_pickle(paths_tmp[i])  
-        else:
-            print('Found', paths_tmp[i], 'Loading...')
-            gather[i] = _pd.read_pickle(paths_tmp[i])
+            extract_tdps(tmp_dir,project_name,checked_stations[i],num_cores)
+
+        print('Found', paths_tmp[i], 'Loading...')
+        gather[i] = _dump_read(paths_tmp[i])
     return gather
 
-def extract_tdps(tmp_dir,project_name,num_cores):
+def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     '''Runs _gather_tdps for each station in the stations_list of the project.
     After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
     Extraction of residuals moved to extract_residuals
@@ -80,72 +74,45 @@ def extract_tdps(tmp_dir,project_name,num_cores):
     All stations all years.
     '''
 
-    stations_list = sorted(_os.listdir(tmp_dir + '/gd2e/'+project_name)) #sort station names so we are sure the lists are always the same
+    station_files = _np.asarray(sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + station_name + '/*/*/*.zstd')))
+    tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
 
-    for i in range(len(stations_list)):
-        station_files = sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + stations_list[i] + '/*/*/*.npz'))
+    # Stacking list of tmp tdps and residuals into one np array
+    stacked_solutions = _pd.concat(tmp_data[:,0])
+    stacked_residuals = _pd.concat(tmp_data[:,1])
+    # For residuals trans column should be converted to category again
+    stacked_residuals['trans'] = stacked_residuals['trans'].astype('category')
+    # print(station_name, 'extraction finished')
 
-        tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
-        
-        # Read header array of tuples correctly with dtype and convert to array of arrays 
-        raw_solution_header = _np.load(station_files[0])['tdp_header']
-        dt=_np.dtype([('type', _np.unicode_, 8), ('name',  _np.unicode_,30)])
-        solution_header = _np.asarray(raw_solution_header,dtype=dt)
+    _blosc.set_nthreads(24) #using 24 threads for efficient compression of extracted data
+    solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.zstd'
+    residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.zstd'
 
-        residuals_header = ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
-                            ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']
-
-        # Creating MultiIndex from header arrays
-        solution_m_index = [solution_header['type'],solution_header['name']]
-
-        # Stacking list of tmp tdps and residuals into one np array
-        stacked_solution = _np.vstack(tmp_data[:,0])
-        stacked_residuals = _np.vstack(tmp_data[:,1])
-
-        # Creating a MultiIndex DataFrame of transposed array. Transposing back and adding time index
-        solutions = _pd.DataFrame(data=stacked_solution[:,1:].T,index=solution_m_index).T.set_index(stacked_solution[:,0])
-        residuals = _pd.DataFrame(data=stacked_residuals, columns = residuals_header).set_index(['DataType','Time'])
-        
-        '''Saving with np.savez as it is 2x faster than npz_compressed but takes 3x space (also, it is a bit faster save/load than pandas to_pickle).
-        Each station's gather is saved in it's gd2e subfolder
-        Possibly, when reading many station gathers in parallel npz_compressed will become more efficient as less data is read'''
-
-        solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/solutions.pickle'
-        solutions.to_pickle(solutions_file)
-        print(stations_list[i], 'solutions successfully extracted')
-
-        residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  stations_list[i] + '/residuals.pickle'
-        residuals.to_pickle(residuals_file)
-        print(stations_list[i], 'residuals successfully extracted')
+    print('Compressing and saving extracted gathers')
+    _dump_write(data=stacked_solutions,filename=solutions_file,cname='zstd')
+    _dump_write(data=stacked_residuals,filename=residuals_file,cname='zstd')
 
 def _gather_tdps(station_files,num_cores):
     '''Processing extraction in parallel 
     get_tdps_pandas,numpy'''
-    num_cores = num_cores if len(station_files) > num_cores else len(station_files)
+    num_cores = num_cores if station_files.shape[0] > num_cores else station_files.shape[0]
     #  chunksize = int(np.ceil(len(station_files) / num_cores)) #20-30 is the best
     chunksize = 20
-    try:
-        pool = _Pool(num_cores)
-        data = pool.map(_get_tdps_npz, station_files,chunksize=chunksize)
-    finally:
-        pool.close()
-        pool.join()
+ 
+    with _Pool(processes = num_cores) as p:
+        data = list(_tqdm.tqdm_notebook(p.imap(_get_tdps_npz, station_files,chunksize=chunksize), total=station_files.shape[0]))
     return data
 
 def _get_tdps_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
     Clips data to 24 hours of the same day if the file is bigger'''
-    tmp  = _np.load(file=file)
-    tmp_solution = tmp['tdp']
-    tmp_residuals = tmp['finalResiduals']
+    tmp_solution,tmp_residuals = _dump_read(file)[:2]
 
-    time_solution = tmp_solution[:,0]
-    time_residuals = tmp_residuals[:,0]
     #begin_timeframe as file time median should always work
-    begin_timeframe = ((_np.median(time_solution).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    begin_timeframe = ((_np.median(tmp_solution.index).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
     end_timeframe = begin_timeframe + 86400
         
-    solution = tmp_solution[(time_solution >= begin_timeframe) & (time_solution < end_timeframe)]
-    residuals = tmp_residuals[(time_residuals >= begin_timeframe) & (time_residuals < end_timeframe)]
+    solution = tmp_solution[(tmp_solution.index >= begin_timeframe) & (tmp_solution.index < end_timeframe)]
+    residuals = tmp_residuals[(tmp_residuals.index.get_level_values(1) >= begin_timeframe) & (tmp_residuals.index.get_level_values(1) < end_timeframe)]
 
     return solution,residuals

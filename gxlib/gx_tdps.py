@@ -23,13 +23,12 @@ def _gen_VMF1_tropNom(tropnom_param):
     
     '''begin, end, station_name, tropNom_out
     begin = tropnom begin in J2000 seconds; end = tropnom end in J2000 seconds; station name as in staDb;  '''
-    if not _os.path.isfile(tropNom_out):
-        if not _os.path.exists(_os.path.dirname(tropNom_out)):
-            _os.makedirs(_os.path.dirname(tropNom_out))
+    if not _os.path.exists(_os.path.dirname(tropNom_out)):
+        _os.makedirs(_os.path.dirname(tropNom_out))
 
-        #begin, end, tdp_PATH
-        nominals=_tropNom.nominalTrops('VMF1', modelFile=VMF1_dir)
-        nominals.makeTdp(begin, end, rate, stns, tropNom_out, append=False, staDb=staDb, dry=True, wet=True)
+    #begin, end, tdp_PATH
+    nominals=_tropNom.nominalTrops('VMF1', modelFile=VMF1_dir)
+    nominals.makeTdp(begin, end, rate, stns, tropNom_out, append=False, staDb=staDb, dry=True, wet=True)
 
 def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     '''
@@ -78,7 +77,8 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
 
         print(drinfo_years_list[i],'year tropnominals generation...',end=' ')
         print ('Number of files to process:', len(tropnom_param),'| Adj. num_cores:', num_cores)
-
+        
+        # tqdm implementation will produce lots of bars because of for loop pools
         for i in range(step_size):
             try:
                 pool = _Pool(num_cores)
@@ -87,9 +87,6 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
                 pool.close()
                 pool.join()
         print('| Done!')
-    # return tropnom_param
-
-
 '''
 Creating tdp files with synth signal for X Y Z
 penna values test. staDb NomValues | synth values | 1
@@ -121,7 +118,7 @@ def write_tdp(output_file, tdp_concat):
     def tdp_name(inp):
         return '{0:<25}'.format(inp)
     with open(output_file, 'w') as file:
-            file.write(' ' + tdp_concat.to_string(columns=['Time','NominalValue','Value','Sigma','Name'],
+            file.write(tdp_concat.to_string(columns=['Time','NominalValue','Value','Sigma','Name'],
                       formatters={'Time': tdp_num,
                                   'NominalValue': tdp_num,
                                   'Value': tdp_num,
@@ -143,7 +140,7 @@ def _gen_penna_tdp_file(np_set):
     A_N = np_set[4]
     A_V = np_set[5]
     rot_ndarray = np_set[6]
-    tropNom_table = _pd.read_table(path2tdp_file,delim_whitespace=True,header=None,names=['Time','NominalValue','Value','Sigma','Name']) #reading tdp file with pandas
+    tropNom_table = _pd.read_csv(path2tdp_file,delim_whitespace=True,header=None,names=['Time','NominalValue','Value','Sigma','Name']) #reading tdp file with pandas
         
     df = _pd.DataFrame()
     df['Time'] = tropNom_table['Time'].unique()
@@ -189,15 +186,15 @@ def _gen_penna_tdp_file(np_set):
         #tdp_xyz[i]['NominalValue'] = 0.0 #Zeroing nominals
         tdp_xyz[i]['Sigma'] = 1.0
 
-        tdp = _pd.concat([tdp,tdp_xyz[i]])
+        tdp = _pd.concat([tdp,tdp_xyz[i]],sort=False) # will sort later when all stations in place so false
 
     output_file = path2tdp_file + '_penna'
     tdp_concat = _pd.concat([tropNom_table,tdp]).sort_values(by=['Time','Name'])
     write_tdp(tdp_concat=tdp_concat,output_file=output_file)
     # print(output_file)
 
-def gen_penna_tdp(tmp_path='/mnt/Data/bogdanm/tmp_GipsyX',
-            staDb_path = '/home/bogdanm/Desktop/GipsyX_trees/staDb/bigf.staDb',
+def gen_penna_tdp(tmp_path,
+            staDb_path,
             period=13.9585147,
             num_cores = 25,
             A_East=2, A_North=4, A_Vertical=6):
@@ -205,9 +202,9 @@ def gen_penna_tdp(tmp_path='/mnt/Data/bogdanm/tmp_GipsyX',
     1. Read staDb file (staDb has to have information on all the stations in the dataset)
     2. Extract stations names and positions. Create rot for each station.
     3. Glob all tdp files
-    4. Loop throught tdp files list. Read each file
+    4. Loop throught tdp files list. Read each file. All years and DOYs that are present in the directory!!!
     5. For each file extract time values. Generate synth waves.
-    6. Rotate for each station and create tdp output lines for each station
+    6. Rotate for each station [in staDb?] and create tdp output lines for each station. staDb is generated on the fly from the list of stations fetched
     7. Concatanate outputs and append to input tdp file 
     '''
     files = _np.asarray(sorted(_glob.glob(tmp_path+'/tropNom/*/*/30h_tropNominalOut_VMF1.tdp')))

@@ -2,7 +2,7 @@ import numpy as _np
 import os as _os
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
-
+import tqdm as _tqdm
 from .gx_aux import J2000origin
 
 
@@ -19,7 +19,7 @@ def get_merge_table(tmp_dir,mode=None):
     tmp_dir is expected to have drinfo.npz file produced by get_drinfo function
     Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 32 hours files centered on the midday.
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
-    drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
+    drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz',allow_pickle=True) #should overwrite to dump_zstd. This is a new security change inroduced to numpy
     drinfo = drinfo_file['drinfo']
     
     modes = [None, 'GPS', 'GLONASS','GPS+GLONASS']
@@ -75,11 +75,11 @@ def get_merge_table(tmp_dir,mode=None):
         end_n_hour=_np.roll(station_record[:,3],-1).astype('datetime64[h]')
 
 
-        B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))&(start_c_day-start_p_hour >= _np.timedelta64(4,'[h]'))
+        B1c1 = (start_c_day-start_p_hour <= _np.timedelta64(24,'[h]'))&(start_c_day-start_p_hour >= _np.timedelta64(3,'[h]'))
 
         B1c2 = (start_c_day-end_p_minute <= _np.timedelta64(1,'[h]'))&(start_c_day-end_p_minute >= _np.timedelta64(0,'[m]')) #value should be positive
 
-        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(28,'[h]')) #start_c_day is the same as end_c_day
+        B2c1 = (end_n_hour-start_c_day <= _np.timedelta64(48,'[h]'))&(end_n_hour-start_c_day >= _np.timedelta64(27,'[h]')) #start_c_day is the same as end_c_day
         
         B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))&(start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) #check if next file is next day without missing days in between 
         
@@ -102,13 +102,13 @@ def _merge(merge_set):
     Sample input:
     drMerge.py -i isba0940.15o.dr ohln0940.15o.dr -start 2015-04-04 00:00:00 -end 2015-04-04 04:00:00
     '''
-    if not _os.path.isfile((merge_set[4])[:-6]+'_32h.dr.gz'):
+    if not _os.path.isfile((merge_set[4])[:-6]+'_30h.dr.gz'):
         #Computing time boundaries of the merge. merge_set[1] is file begin time
-        merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 4,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
-        merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(28,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 3,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
+        merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(27,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
 
         drMerge_proc = _Popen(['drMerge', merge_begin, merge_end,\
-                    _os.path.basename(merge_set[4])[:-6]+'_32h.dr.gz',\
+                    _os.path.basename(merge_set[4])[:-6]+'_30h.dr.gz',\
                     merge_set[3], merge_set[4], merge_set[5] ],\
                     cwd=_os.path.dirname(merge_set[4]))
         drMerge_proc.wait()
@@ -120,14 +120,10 @@ def dr_merge(merge_table,stations_list,num_cores):
 
     for i in range(len(stations_list)):
         num_cores = num_cores if len(merge_table[i]) > num_cores else len(merge_table[i])
-        chunksize = int(_np.ceil(len(merge_table[i]) / num_cores))
         merge_table_class3 = merge_table[i][merge_table[i][:,0]==3]
 
         print(stations_list[i],'station binary files merging (class_3 only)...')
-        print ('Number of files to process:', len(merge_table_class3),'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
-        pool = _Pool(processes=num_cores)
+        print ('Number of files to process:', len(merge_table_class3),'| Adj. num_cores:', num_cores)
 
-        pool.map_async(func=_merge, iterable=merge_table_class3, chunksize=chunksize)
-        pool.close()
-        pool.join()
-        print('| Done!')
+        with _Pool(processes = num_cores) as p:
+                    list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3), total=merge_table_class3.shape[0]))

@@ -15,7 +15,7 @@ def _gd2e(gd2e_set):
                         '-drEditedFile', gd2e_set['filename'],
                         '-recList', gd2e_set['station'],
                         '-runType', 'PPP',
-                        '-GNSSproducts', gd2e_set['gnss_products_dir'],
+                        '-orbClk', gd2e_set['orbClk_path'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
                         '-tdpInput', gd2e_set['tdp'],
                         '-staDb', gd2e_set['staDb_path']], cwd=gd2e_set['output'],stdout=_PIPE)
@@ -25,8 +25,8 @@ def _gd2e(gd2e_set):
     solutions = _get_tdps_pn(gd2e_set['output'])
     residuals = _get_residuals(gd2e_set['output'])
     debug_tree = _get_debug_tree(gd2e_set['output'])
-    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
-        gd2e_set['filename'],gd2e_set['station'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
+    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
+        gd2e_set['filename'],gd2e_set['station'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
     rtgx_log = _get_rtgx_log(gd2e_set['output'])
     rtgx_err = _get_rtgx_err(gd2e_set['output'])
 
@@ -42,22 +42,22 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
     #loading list of analysed stations from drinfo npz file
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
     drinfo_stations_list = drinfo_file['stations_list']
-    
+
+    print('---{}---'.format(project_name))
+
     for i in range(len(stations_list)):
         tmp = _gen_gd2e_table_station(trees_df,drinfo_stations_list, stations_list[i], years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
 
         if tmp[tmp['file_exists']==0].shape[0] ==0:
             gd2e_table[i] = None
-            print('---{}---\n{} is already processed'.format(project_name,stations_list[i]))
+            print('{} is already processed'.format(stations_list[i]))
         else:
             gd2e_table[i] = tmp[tmp['file_exists']==0].to_records()#converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
             num_cores = num_cores if len(gd2e_table[i]) > num_cores else len(gd2e_table[i])
-            print('---{}---\nProcessing station {}...\nNumber of files to be processed: {}\nAdjusted number of cores: {}'.format(project_name,stations_list[i],gd2e_table[i].shape[0],num_cores))
+            print('Processing {}... | # files left: {} | Adj. # of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
 
             with _Pool(processes = num_cores) as p:
                 list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
-                # print('----Done!----')
-    # return gd2e_table
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
@@ -121,8 +121,7 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp_merge_table = merge_tables[station_index_in_drinfo]
     
     filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
-    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_32h.dr.gz'
-    #From now files are 32 hours to overcome GipsyX check if files is 30 hours then use one product day
+    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_30h.dr.gz'
                 
     tmp['filename'] = filename
     tmp['class'] = tmp_merge_table[:,0]
@@ -131,7 +130,9 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp = tmp.join(other=trees_df,on='year')
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
     tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+station+'/'+tmp['year']+ '/' + tmp['dayofyear']
-    tmp['gnss_products_dir'] = gnss_products_dir
+
+    # tmp['gnss_products_dir'] = gnss_products_dir
+    tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'] + '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
 
     tmp['station'] = station

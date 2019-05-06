@@ -6,29 +6,41 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 
-def select_rnx(stations_list,years_list,rnx_dir):
+def select_rnx(stations_list,years_list,rnx_dir,cddis=False):
+    '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...'''
+    
+    rnx_dir = _os.path.abspath(rnx_dir)
     station_files = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
         tmp =[]
         for j in range(0, len(years_list)):
+            if cddis:
+                j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
+            else:    
+                j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
             
-            j_year_files =sorted(_glob.glob(rnx_dir+'/'+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z'))
+            
             if len(j_year_files) > 0:
                 tmp.append(j_year_files)
                 station_files[i] = _np.concatenate(tmp)
             else:
-                print('No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
+                print('gx_convert.select_rnx: No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
     return station_files 
 
 
-def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir):
+def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=False):
     '''Creates an array of output paths for input rnx files. Concatanates it to the input rnx paths [[input_path,output path],...]. 
     This array is used for rnx to dr conversion. Input is the result of in gx_lib.aux.select_rnx function'''
     rnx_in_out = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
         if rnx_files[i]  is not None:
             tmp = _pd.Series(rnx_files[i]).str.split('/',expand=True)
-            rnx_in_out[i] = _np.column_stack((rnx_files[i], 
+            if cddis:
+                rnx_in_out[i] = _np.column_stack((rnx_files[i], 
+                                            (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-4]
+                                            +'/'+ tmp.iloc[:,-3]+'/'+ tmp.iloc[:,-1]+'.dr.gz').values))  
+            else:    
+                rnx_in_out[i] = _np.column_stack((rnx_files[i], 
                                             (tmp_dir+'/rnx_dr/'+stations_list[i]+ '/' + tmp.iloc[:,-3]
                                             +'/'+ tmp.iloc[:,-2]+'/'+ tmp.iloc[:,-1]+'.dr.gz').values))
         else:
@@ -45,9 +57,9 @@ def _2dr(rnx2dr_path):
         process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
         process.wait() 
 
-def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores):
+def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
-    rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir)
+    rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=cddis)
     num_cores = int(num_cores) #safety precaution if str value is specified
 #         display(self.analyse())
     for i in range(len(stations_list)):

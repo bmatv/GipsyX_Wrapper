@@ -19,6 +19,16 @@ _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Numb
 
 J2000origin = _np.datetime64('2000-01-01 12:00:00')
 
+def _check_stations(stations_list,tmp_dir,project_name):
+    '''Check presence of stations in the project and outputs corrected station list'''
+    stations_list = _np.core.defchararray.upper(stations_list)
+    #check if station from input is in the folder
+    gd2e_stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
+    station_exists = _np.isin(stations_list,gd2e_stations_list)
+
+    checked_stations = stations_list[station_exists==True]
+    return checked_stations
+
 def _dump_write(filename,data,num_cores=24,cname='lz4'):
     '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
 
@@ -133,7 +143,7 @@ def _dr_size(rnx_files_in_out):
 
         size_array[i] = _np.column_stack((rnx_files_in_out[i],tmp))
         bad_files[i] = rnx_files_in_out[i][tmp==20]
-        good_files[i] = rnx_files_in_out[i][tmp!=20]
+        good_files[i] = rnx_files_in_out[i][tmp>20]
 
     return size_array,bad_files,good_files        
 
@@ -243,3 +253,13 @@ def remove_32h(tmp_dir):
     #'rnx_dr/SITE/YEAR/DAY/*_32h.dr.gz
     files = _glob.glob(_os.path.join(tmp_dir,'rnx_dr/*/*/*/*_32h.dr.gz'))
     for file in files: _os.remove(file)
+
+def wetz(tdps):
+    wetz = _np.ndarray((tdps.shape),dtype = object)
+    for i in range(wetz.shape[0]):
+        dataframe = tdps[i].value #Only value part is used
+        #find column needed
+        columns = dataframe.columns
+        wetz_column_name = columns[_pd.Series(columns).str.contains('WetZ')].values[0]
+        wetz[i] = dataframe[[wetz_column_name,]]
+    return wetz

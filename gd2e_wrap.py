@@ -1,4 +1,4 @@
-from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex
+from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex, gx_eterna
 
 class gd2e_class:
     def __init__(self,
@@ -7,6 +7,7 @@ class gd2e_class:
                  years_list,
                  tree_options,
                  mode,
+                 cddis=False,
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
@@ -17,12 +18,20 @@ class gd2e_class:
                  rate = 300,
                  gnss_products_dir = '/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final',
                  ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
-                 num_cores = 8):
-        
-        self.project_name = project_name
+                 eterna_path='/home/bogdanm/Desktop/otl/eterna',
+                 hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
+                 num_cores = 8, # integer of string
+                 ElMin=7,       # degrees
+                 pos_s = 0.57,  # mm/sqrt(s)
+                 wetz_s = 0.1,   # mm/sqrt(s)
+                 PPPtype = 'kinematic'
+                 ): 
+        self.PPPtype = self._check_PPPtype(PPPtype)
+        self.project_name = project_name 
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.tmp_dir=tmp_dir
+        self.cddis=cddis
         self.stations_list=stations_list
         self.years_list=years_list
         self.num_cores = num_cores
@@ -30,8 +39,8 @@ class gd2e_class:
         self.VMF1_dir = VMF1_dir
         self.tropNom_type = tropNom_type
         self.tree_options = tree_options
-        self.rnx_files = gx_convert.select_rnx(rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list)
-        self.rnx_files_in_out = gx_convert.rnx2dr_gen_paths(rnx_files=self.rnx_files,stations_list=self.stations_list,tmp_dir=self.tmp_dir)
+        self.rnx_files = gx_convert.select_rnx(rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
+        self.rnx_files_in_out = gx_convert.rnx2dr_gen_paths(rnx_files=self.rnx_files,stations_list=self.stations_list,tmp_dir=self.tmp_dir,cddis=self.cddis)
         self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir)
         self.gnss_products_dir = gnss_products_dir
         self.ionex_type=ionex_type
@@ -43,16 +52,30 @@ class gd2e_class:
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
         self.mode = self._check_mode(mode)
+        self.eterna_path=eterna_path
+        self.hardisp_path = hardisp_path
+        self.ElMin=ElMin
+
+        
+
+        self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
+        self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
+        
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
         if mode not in modes:  raise ValueError("Invalid mode. Expected one of: %s" % modes)
         else: return mode
+
+    def _check_PPPtype(self,PPPtype):
+        PPPtypes = ['static', 'kinematic']
+        if PPPtype not in PPPtypes:  raise ValueError("Invalid PPPtype. Expected one of: %s" % PPPtypes)
+        else: return PPPtype
     
     # def analyse(self):
     #     return gx_aux.analyse(rnx_files=self.rnx_files,stations_list=self.stations_list,years_list=self.years_list)
     def rnx2dr(self):
-        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores)
+        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis)
 
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
@@ -70,7 +93,11 @@ class gd2e_class:
         tmp_dir=self.tmp_dir,
         tree_options=self.tree_options,
         blq_file=self.blq_file, 
-        mode = self.mode)
+        mode = self.mode,
+        ElMin=self.ElMin,
+        pos_s = self.pos_s,
+        wetz_s = self.wetz_s,
+        PPPtype = self.PPPtype)
     def gd2e(self):
         '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir,mode=self.mode)
@@ -111,6 +138,7 @@ class gd2e_class:
                               A_Vertical=A_Vertical,
                               num_cores = self.num_cores)
     def remove_merged(self):
+        '''Removes merged dr files, be it 30h file or 32h file'''
         gx_aux.remove_30h(self.tmp_dir)
         gx_aux.remove_32h(self.tmp_dir)
     def remove_gathers(self):
@@ -119,3 +147,39 @@ class gd2e_class:
 
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
+
+    def analyze_env(self,remove_outliers=True,restore_otl=True,sampling=1800,force=False):
+        return gx_eterna.analyze_env(
+                                    self.envs(),
+                                    self.stations_list,
+                                    self.eterna_path,
+                                    self.tmp_dir,
+                                    self.staDb_path,
+                                    self.project_name,
+                                    remove_outliers,
+                                    restore_otl=restore_otl,
+                                    blq_file = self.blq_file,
+                                    sampling = sampling,
+                                    hardisp_path = self.hardisp_path,
+                                    force=force
+                                    )
+
+    def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
+        '''remove_outliers has no sense here. This is just to get begin and end of the timeline'''
+        return gx_eterna.test_analyze(
+                                    self.envs(),
+                                    self.stations_list,
+                                    self.eterna_path,
+                                    self.tmp_dir,
+                                    self.staDb_path,
+                                    self.project_name,
+                                    remove_outliers,
+                                    blq_file = self.blq_file,
+                                    sampling = sampling,
+                                    hardisp_path = self.hardisp_path,
+                                    force = force
+                                    )
+    def wetz(self):
+        '''Returns WetZ values dataframe'''
+        return gx_aux.wetz(self.filtered_solutions())        
+        
