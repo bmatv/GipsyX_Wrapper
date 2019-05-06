@@ -20,7 +20,7 @@ class mGNSS_class:
                 tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX/bigf_tmpX/',
                 blq_file = '/mnt/Data/bogdanm/Products/otl/ocnld_coeff/bigf_complete.blq',
                 VMF1_dir = '/mnt/Data/bogdanm/Products/VMF1_Products',
-                tropNom_type = 'trop',
+                tropNom_input = 'trop',
                 IGS_logs_dir = '/mnt/Data/bogdanm/GNSS_data/station_log_files/',
                 IONEX_products = '/mnt/Data/bogdanm/Products/IONEX_Products',
                 rate = 300,
@@ -45,7 +45,8 @@ class mGNSS_class:
         self.num_cores = num_cores
         self.blq_file = blq_file
         self.VMF1_dir = VMF1_dir
-        self.tropNom_type = self._check_tropNom_type(tropNom_type)
+        self.tropNom_input = self._check_tropNom_input(tropNom_input) # trop or trop+penna
+        self.tropNom_type = self._check_tropNom_type(self.tropNom_input) # return file type based on input trop value
         self.tree_options = tree_options
         self.rnx_files = gx_convert.select_rnx(rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
         self.rnx_files_in_out = gx_convert.rnx2dr_gen_paths(rnx_files=self.rnx_files,stations_list=self.stations_list,tmp_dir=self.tmp_dir,cddis=self.cddis)
@@ -78,20 +79,24 @@ class mGNSS_class:
         if PPPtype not in PPPtypes:  raise ValueError("Invalid PPPtype. Expected one of: %s" % PPPtypes)
         else: return PPPtype
 
-    def _check_tropNom_type(self,tropNom_type):
-        tropNom_types = ['trop', 'trop+penna']
-        if tropNom_type not in tropNom_types:  raise ValueError("Invalid PPPtype. Expected one of: %s" % tropNom_types)
-        if tropNom_type == 'trop': tropNom_type = '30h_tropNominalOut_VMF1.tdp'
-        if tropNom_type == 'trop+penna': tropNom_type = '30h_tropNominalOut_VMF1.tdp_penna'
+    def _check_tropNom_input(self,tropNom_input):
+        tropNom_inputs = ['trop', 'trop+penna']
+        if tropNom_input not in tropNom_inputs:  raise ValueError("Invalid tropNom input. Expected one of: %s" % tropNom_inputs)
+
+    def get_tropNom_type(self,tropNom_input):
+        '''Might be worthy to check if all files exist and station needed exists in tropNom'''
+        if tropNom_input == 'trop': tropNom_type = '30h_tropNominalOut_VMF1.tdp'
+        if tropNom_input == 'trop+penna': tropNom_type = '30h_tropNominalOut_VMF1.tdp_penna'
         return tropNom_type
 
 
-    def _project_name_construct(self,project_name):
+    def _project_name_construct(self,project_name,tropNom_type):
         '''pos_s and wetz_s are im mm/sqrt(s)'''
         if self.PPPtype=='kinematic':
             project_name = '{}_{}_{}'.format(str(project_name),str(self.pos_s),str(self.wetz_s))
         if self.PPPtype=='static':
             project_name = '{}_static'.format(str(project_name))
+        #adding _synth if tropNom type == trop+penna
         return project_name
         
     def init_gd2e(self, mode):
