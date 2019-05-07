@@ -55,7 +55,6 @@ class mGNSS_class:
         self.IONEX_products = IONEX_products
         self.ionex = gx_ionex.ionex(ionex_in_files_path=self.IONEX_products, #IONEX dir
                                     ionex_type=self.ionex_type, #type of files
-                                    output_path=self.tmp_dir, #output dir that will have type|year files
                                     num_cores=self.num_cores)
         self.ElMin=ElMin
         self.rate=rate
