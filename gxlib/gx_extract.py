@@ -92,7 +92,7 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     _dump_write(data=stacked_solutions,filename=solutions_file,cname='zstd')
     _dump_write(data=stacked_residuals,filename=residuals_file,cname='zstd')
 
-def _gather_tdps(station_files,num_cores):
+def _gather_tdps(station_files,num_cores,tqdm):
     '''Processing extraction in parallel 
     get_tdps_pandas,numpy'''
     num_cores = num_cores if station_files.shape[0] > num_cores else station_files.shape[0]
@@ -100,7 +100,8 @@ def _gather_tdps(station_files,num_cores):
     chunksize = 20
  
     with _Pool(processes = num_cores) as p:
-        data = list(_tqdm.tqdm_notebook(p.imap(_get_tdps_npz, station_files,chunksize=chunksize), total=station_files.shape[0]))
+        if tqdm: data = list(_tqdm.tqdm_notebook(p.imap(_get_tdps_npz, station_files,chunksize=chunksize), total=station_files.shape[0]))
+        else: data = p.imap(_get_tdps_npz, station_files,chunksize=chunksize)
     return data
 
 def _get_tdps_npz(file):
