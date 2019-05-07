@@ -38,4 +38,12 @@ kinematic_project = mGNSS_class(project_name = 'penna',
                                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                                 pos_s = 0.57, wetz_s=0.1,PPPtype='kinematic')
-kinematic_project.gd2e()
+
+kinematic_project.get_drInfo()
+
+
+# # 1.rnx2dr()
+# # 2.get_drInfo()
+# # 3.drMerge()
+# # 4.gen_tropNom()
+# kinematic_project.gd2e()
