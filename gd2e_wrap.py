@@ -24,8 +24,10 @@ class gd2e_class:
                  ElMin=7,       # degrees
                  pos_s = 0.57,  # mm/sqrt(s)
                  wetz_s = 0.1,   # mm/sqrt(s)
-                 PPPtype = 'kinematic'
+                 PPPtype = 'kinematic',
+                 tqdm = True
                  ): 
+        self.tqdm = tqdm
         self.PPPtype = self._check_PPPtype(PPPtype)
         self.project_name = project_name 
         self.IGS_logs_dir = IGS_logs_dir
@@ -74,15 +76,15 @@ class gd2e_class:
     # def analyse(self):
     #     return gx_aux.analyse(rnx_files=self.rnx_files,stations_list=self.stations_list,years_list=self.years_list)
     def rnx2dr(self):
-        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis)
+        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
 
     def get_drInfo(self):
-        gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
+        gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list,tqdm=self.tqdm)
     
     def dr_merge(self):
         '''This is the only stage where merge_table is being executed with mode=None'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None)
-        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list)
+        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list,tqdm=self.tqdm)
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
         Generates zenith tropnominals from VMF1 model files.'''
@@ -109,17 +111,20 @@ class gd2e_class:
                 tmp_dir=self.tmp_dir,
                 trees_df=self.gen_trees(),
                 tropNom_type=self.tropNom_type,
-                years_list=self.years_list)
+                years_list=self.years_list,
+                tqdm=self.tqdm)
     def solutions(self):
         return gx_extract.gather_solutions(num_cores=self.num_cores,
                                             project_name=self.project_name,
                                             stations_list=self.stations_list,
-                                            tmp_dir=self.tmp_dir)
+                                            tmp_dir=self.tmp_dir,
+                                            tqdm=self.tqdm)
     def residuals(self):
         return gx_extract.gather_residuals(num_cores=self.num_cores,
                                             project_name=self.project_name,
                                             stations_list=self.stations_list,
-                                            tmp_dir=self.tmp_dir)
+                                            tmp_dir=self.tmp_dir,
+                                            tqdm=self.tqdm)
     def filtered_solutions(self,margin=0.1,std_coeff=3):
         return gx_filter.filter_tdps(margin=margin,std_coeff=std_coeff,tdps=self.solutions())
     
