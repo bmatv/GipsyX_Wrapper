@@ -1,5 +1,5 @@
 #!/scratch/bogdanm/miniconda3/envs/py37/bin/python
-#PBS -l walltime=1:00:00
+#PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
 #PBS -o /scratch/bogdanm/output.txt
@@ -19,7 +19,11 @@ from mGNSS_class import mGNSS_class;import trees_options
 stations_list=['CAMO'];years_list=[2010,2011,2012,2013];num_cores = 28
 
 
-kinematic_project = mGNSS_class(project_name = 'penna',
+penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100]
+
+#Processing 
+for wetz_s in penna_wetz_list:
+    kinematic_project = mGNSS_class(project_name = 'penna',
                                 stations_list=stations_list,
                                 years_list=years_list,
                                 tree_options = trees_options.rw_otl, 
@@ -36,10 +40,9 @@ kinematic_project = mGNSS_class(project_name = 'penna',
                                 ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
-                                pos_s = 0.57, wetz_s=0.1,PPPtype='kinematic',tqdm=False)
+                                pos_s = 0.57, wetz_s=wetz_s,PPPtype='kinematic',tqdm=False)
+    kinematic_project.gd2e()
 
-# kinematic_project.get_drInfo() #drInfo table has local path. SHould be changed so it is constructed with actual tmp 
-kinematic_project.gd2e() #should work now
 
 print('Done')
 # # 1.rnx2dr()
