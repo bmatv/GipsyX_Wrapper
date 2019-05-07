@@ -125,7 +125,7 @@ class mGNSS_class:
                 ElMin = self.ElMin,
                 pos_s = self.pos_s,
                 wetz_s = self.wetz_s,
-                PPPtype = self.PPPtype
+                PPPtype = self.PPPtype,
                 tqdm=self.tqdm)
     
     def gen_trees(self):
