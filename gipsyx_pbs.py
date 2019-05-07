@@ -37,9 +37,9 @@ kinematic_project = mGNSS_class(project_name = 'penna',
                                 ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
-                                pos_s = 0.57, wetz_s=0.1,PPPtype='kinematic')
+                                pos_s = 0.57, wetz_s=0.1,PPPtype='kinematic',tqdm=False)
 
-kinematic_project.get_drInfo()
+kinematic_project.get_drInfo() #drInfo table has local path. SHould be changed so it is constructed with actual tmp 
 
 
 # # 1.rnx2dr()
