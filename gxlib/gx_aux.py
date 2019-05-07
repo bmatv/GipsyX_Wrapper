@@ -168,7 +168,7 @@ def _drinfo(dr_file):
     return _np.asarray(( site_name, number_of_records, _np.datetime64(timeframe[1]), _np.datetime64(timeframe[2]),
                         number_of_receivers, number_of_transmitters,GPS_present,GLO_present, dr_file),dtype=object)
 
-def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
+def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores,tqdm):
     ''' Takes a list of all the rnx files of the project that were converted with rnxEditGde.py. rnx_files_in_out is essentially an array of shape: [[rnx_in_path,rnx_out_path],...]'''
     num_cores = int(num_cores) #safety precaution if str value is specified
     rs = _np.ndarray((len(stations_list)),dtype=object)
@@ -183,7 +183,8 @@ def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores):
         print(stations_list[i],'station binary files analysis...')
         print ('Number of files to process:', dr_good[i].shape[0],'| Adj. num_cores:', num_cores, end=' ')
         with _Pool(processes = num_cores) as p:
-            rs[i] = _np.vstack(list(_tqdm.tqdm_notebook(p.imap(_drinfo, dr_good[i][:,1]), total=dr_good[i].shape[0])))
+            if tqdm: rs[i] = _np.vstack(list(_tqdm.tqdm_notebook(p.imap(_drinfo, dr_good[i][:,1]), total=dr_good[i].shape[0])))
+            else: rs[i] = _np.vstack(p.imap(_drinfo, dr_good[i][:,1]))
     #Saving extracted data for furthe processing
     _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
 
