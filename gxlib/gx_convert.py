@@ -57,7 +57,7 @@ def _2dr(rnx2dr_path):
         process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
         process.wait() 
 
-def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False,tqdm):
+def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,tqdm,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
     rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=cddis)
     num_cores = int(num_cores) #safety precaution if str value is specified
