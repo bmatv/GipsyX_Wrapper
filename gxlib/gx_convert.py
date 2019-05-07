@@ -57,7 +57,7 @@ def _2dr(rnx2dr_path):
         process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
         process.wait() 
 
-def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False):
+def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False,tqdm):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
     rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=cddis)
     num_cores = int(num_cores) #safety precaution if str value is specified
@@ -78,9 +78,10 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False):
                 num_cores = num_cores if rnx2dr_paths_2convert.shape[0] > num_cores else rnx2dr_paths_2convert.shape[0]
                 chunksize = int(_np.ceil(rnx2dr_paths_2convert.shape[0] / num_cores))
                 print ('Number of files to process:', rnx2dr_paths_2convert.shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
-                
+
                 with _Pool(processes = num_cores) as p:
-                    list(_tqdm.tqdm_notebook(p.imap(_2dr, rnx2dr_paths_2convert), total=rnx2dr_paths_2convert.shape[0]))
+                    if tqdm: list(_tqdm.tqdm_notebook(p.imap(_2dr, rnx2dr_paths_2convert), total=rnx2dr_paths_2convert.shape[0]))
+                    else: p.imap(_2dr, rnx2dr_paths_2convert)
             else:
                 #In case length of unconverted files array is 0 - nothing will be converted
                 print('Found', rnx2dr_paths[i].shape[0],'RNX files converted.\nNothing to convert. All available rnx files are already converted')
