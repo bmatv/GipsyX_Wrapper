@@ -58,7 +58,7 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
 
             with _Pool(processes = num_cores) as p:
                 if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
-                else: p.imap(_gd2e, gd2e_table[i])
+                else: list(p.imap(_gd2e, gd2e_table[i]))
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
