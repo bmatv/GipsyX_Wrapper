@@ -41,18 +41,20 @@ class ionex:
     '''FILES SHOULD BE DECOMPRESSED PRIOR TO PROCESSING. As for the script as for GipsyX processing if fetched by one file'''
     
     def __init__(self,
-                ionex_in_files_path,#='/mnt/Data/bogdanm/Products/IONEX_Products', #IONEX dir
+                ionex_prods_dir,#='/mnt/Data/bogdanm/Products/IONEX_Products', #IONEX dir
                 ionex_type, #='igs', #type of files
                 num_cores):
-        self.ionex_type = os.path.abspath(ionex_type)
-        self.output_path = os.path.abspath(os.path.join(ionex_in_files_path,os.pardir))
+        self.ionex_type = ionex_type #add checker here
+        self.ionex_prods_dir = os.path.abspath(ionex_prods_dir)
+        self.output_path = os.path.abspath(os.path.join(self.ionex_prods_dir,os.pardir))
         self.num_cores = num_cores
-        self.ionex_files_list = self._extended_list(ionex_in_files_path,ionex_type)
+        self.ionex_files_list = self._extended_list()
         self.years_present = self.ionex_files_list.iloc[:,0].unique()
         self.merge_lists = self._create_lists4merge(self.ionex_files_list,self.years_present)
              
-    def _extended_list(self,files_path,ionex_type):
-        path_series = pd.Series(sorted(glob.glob(files_path+'/*/*/'+ionex_type+'*')))
+    def _extended_list(self):
+        path_series = pd.Series(sorted(glob.glob( 
+            os.path.join(self.ionex_prods_dir,'/*/*/'+self.ionex_type+'*'))))
         properties_series = path_series.str.split('/',expand=True).iloc[:,-3:]
         properties_series.iloc[:,0] = properties_series.iloc[:,0].astype(int)
         return pd.concat((properties_series,path_series),axis=1)
