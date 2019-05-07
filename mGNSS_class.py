@@ -46,7 +46,7 @@ class mGNSS_class:
         self.blq_file = blq_file
         self.VMF1_dir = VMF1_dir
         self.tropNom_input = self._check_tropNom_input(tropNom_input) # trop or trop+penna
-        self.tropNom_type = self._check_tropNom_type(self.tropNom_input) # return file type based on input trop value
+        self.tropNom_type = self._get_tropNom_type(self.tropNom_input) # return file type based on input trop value
         self.tree_options = tree_options
         self.rnx_files = gx_convert.select_rnx(rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
         self.rnx_files_in_out = gx_convert.rnx2dr_gen_paths(rnx_files=self.rnx_files,stations_list=self.stations_list,tmp_dir=self.tmp_dir,cddis=self.cddis)
@@ -68,7 +68,7 @@ class mGNSS_class:
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
-        self.project_name = self._project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
+        self.project_name = self._project_name_construct(project_name,self.tropNom_type) #static projects are marked as project_name_[mode]_static
         
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
@@ -84,7 +84,7 @@ class mGNSS_class:
         if tropNom_input not in tropNom_inputs:  raise ValueError("Invalid tropNom input. Expected one of: %s" % tropNom_inputs)
         return tropNom_input
 
-    def get_tropNom_type(self,tropNom_input):
+    def _get_tropNom_type(self,tropNom_input):
         '''Might be worthy to check if all files exist and station needed exists in tropNom'''
         if tropNom_input == 'trop': tropNom_type = '30h_tropNominalOut_VMF1.tdp'
         if tropNom_input == 'trop+penna': tropNom_type = '30h_tropNominalOut_VMF1.tdp_penna'
