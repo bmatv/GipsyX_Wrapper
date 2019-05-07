@@ -113,7 +113,7 @@ def _merge(merge_set):
                     cwd=_os.path.dirname(merge_set[4]))
         drMerge_proc.wait()
 
-def dr_merge(merge_table,stations_list,num_cores):
+def dr_merge(merge_table,stations_list,num_cores,tqdm):
     '''merge_table is the output of get_merge_table()'''
     num_cores = int(num_cores) #safety precaution if str value is specified
 
@@ -126,4 +126,5 @@ def dr_merge(merge_table,stations_list,num_cores):
         print ('Number of files to process:', len(merge_table_class3),'| Adj. num_cores:', num_cores)
 
         with _Pool(processes = num_cores) as p:
-                    list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3), total=merge_table_class3.shape[0]))
+            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3), total=merge_table_class3.shape[0]))
+            else: p.imap(_merge, merge_table_class3)
