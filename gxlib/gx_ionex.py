@@ -41,12 +41,12 @@ class ionex:
     '''FILES SHOULD BE DECOMPRESSED PRIOR TO PROCESSING. As for the script as for GipsyX processing if fetched by one file'''
     
     def __init__(self,
-                ionex_in_files_path='/mnt/Data/bogdanm/Products/IONEX_Products', #IONEX dir
-                ionex_type='igs', #type of files
-                output_path='/mnt/Data/bogdanm/Products', #output dir that will have type|year files
-                num_cores=10):
+                ionex_in_files_path,#='/mnt/Data/bogdanm/Products/IONEX_Products', #IONEX dir
+                ionex_type, #='igs', #type of files
+                output_path, #='/mnt/Data/bogdanm/Products', #output dir that will have type|year files
+                num_cores):
         self.ionex_type = ionex_type
-        self.output_path = output_path
+        self.output_path = os.path.dirname(ionex_in_files_path)
         self.num_cores = num_cores
         self.ionex_files_list = self._extended_list(ionex_in_files_path,ionex_type)
         self.years_present = self.ionex_files_list.iloc[:,0].unique()
