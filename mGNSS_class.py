@@ -82,6 +82,7 @@ class mGNSS_class:
     def _check_tropNom_input(self,tropNom_input):
         tropNom_inputs = ['trop', 'trop+penna']
         if tropNom_input not in tropNom_inputs:  raise ValueError("Invalid tropNom input. Expected one of: %s" % tropNom_inputs)
+        return tropNom_input
 
     def get_tropNom_type(self,tropNom_input):
         '''Might be worthy to check if all files exist and station needed exists in tropNom'''
