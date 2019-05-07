@@ -33,13 +33,15 @@ class mGNSS_class:
                 pos_s = 0.57, # mm/sqrt(s)
                 wetz_s = 0.1, # mm/sqrt(s)
                 PPPtype = 'kinematic',
-                cddis = False):
+                cddis = False,
+                tqdm = True):
         
-        
+        self.tqdm=tqdm
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.cddis=cddis
         self.tmp_dir=tmp_dir
+        
         self.stations_list=stations_list
         self.years_list=years_list
         self.num_cores = num_cores
@@ -123,7 +125,8 @@ class mGNSS_class:
                 ElMin = self.ElMin,
                 pos_s = self.pos_s,
                 wetz_s = self.wetz_s,
-                PPPtype = self.PPPtype)
+                PPPtype = self.PPPtype
+                tqdm=self.tqdm)
     
     def gen_trees(self):
         self.gps.gen_trees()
@@ -132,15 +135,15 @@ class mGNSS_class:
         
     
     def rnx2dr(self):
-        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis)
+        gx_convert.rnx2dr(rnx_files=self.rnx_files, stations_list=self.stations_list, tmp_dir=self.tmp_dir, num_cores=self.num_cores,cddis=self.cddis,tqdm=self.tqdm)
         
     def get_drInfo(self):
-        gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list)
+        gx_aux.get_drinfo(num_cores=self.num_cores,rnx_files_in_out=self.rnx_files_in_out,stations_list=self.stations_list,tmp_dir=self.tmp_dir,years_list=self.years_list,tqdm=self.tqdm)
         
     def dr_merge(self):
         '''This is the only stage where merge_table is being executed with mode=None'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None)
-        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list)
+        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list,tqdm=self.tqdm)
         
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
