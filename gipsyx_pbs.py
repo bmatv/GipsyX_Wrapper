@@ -15,8 +15,7 @@ if GIPSY_WRAP_PATH not in _sys.path:
 
 
 '''Kunanyi'''
-from mGNSS_class import mGNSS_class
-import trees_options
+from mGNSS_class import mGNSS_class;import trees_options
 stations_list=['CAMO'];years_list=[2010,2011,2012,2013];num_cores = 28
 
 
