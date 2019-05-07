@@ -34,7 +34,7 @@ def _gd2e(gd2e_set):
     _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                             filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
    
-def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path):
+def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path,tqdm):
     '''trees_df is the output of gen_trees. merge_tables = get_merge_table'''
 
     gd2e_table = _np.ndarray((len(stations_list)),dtype=object)
@@ -57,7 +57,8 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
             print('Processing {}... | # files left: {} | Adj. # of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
 
             with _Pool(processes = num_cores) as p:
-                list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
+                if tqmd: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
+                else: p.imap(_gd2e, gd2e_table[i])
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
