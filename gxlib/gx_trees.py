@@ -13,7 +13,7 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
@@ -38,7 +38,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
 
     ([['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1E} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]])
 
-
+    VMF1 dir is also expected ['Station:VMF1dataDir', '/mnt/Data/bogdanm/Products/VMF1_Products'],
     '''
 
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -64,6 +64,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
         tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','1.0']]
         tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
 
+    #adding VMF1 dir parameter that can change
+    tmp_options_add += [['Station:VMF1dataDir', _os.path.abspath(VMF1_dir)]]
 
 
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
@@ -77,6 +79,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
         DataLink = (GPS_DataLink + GLONASS_DataLink)
     
     tmp_options_add += DataLink
+    
 
 
     # reading ionex filenames

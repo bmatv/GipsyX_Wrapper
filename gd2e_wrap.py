@@ -98,7 +98,8 @@ class gd2e_class:
         ElMin=self.ElMin,
         pos_s = self.pos_s,
         wetz_s = self.wetz_s,
-        PPPtype = self.PPPtype)
+        PPPtype = self.PPPtype,
+        VMF1_dir = self.VMF1_dir)
     def gd2e(self):
         '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir,mode=self.mode)
