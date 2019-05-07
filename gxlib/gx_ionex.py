@@ -43,7 +43,6 @@ class ionex:
     def __init__(self,
                 ionex_in_files_path,#='/mnt/Data/bogdanm/Products/IONEX_Products', #IONEX dir
                 ionex_type, #='igs', #type of files
-                output_path, #='/mnt/Data/bogdanm/Products', #output dir that will have type|year files
                 num_cores):
         self.ionex_type = ionex_type
         self.output_path = os.path.dirname(ionex_in_files_path)
