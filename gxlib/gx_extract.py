@@ -35,7 +35,7 @@ def rm_residuals_gathers(tmp_dir,project_name):
     for gather in gathers: _os.remove(gather)
 
 
-def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
+def gather_residuals(tmp_dir,project_name,stations_list,num_cores,tqdm):
     stations_list = _np.core.defchararray.upper(stations_list)
 
     #check if station from input is in the folder
