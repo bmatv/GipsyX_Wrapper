@@ -127,4 +127,4 @@ def dr_merge(merge_table,stations_list,num_cores,tqdm):
 
         with _Pool(processes = num_cores) as p:
             if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3), total=merge_table_class3.shape[0]))
-            else: p.imap(_merge, merge_table_class3)
+            else: p.map(_merge, merge_table_class3)
