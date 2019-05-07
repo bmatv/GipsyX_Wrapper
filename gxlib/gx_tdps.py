@@ -100,7 +100,7 @@ def get_ref_xyz(staDb):
     2	HERT	4.033461e+06	 23537.6625	    4.924318e+06
     3	LOFT	3.706041e+06	-55853.0000	    5.173496e+06
     4	WEAR	3.686877e+06	-143592.0000	5.185648e+06'''
-    read = _pd.read_csv(staDb,delimiter='\s+',names=list(range(11)))
+    read = _pd.read_csv(staDb,delimiter=r'\s+',names=list(range(11)))
     positions = read[read.iloc[:,1]=='STATE']
     #refxyz = get_xyz_site(positions)
     xyz_table = positions[[0,4,5,6]]

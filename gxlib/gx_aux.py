@@ -153,7 +153,7 @@ def _drinfo(dr_file):
     drInfo_process = _Popen(args=['dataRecordInfo', '-file', _os.path.basename(dr_file)],
                                         stdout=_PIPE, stderr=_STDOUT, cwd=_os.path.dirname(dr_file))
     out, err = drInfo_process.communicate()
-    dr_Info_raw = _pd.Series(out.decode('ascii').splitlines()).str.split(pat=':\s', expand=True)
+    dr_Info_raw = _pd.Series(out.decode('ascii').splitlines()).str.split(pat=r':\s', expand=True)
 
     number_of_records = _pd.to_numeric(dr_Info_raw.iloc[0, 1])
     timeframe = _pd.to_datetime(dr_Info_raw.iloc[1:3, 1])
@@ -234,7 +234,7 @@ def get_xyz_site(staDb_ref_xyz,site_name):
 
 def get_ref_xyz_sites(staDb_path):
     '''Function reads staDb file provided. Uses pandas, as default staDb object can not return XYZ coordinates???'''
-    read = _pd.read_csv(staDb_path,delimiter='\s+',names=list(range(11)))
+    read = _pd.read_csv(staDb_path,delimiter=r'\s+',names=list(range(11)))
     positions = read[read.iloc[:,1]=='STATE']
     # refxyz = get_xyz_site(positions)
     xyz_table = positions[[0,4,5,6]]
