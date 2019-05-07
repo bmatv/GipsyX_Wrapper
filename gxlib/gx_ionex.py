@@ -44,15 +44,15 @@ class ionex:
                 ionex_in_files_path,#='/mnt/Data/bogdanm/Products/IONEX_Products', #IONEX dir
                 ionex_type, #='igs', #type of files
                 num_cores):
-        self.ionex_type = ionex_type
+        self.ionex_type = os.path.realpath(ionex_type)
         self.output_path = os.path.dirname(ionex_in_files_path)
         self.num_cores = num_cores
         self.ionex_files_list = self._extended_list(ionex_in_files_path,ionex_type)
         self.years_present = self.ionex_files_list.iloc[:,0].unique()
         self.merge_lists = self._create_lists4merge(self.ionex_files_list,self.years_present)
              
-    def _extended_list(self,ionex_in_files_path,ionex_type):
-        path_series = pd.Series(sorted(glob.glob(ionex_in_files_path+'/*/*/'+ionex_type+'*')))
+    def _extended_list(self,files_path,ionex_type):
+        path_series = pd.Series(sorted(glob.glob(files_path+'/*/*/'+ionex_type+'*')))
         properties_series = path_series.str.split('/',expand=True).iloc[:,-3:]
         properties_series.iloc[:,0] = properties_series.iloc[:,0].astype(int)
         return pd.concat((properties_series,path_series),axis=1)
