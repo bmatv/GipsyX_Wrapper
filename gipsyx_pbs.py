@@ -41,7 +41,7 @@ kinematic_project = mGNSS_class(project_name = 'penna',
 
 kinematic_project.get_drInfo() #drInfo table has local path. SHould be changed so it is constructed with actual tmp 
 
-
+print('Done')
 # # 1.rnx2dr()
 # # 2.get_drInfo()
 # # 3.drMerge()
