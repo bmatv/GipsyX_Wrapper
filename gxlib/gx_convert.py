@@ -87,6 +87,3 @@ def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,cddis=False,tqdm):
                 print('Found', rnx2dr_paths[i].shape[0],'RNX files converted.\nNothing to convert. All available rnx files are already converted')
         else:
             print('gx_convert.rnx2dr:Warning:Please check rnx_in folder. No rnx files were found for station', stations_list[i])
-
-#     with _Pool(processes = num_cores) as p:
-        # list(_tqdm.tqdm_notebook(p.imap(_gen_penna_tdp_file, np_set), total=np_set.shape[0]))
