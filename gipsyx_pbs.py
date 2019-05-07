@@ -39,7 +39,8 @@ kinematic_project = mGNSS_class(project_name = 'penna',
                                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                                 pos_s = 0.57, wetz_s=0.1,PPPtype='kinematic',tqdm=False)
 
-kinematic_project.get_drInfo() #drInfo table has local path. SHould be changed so it is constructed with actual tmp 
+# kinematic_project.get_drInfo() #drInfo table has local path. SHould be changed so it is constructed with actual tmp 
+kinematic_project.gd2e()
 
 print('Done')
 # # 1.rnx2dr()
