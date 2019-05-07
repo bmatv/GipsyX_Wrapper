@@ -53,8 +53,7 @@ class ionex:
         self.merge_lists = self._create_lists4merge(self.ionex_files_list,self.years_present)
              
     def _extended_list(self):
-        path_series = pd.Series(sorted(glob.glob(
-            os.path.abspath(os.path.join(self.ionex_prods_dir,'/*/*/'+self.ionex_type+'*')))))
+        path_series = pd.Series(sorted(glob.glob(os.path.abspath(os.path.join(self.ionex_prods_dir,'*/*', self.ionex_type+'*')))))
         properties_series = path_series.str.split('/',expand=True).iloc[:,-3:]
         properties_series.iloc[:,0] = properties_series.iloc[:,0].astype(int)
         return pd.concat((properties_series,path_series),axis=1)
