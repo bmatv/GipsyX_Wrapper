@@ -57,7 +57,7 @@ def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,y
             print('Processing {}... | # files left: {} | Adj. # of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
 
             with _Pool(processes = num_cores) as p:
-                if tqmd: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
+                if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
                 else: p.imap(_gd2e, gd2e_table[i])
 
 def _get_tdps_pn(path_dir):
