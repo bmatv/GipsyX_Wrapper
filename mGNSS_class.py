@@ -99,6 +99,8 @@ class mGNSS_class:
         if self.PPPtype=='static':
             project_name = '{}_static'.format(str(project_name))
         #adding _synth if tropNom type == trop+penna
+        if self.tropNom_input == 'trop+penna':
+            project_name += '_synth'
         return project_name
         
     def init_gd2e(self, mode):
@@ -152,7 +154,7 @@ class mGNSS_class:
 
     def gen_synth_tropNom(self):
         '''First, run gen_tropNom. This script will create files based on original tropNoms'''
-        gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir, staDb_path = self.gps.staDb_path, period=13.9585147, num_cores = self.num_cores, A_East=2, A_North=4, A_Vertical=6)
+        gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir, staDb_path = self.gps.staDb_path, tqdm=self.tqdm, period=13.9585147, num_cores = self.num_cores, A_East=2, A_North=4, A_Vertical=6)
         
     def mode2label(self,mode):
         '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
