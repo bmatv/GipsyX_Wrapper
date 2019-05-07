@@ -60,7 +60,7 @@ def gather_residuals(tmp_dir,project_name,stations_list,num_cores):
         gather[i] = _dump_read(paths_tmp[i])
     return gather
 
-def extract_tdps(tmp_dir,project_name,station_name,num_cores):
+def extract_tdps(tmp_dir,project_name,station_name,num_cores,tqdm):
     '''Runs _gather_tdps for each station in the stations_list of the project.
     After update gathers [value] [nomvalue] [sigma] and outputs MultiIndex DataFrame
     Extraction of residuals moved to extract_residuals
@@ -75,7 +75,7 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores):
     '''
 
     station_files = _np.asarray(sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + station_name + '/*/*/*.zstd')))
-    tmp_data = _np.asarray(_gather_tdps(station_files, num_cores))
+    tmp_data = _np.asarray(_gather_tdps(station_files, num_cores,tqdm))
 
     # Stacking list of tmp tdps and residuals into one np array
     stacked_solutions = _pd.concat(tmp_data[:,0])
