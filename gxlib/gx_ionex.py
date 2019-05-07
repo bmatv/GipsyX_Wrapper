@@ -45,7 +45,7 @@ class ionex:
                 ionex_type, #='igs', #type of files
                 num_cores):
         self.ionex_type = os.path.realpath(ionex_type)
-        self.output_path = os.path.dirname(ionex_in_files_path)
+        self.output_path = os.path.join(ionex_in_files_path,os.pardir)
         self.num_cores = num_cores
         self.ionex_files_list = self._extended_list(ionex_in_files_path,ionex_type)
         self.years_present = self.ionex_files_list.iloc[:,0].unique()
