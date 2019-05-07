@@ -101,7 +101,7 @@ def _gather_tdps(station_files,num_cores,tqdm):
  
     with _Pool(processes = num_cores) as p:
         if tqdm: data = list(_tqdm.tqdm_notebook(p.imap(_get_tdps_npz, station_files,chunksize=chunksize), total=station_files.shape[0]))
-        else: data = p.imap(_get_tdps_npz, station_files,chunksize=chunksize)
+        else: data = p.map(_get_tdps_npz, station_files,chunksize=chunksize)
     return data
 
 def _get_tdps_npz(file):

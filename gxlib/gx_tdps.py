@@ -195,6 +195,7 @@ def _gen_penna_tdp_file(np_set):
 
 def gen_penna_tdp(tmp_path,
             staDb_path,
+            tqdm,
             period=13.9585147,
             num_cores = 25,
             A_East=2, A_North=4, A_Vertical=6):
@@ -234,6 +235,7 @@ def gen_penna_tdp(tmp_path,
        13.9585147, 2, 4, 6]'''
 
     with _Pool(processes = num_cores) as p:
-        list(_tqdm.tqdm_notebook(p.imap(_gen_penna_tdp_file, np_set), total=np_set.shape[0]))
+        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gen_penna_tdp_file, np_set), total=np_set.shape[0]))
+        else: p.map(_gen_penna_tdp_file, np_set)
 
 #     return np_set

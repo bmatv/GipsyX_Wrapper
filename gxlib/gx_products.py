@@ -108,13 +108,14 @@ def _sp3ToPosTdp(np_set):
     miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
     miscProducts.make()
 
-def igs2jpl(begin,end,products_type,products_dir,repro2=True,num_cores=None):
+def igs2jpl(begin,end,products_type,products_dir,tqdm,repro2=True,num_cores=None):
     
 
     sets = _gen_sets(begin,end,products_type,products_dir,repro2).to_records()
     
     with _mp.Pool(num_cores) as p:
-        list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
+        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
+        else: p.map(_sp3ToPosTdp, sets)
     
     tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp')
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
