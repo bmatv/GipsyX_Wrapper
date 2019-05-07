@@ -8,7 +8,7 @@ import tqdm as _tqdm
 import blosc as _blosc
 
 '''Extraction of solutions from npz'''
-def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
+def gather_solutions(tmp_dir,project_name,stations_list,num_cores,tqdm):
     checked_stations = _check_stations(stations_list = stations_list,tmp_dir=tmp_dir,project_name=project_name)
     n_stations = len(checked_stations)
     #Create a list of paths to get data from
@@ -21,7 +21,7 @@ def gather_solutions(tmp_dir,project_name,stations_list,num_cores):
     for i in range(n_stations):
         if not _os.path.exists(paths_tmp[i]): 
             print('No gather file for {} station in {}.\n Running extract_tdps for the dataset.'.format(checked_stations[i],project_name))
-            extract_tdps(tmp_dir,project_name,checked_stations[i],num_cores)
+            extract_tdps(tmp_dir,project_name,checked_stations[i],num_cores,tqdm)
 
         print('Found', paths_tmp[i], 'Loading...')
         gather[i] = _dump_read(paths_tmp[i])
