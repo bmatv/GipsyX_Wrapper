@@ -19,10 +19,12 @@ from mGNSS_class import mGNSS_class;import trees_options;stations_list=['CAMO'];
 
 
 # penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100]
-penna_pos_s_list = [0.0032, 0.01,0.032,0.1,0.18,0.32, 0.57, 1, 1.8, 3.2, 10,32,100,320]
+# penna_pos_s_list = [0.0032, 0.01,0.032,0.1,0.18,0.32, 0.57, 1, 1.8, 3.2, 10,32,100,320]
+
+penna_pos_s_list_upd = [0.0032, 0.01,0.032,0.1,0.18,0.32, 1, 1.8, 10,32,100,320] # values of 0.57 and 3.2 were removed not to create conflict
 
 #Processing 
-for pos_s in penna_pos_s_list:
+for pos_s in penna_pos_s_list_upd:
     kinematic_project = mGNSS_class(project_name = 'penna',
                                 stations_list=stations_list,
                                 years_list=years_list,
