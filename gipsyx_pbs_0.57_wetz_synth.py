@@ -2,7 +2,7 @@
 #PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_wetz.txt
+#PBS -o /scratch/bogdanm/output_057_wetz.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
 #PBS -N gx_0.57_wetz
