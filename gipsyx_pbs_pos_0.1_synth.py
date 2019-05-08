@@ -15,8 +15,7 @@ if GIPSY_WRAP_PATH not in _sys.path:
 
 
 '''Kunanyi'''
-from mGNSS_class import mGNSS_class;import trees_options
-stations_list=['CAMO'];years_list=[2010,2011,2012,2013];num_cores = 28
+from mGNSS_class import mGNSS_class;import trees_options;stations_list=['CAMO'];years_list=[2010,2011,2012,2013];num_cores = 28
 
 
 # penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100]
