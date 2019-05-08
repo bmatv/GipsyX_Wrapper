@@ -196,7 +196,7 @@ def _gen_penna_tdp_file(np_set):
 def gen_penna_tdp(tmp_path,
             staDb_path,
             tqdm,
-            period=13.9585147,
+            period=13.9585147, # Penna, N. T. et al. (2015) p.6526
             num_cores = 25,
             A_East=2, A_North=4, A_Vertical=6):
     '''
