@@ -13,7 +13,7 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
@@ -94,7 +94,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     ionex_basenames = ionex_files.str.split('/', expand=True).iloc[:, -1]
 
     out_df['year'] = ionex_basenames.str.slice(3, 7)
-    out_df['tree_path'] = tmp_dir + '/Trees/' + ionex_basenames + '/'  # where to save tree file
+    out_df['tree_path'] = tmp_dir + '/Trees/'+project_name+ '/' + ionex_basenames + '/'  # where to save tree file
 
     for i in range(len(ionex_files)):
 
