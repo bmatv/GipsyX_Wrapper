@@ -5,7 +5,7 @@
 #PBS -o /scratch/bogdanm/output_3.2_wetz.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_3.2_wetz
+#PBS -N gx_3.2wetz
 
 import os as _os, sys as _sys
 

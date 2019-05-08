@@ -5,7 +5,7 @@
 #PBS -o /scratch/bogdanm/output_pos_01.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_pos_0.1
+#PBS -N gx_pos01
 
 import os as _os, sys as _sys
 
