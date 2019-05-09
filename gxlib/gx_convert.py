@@ -16,7 +16,6 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False):
     
     station_files = []
     for i in range(len(stations_list)):
-        tmp =[]
         for j in range(0, len(years_list)):
             if cddis:
                 j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z')
@@ -43,13 +42,20 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False):
 
 def _2dr(rnx2dr_path):
     '''Opens process rxEditGde.py to convert specified rnx to dr file for GipsyX. The subprocess is used in order to run multiple instances at once.
-    If converted file is already present, nothing happens'''
+    If converted file is already present, nothing happens
+    We might want to dump and kill service tree files and stats'''
     out_dir = _os.path.dirname(rnx2dr_path[1])
     if not _os.path.exists(out_dir):
         _os.makedirs(out_dir)
-    if not _os.path.isfile(rnx2dr_path[1]):
-        process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
-        process.wait() 
+    process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
+    process.wait()
+    #here goes section on cleaning service info
+    stats_file = _glob.glob(out_dir+'/*stats')
+    tree_files = _glob.glob(out_dir+'/*tree')
+    files2rm = stats_file + tree_files
+    for file in files2rm:
+        if _os.path.isfile(file):
+            _os.remove(file)
 
 def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,tqdm,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
