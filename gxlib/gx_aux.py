@@ -166,25 +166,26 @@ def _drinfo2df(dr_file):
     
     return df
 
-def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores,tqdm):
-    ''' Takes a list of all the rnx files of the project that were converted with rnxEditGde.py. rnx_files_in_out is essentially an array of shape: [[rnx_in_path,rnx_out_path],...]'''
-    num_cores = int(num_cores) #safety precaution if str value is specified
-    rs = _np.ndarray((len(stations_list)),dtype=object)
-
-    # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
-    dr_good = _dr_size(rnx_files_in_out)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
-
+def get_drinfo(tmp_dir,num_cores,tqdm):
+    '''Analysis is done over all stations in the projects tmp_dir. The problem to run analysis on all converted fies is 30 hour files
+    Naming convention for 30h files was changed
+    that are present in the directory so original files are difficult to extract. Need to change merging naming'''
+    tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
     
-    for i in range(len(stations_list)):
-        num_cores = num_cores if dr_good[i].shape[0] > num_cores else dr_good[i].shape[0]
+    #find all dr.gx files in rnx_dr folder
+    dr_files = _glob.glob('{}/rnx_dr/*/*/*/.dr.gz'.format(tmp_dir)) #after change of 30h naming this will select only original files
 
-        print(stations_list[i],'station binary files analysis...')
-        print ('Number of files to process:', dr_good[i].shape[0],'| Adj. num_cores:', num_cores, end=' ')
-        with _Pool(processes = num_cores) as p:
-            if tqdm: rs[i] = _np.vstack(list(_tqdm.tqdm_notebook(p.imap(_drinfo, dr_good[i][:,1]), total=dr_good[i].shape[0])))
-            else: rs[i] = _np.vstack(p.map(_drinfo, dr_good[i][:,1]))
+    dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
+    # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
+
+    num_cores = num_cores if dr_good.shape[0] > num_cores else dr_good.shape[0]
+    print ('Number of files to process:', dr_good.shape[0],'| Adj. num_cores:', num_cores, end=' ')
+    with _Pool(processes = num_cores) as p:
+        if tqdm: rs = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0)
+        else: rs = _pd.concat(p.map(_drinfo2df, dr_good),axis=0)
+
     #Saving extracted data for furthe processing
-    _np.savez_compressed(file=tmp_dir+'/rnx_dr/drinfo',drinfo=rs,stations_list=stations_list,years_list=years_list)
+    _dump_write(data = rs,filename=tmp_dir+'rnx_dr/drInfo.zstd',cname='zstd',num_cores=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
