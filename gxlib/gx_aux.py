@@ -176,7 +176,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     #find all dr.gx files in rnx_dr folder
     dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*/*/.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
 
-    dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
+    dr_good = _dr_size(dr_files)[:,2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
     # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
 
     num_cores = num_cores if dr_good.shape[0] > num_cores else dr_good.shape[0]
