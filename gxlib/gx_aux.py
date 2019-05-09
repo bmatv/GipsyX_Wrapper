@@ -153,7 +153,7 @@ def _drinfo2df(dr_file):
     dr_Info_raw = _pd.Series(out.decode('ascii').splitlines()).str.split(pat=r':\s', expand=True)
 
     df = _pd.DataFrame(index=[0])
-    df['n_records'] = dr_Info_raw.iloc[0, 1].astype(int)
+    df['n_records'] = int(dr_Info_raw.iloc[0, 1])
     time_vals = _pd.to_datetime(dr_Info_raw.iloc[1:3, 1]).values
     df['begin'] = time_vals[0]
     df['end'] = time_vals[1]
@@ -185,7 +185,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     with _Pool(processes = num_cores) as p:
         if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0,ignore_index=True)
         else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
-            
+
     drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
     drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
     #Saving extracted data for furthe processing
