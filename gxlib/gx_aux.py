@@ -143,25 +143,28 @@ def _dr_size(dr_files):
     return size_array,bad_files,good_files         
 
 
-def _drinfo(dr_file):
-    '''Calls a dataRecordInfo script on already converted to dr format RNX file with rnxEditGde.py.'''
+def _drinfo2df(dr_file):
+    '''Calls a dataRecordInfo script on already converted to dr format RNX file with rnxEditGde.py.
+    dr_file is an absolute path but if switching machines/dr_location we need to rerun'''
     drInfo_process = _Popen(args=['dataRecordInfo', '-file', _os.path.basename(dr_file)],
                                         stdout=_PIPE, stderr=_STDOUT, cwd=_os.path.dirname(dr_file))
-    out, err = drInfo_process.communicate()
+    out = drInfo_process.communicate()[0]
     dr_Info_raw = _pd.Series(out.decode('ascii').splitlines()).str.split(pat=r':\s', expand=True)
 
-    number_of_records = _pd.to_numeric(dr_Info_raw.iloc[0, 1])
-    timeframe = _pd.to_datetime(dr_Info_raw.iloc[1:3, 1])
-    number_of_receivers = _pd.to_numeric(dr_Info_raw.iloc[3, 1])
-    number_of_transmitters = _pd.to_numeric(dr_Info_raw.iloc[5, 1])
-    site_name = dr_Info_raw.iloc[4, 0].strip()
-    transmitter_types = _np.unique(
-        ((dr_Info_raw.iloc[6:, 0]).str.strip()).str[:1].values)
-    GPS_present = _np.max(_np.isin(transmitter_types,'G'))
-    GLO_present = _np.max(_np.isin(transmitter_types,'R'))
-
-    return _np.asarray(( site_name, number_of_records, _np.datetime64(timeframe[1]), _np.datetime64(timeframe[2]),
-                        number_of_receivers, number_of_transmitters,GPS_present,GLO_present, dr_file),dtype=object)
+    df = _pd.DataFrame(index=[0])
+    df['n_records'] = dr_Info_raw.iloc[0, 1]
+    time_vals = _pd.to_datetime(dr_Info_raw.iloc[1:3, 1]).values
+    df['begin'] = time_vals[0]
+    df['end'] = time_vals[1]
+    df['n_receivers'] = _pd.to_numeric(dr_Info_raw.iloc[3, 1])
+    df['n_transmitters'] = _pd.to_numeric(dr_Info_raw.iloc[5, 1])
+    df['station_name'] = dr_Info_raw.iloc[4, 0].strip()
+    transmitter_types = _np.unique(((dr_Info_raw.iloc[6:, 0]).str.strip()).str[:1].values)
+    df['GPS'] = _np.max(_np.isin(transmitter_types,'G'))
+    df['GLONASS'] = _np.max(_np.isin(transmitter_types,'R'))
+    df['path'] = _pd.Series(dr_file).str.extract(r'(\/rnx_dr.+)')
+    
+    return df
 
 def get_drinfo(rnx_files_in_out, stations_list, years_list, tmp_dir, num_cores,tqdm):
     ''' Takes a list of all the rnx files of the project that were converted with rnxEditGde.py. rnx_files_in_out is essentially an array of shape: [[rnx_in_path,rnx_out_path],...]'''
