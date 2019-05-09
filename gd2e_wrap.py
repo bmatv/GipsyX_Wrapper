@@ -78,10 +78,12 @@ class gd2e_class:
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm)
     
+    def _merge_table(self,mode):
+        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=mode,stations_list=self.stations_list)
+        return merge_table
     def dr_merge(self):
         '''This is the only stage where merge_table is being executed with mode=None'''
-        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None,stations_list=self.stations_list)
-        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,tqdm=self.tqdm)
+        gx_merge.dr_merge(merge_table=self._merge_table(mode=None),num_cores=self.num_cores,tqdm=self.tqdm)
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
         Generates zenith tropnominals from VMF1 model files.'''
