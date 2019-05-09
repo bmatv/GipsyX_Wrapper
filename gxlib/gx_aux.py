@@ -183,12 +183,12 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     
     print ('Number of files to process:', dr_good.shape[0],'| Adj. num_cores:', num_cores, end=' ')
     with _Pool(processes = num_cores) as p:
-        if tqdm: drInfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0,ignore_index=True)
+        if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0,ignore_index=True)
         else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
             
     drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
     #Saving extracted data for furthe processing
-    _dump_write(data = drinfo_df,filename=tmp_dir+'/rnx_dr/drinfo.zstd',cname='zstd',numcore=num_cores)
+    _dump_write(data = drinfo_df,filename=tmp_dir+'/rnx_dr/drinfo.zstd',cname='zstd',num_cores=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
