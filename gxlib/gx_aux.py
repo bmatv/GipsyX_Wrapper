@@ -185,7 +185,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
         else: rs = _pd.concat(p.map(_drinfo2df, dr_good),axis=0)
 
     #Saving extracted data for furthe processing
-    _dump_write(data = rs,filename=tmp_dir+'rnx_dr/drInfo.zstd',cname='zstd',num_cores=num_cores)
+    _dump_write(data = rs,filename=tmp_dir+'rnx_dr/drinfo.zstd',cname='zstd',num_cores=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
