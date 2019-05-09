@@ -68,8 +68,7 @@ def rnx2dr(selected_df,num_cores,tqdm,cddis=False):
 
     if selected_df2convert.shape[0] > 0:
         num_cores = num_cores if selected_df2convert.shape[0] > num_cores else selected_df2convert.shape[0]
-        chunksize = int(_np.ceil(selected_df2convert.shape[0] / num_cores))
-        print ('Number of files to process:', selected_df2convert.shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
+        print ('Number of files to process:', selected_df2convert.shape[0],'| Adj. num_cores:', num_cores,end=' ')
 
         with _Pool(processes = num_cores) as p:
             if tqdm: list(_tqdm.tqdm_notebook(p.imap(_2dr, selected_df2convert), total=selected_df2convert.shape[0]))
