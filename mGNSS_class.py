@@ -143,8 +143,8 @@ class mGNSS_class:
         
     def dr_merge(self):
         '''This is the only stage where merge_table is being executed with mode=None'''
-        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None)
-        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,stations_list=self.stations_list,tqdm=self.tqdm)
+        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=None,stations_list=self.stations_list)
+        gx_merge.dr_merge(merge_table=merge_table,num_cores=self.num_cores,tqdm=self.tqdm)
         
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
