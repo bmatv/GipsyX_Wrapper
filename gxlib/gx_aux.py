@@ -132,9 +132,10 @@ def _dr_size(dr_files):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
     Bad file can be created by GipsyX in case input RNX file doesn't have enough data for conversion. Bad files should be filtered out of processing.
     The script can be converted to multiprocessing''' 
-    size_array= _np.ndarray((dr_files.shape[0]))    
+    size = len(dr_files)
+    size_array= _np.ndarray((size))    
 
-    for i in range(dr_files.shape[0]):
+    for i in range(size):
         size_array[i] = _os.path.getsize(dr_files[i]) #index of 1 means dr file path
 
     bad_files = dr_files[size_array==20]
