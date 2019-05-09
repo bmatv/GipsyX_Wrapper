@@ -102,37 +102,33 @@ def _get_rtgx_err(path_dir):
     return rtgx_err
 
 
-def _gen_gd2e_table(trees_df,drinfo_stations_list, station, years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path):
+def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list):
     '''Generates an np recarray that is used as sets for _gd2e
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
     '''
 
     tmp = _pd.DataFrame()
-                        
-    station_index_in_drinfo = _np.where(drinfo_stations_list==station)[0][0]
-    tmp_merge_table = merge_tables[station_index_in_drinfo]
-    
-    filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
-    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '.dr.gz.30h'
-                
-    tmp['filename'] = filename
-    tmp['class'] = tmp_merge_table[:,0]
-    tmp['year'] = _pd.Series(tmp_merge_table[:,1]).dt.year.astype(str)
-    tmp['dayofyear'] = _pd.Series(tmp_merge_table[:,1]).dt.dayofyear.astype(str).str.zfill(3)
-    tmp = tmp.join(other=trees_df,on='year')
+                                          
+    tmp['filename'] = merge_table['path']
+    tmp['class'] =  merge_table['completeness']
+    tmp[tmp['class'] == 3]['filename'] += '30h'
+
+
+    tmp['year'] = merge_table['begin'].dt.year.astype(str)
+    tmp['dayofyear'] = merge_table['begin'].dt.dayofyear.astype(str).str.zfill(3)
+    tmp = tmp.join(other=trees_df,on='year') #adds tree paths
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
-    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+station+'/'+tmp['year']+ '/' + tmp['dayofyear']
+    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+tmp['station_name']+'/'+tmp['year']+ '/' + tmp['dayofyear']
 
     # tmp['gnss_products_dir'] = gnss_products_dir
     tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'] + '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
-
-    tmp['station'] = station
-    
+  
     tmp['year'] = _pd.to_numeric(tmp['year'])
-    
-    tmp = tmp[tmp['year'].isin(years_list)&tmp['class']!=0] #cleaning unused years (loaded from npz!!!)
+
+    #cleaning unused years and class 0 as merge_table is not filtering by year to stay consistent withib merged timeframe
+    tmp = tmp[tmp['year'].isin(years_list)&tmp['class']!=0] 
     
     #Check if files exist (from what left):
     file_exists = _np.zeros(tmp.shape[0],dtype=int)
