@@ -128,24 +128,19 @@ def get_chalmers(staDb_path):
         print('%-19.4s %15.4f %15.4f %15.4f'%(station[0],station[2],station[1],station[3]))
 
 
-def _dr_size(rnx_files_in_out):
+def _dr_size(dr_files):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
     Bad file can be created by GipsyX in case input RNX file doesn't have enough data for conversion. Bad files should be filtered out of processing.
     The script can be converted to multiprocessing''' 
-    size_array= _np.ndarray((rnx_files_in_out.shape),dtype = object)
-    bad_files = _np.ndarray((rnx_files_in_out.shape),dtype = object)
-    good_files = _np.ndarray((rnx_files_in_out.shape),dtype = object)        
+    size_array= _np.ndarray((dr_files.shape[0]))    
 
-    for i in range(len(rnx_files_in_out)):
-        tmp = _np.ndarray((len(rnx_files_in_out[i])))
-        for j in range(len(tmp)):
-            tmp[j] = _os.path.getsize(rnx_files_in_out[i][j,1]) #index of 1 means dr file path
+    for i in range(dr_files.shape[0]):
+        size_array[i] = _os.path.getsize(dr_files[i]) #index of 1 means dr file path
 
-        size_array[i] = _np.column_stack((rnx_files_in_out[i],tmp))
-        bad_files[i] = rnx_files_in_out[i][tmp==20]
-        good_files[i] = rnx_files_in_out[i][tmp>20]
+    bad_files = dr_files[size_array==20]
+    good_files = dr_files[size_array>20]
 
-    return size_array,bad_files,good_files        
+    return size_array,bad_files,good_files         
 
 
 def _drinfo(dr_file):
