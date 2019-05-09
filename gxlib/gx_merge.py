@@ -20,7 +20,7 @@ def get_merge_table(tmp_dir,mode=None):
     Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 32 hours files centered on the midday.
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
 
-    
+
     drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz',allow_pickle=True) #should overwrite to dump_zstd. This is a new security change inroduced to numpy
     drinfo = drinfo_file['drinfo']
     
@@ -104,13 +104,13 @@ def _merge(merge_set):
     Sample input:
     drMerge.py -i isba0940.15o.dr ohln0940.15o.dr -start 2015-04-04 00:00:00 -end 2015-04-04 04:00:00
     '''
-    if not _os.path.isfile((merge_set[4])[:-6]+'_30h.dr.gz'):
+    if not _os.path.isfile((merge_set[4])[:-6]+'.dr.gz.30h'):
         #Computing time boundaries of the merge. merge_set[1] is file begin time
         merge_begin = ((merge_set[1].astype('datetime64[D]') - _np.timedelta64( 3,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
         merge_end =   ((merge_set[1].astype('datetime64[D]') + _np.timedelta64(27,'[h]'))-J2000origin).astype('timedelta64[s]').astype(int).astype(str)
 
         drMerge_proc = _Popen(['drMerge', merge_begin, merge_end,\
-                    _os.path.basename(merge_set[4])[:-6]+'_30h.dr.gz',\
+                    _os.path.basename(merge_set[4])[:-6]+'.dr.gz.30h',\
                     merge_set[3], merge_set[4], merge_set[5] ],\
                     cwd=_os.path.dirname(merge_set[4]))
         drMerge_proc.wait()
