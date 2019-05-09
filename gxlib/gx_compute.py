@@ -122,7 +122,7 @@ def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, 
     tmp_merge_table = merge_tables[station_index_in_drinfo]
     
     filename = _pd.Series(tmp_merge_table[:,4])#<============== Here correct for real station name i in drinfo main table
-    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '_30h.dr.gz'
+    filename[tmp_merge_table[:,0]==3] = filename[tmp_merge_table[:,0]==3].str.slice(start=None, stop=-6) + '.dr.gz.30h'
                 
     tmp['filename'] = filename
     tmp['class'] = tmp_merge_table[:,0]
