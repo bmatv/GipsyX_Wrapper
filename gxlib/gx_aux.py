@@ -188,7 +188,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
             
     drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
     #Saving extracted data for furthe processing
-    _dump_write(data = rs,filename=tmp_dir+'/rnx_dr/drinfo.zstd',cname='zstd',numcore=num_cores)
+    _dump_write(data = drinfo_df,filename=tmp_dir+'/rnx_dr/drinfo.zstd',cname='zstd',numcore=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
