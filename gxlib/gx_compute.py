@@ -5,6 +5,7 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
+from gx_aux import _dump_read
 
 from .gx_aux import _dump_write
 
@@ -34,31 +35,22 @@ def _gd2e(gd2e_set):
     _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                             filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
    
-def gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path,tqdm):
-    '''trees_df is the output of gen_trees. merge_tables = get_merge_table'''
-
-    gd2e_table = _np.ndarray((len(stations_list)),dtype=object)
-
-    #loading list of analysed stations from drinfo npz file
-    drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
-    drinfo_stations_list = drinfo_file['stations_list']
-
+def gd2e(trees_df,merge_tables,tmp_dir,tropNom_type,project_name,num_cores,gnss_products_dir,staDb_path,tqdm):
+    '''We should ignore stations_list as we already selected stations within merge_table'''
     print('---{}---'.format(project_name))
 
-    for i in range(len(stations_list)):
-        tmp = _gen_gd2e_table_station(trees_df,drinfo_stations_list, stations_list[i], years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
+    tmp = _gen_gd2e_table(trees_df, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
 
-        if tmp[tmp['file_exists']==0].shape[0] ==0:
-            gd2e_table[i] = None
-            print('{} is already processed'.format(stations_list[i]))
-        else:
-            gd2e_table[i] = tmp[tmp['file_exists']==0].to_records()#converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
-            num_cores = num_cores if len(gd2e_table[i]) > num_cores else len(gd2e_table[i])
-            print('Processing {}... | # files left: {} | Adj. # of threads: {}'.format(stations_list[i],gd2e_table[i].shape[0],num_cores))
+    if tmp[tmp['file_exists']==0].shape[0] ==0:
+        print('{} is already processed'.format(stations_list[i]))
+    else:
+        gd2e_table = tmp[tmp['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
+        num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
+        print('Processing.  # files left: {} | Adj. # of threads: {}'.format(gd2e_table.shape[0],num_cores))
 
-            with _Pool(processes = num_cores) as p:
-                if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table[i]), total=gd2e_table[i].shape[0]))
-                else: p.map(_gd2e, gd2e_table[i]) #investigate why list is needed.
+        with _Pool(processes = num_cores) as p:
+            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table[i].shape[0]))
+            else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
@@ -110,7 +102,7 @@ def _get_rtgx_err(path_dir):
     return rtgx_err
 
 
-def _gen_gd2e_table_station(trees_df,drinfo_stations_list, station, years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path):
+def _gen_gd2e_table(trees_df,drinfo_stations_list, station, years_list, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path):
     '''Generates an np recarray that is used as sets for _gd2e
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
