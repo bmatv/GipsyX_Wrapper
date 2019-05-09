@@ -99,9 +99,9 @@ def _merge(merge_set):
     drMerge.py -i isba0940.15o.dr ohln0940.15o.dr -start 2015-04-04 00:00:00 -end 2015-04-04 04:00:00
     '''
     #Computing time boundaries of the merge. merge_set[1] is file begin time
-    drMerge_proc = _Popen(['drMerge', str(merge_set[0]), str(merge_set[1]), _os.path.basename(merge_set[3])+'.30h',\
-                merge_set[2], merge_set[3], merge_set[4] ],\
-                cwd=_os.path.dirname(merge_set[3]))
+    drMerge_proc = _Popen(['drMerge', str(merge_set['merge_begin']), str(merge_set['merge_end']), _os.path.basename(merge_set['path'])+'.30h',\
+                merge_set['path_prev'], merge_set['path'], merge_set['path_next'] ],\
+                cwd=_os.path.dirname(merge_set['path']))
     drMerge_proc.wait()
 
 def dr_merge(merge_table,num_cores,tqdm):
@@ -129,5 +129,5 @@ def dr_merge(merge_table,num_cores,tqdm):
     print('Number of files to merge:', merge_table_class3_run.shape[0],'| Adj. num_cores:', num_cores)
 
     with _Pool(processes = num_cores) as p:
-        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3_run.values), total=merge_table_class3_run.shape[0]))
-        else: p.map(_merge, merge_table_class3_run.values)
+        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3_run.to_records()), total=merge_table_class3_run.shape[0]))
+        else: p.map(_merge, merge_table_class3_run.to_records())
