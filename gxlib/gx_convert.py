@@ -7,10 +7,11 @@ from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 
 def select_rnx(stations_list,years_list,rnx_dir,cddis=False):
-    '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...'''
+    '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
+    It is a single array of paths to raw RNX files'''
     
     rnx_dir = _os.path.abspath(rnx_dir)
-    station_files = _np.ndarray((len(stations_list)),dtype=object)
+    station_files = []
     for i in range(len(stations_list)):
         tmp =[]
         for j in range(0, len(years_list)):
@@ -21,11 +22,11 @@ def select_rnx(stations_list,years_list,rnx_dir,cddis=False):
             
             
             if len(j_year_files) > 0:
-                tmp.append(j_year_files)
-                station_files[i] = _np.concatenate(tmp)
+                
+                station_files.append(_np.asarray(j_year_files))
             else:
                 print('gx_convert.select_rnx: No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
-    return station_files 
+    return _np.concatenate(station_files)
 
 
 def rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=False):
