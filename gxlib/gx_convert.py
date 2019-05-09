@@ -34,7 +34,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False):
     extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list(),inplace=True)
     
     extracted_df['rnx_path'] = paths_series
-    extracted_df['dr_path'] = (tmp_dir +'/rnx_dir/' + extracted_df['station_name'].astype(str) 
+    extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['station_name'].astype(str) 
                                + '/' + extracted_df['year'].astype(str) +'/' + extracted_df['doy'].astype(str).str.zfill(3) 
                                + '/' + extracted_df['filename'] +'.dr.gz')
     
