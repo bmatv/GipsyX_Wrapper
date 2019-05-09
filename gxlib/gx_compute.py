@@ -5,7 +5,7 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
-from gx_aux import _dump_read,_dump_write
+from .gx_aux import _dump_read,_dump_write
 
 
 def _gd2e(gd2e_set):
