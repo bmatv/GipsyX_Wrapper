@@ -57,33 +57,23 @@ def _2dr(rnx2dr_path):
         if _os.path.isfile(file):
             _os.remove(file)
 
-def rnx2dr(rnx_files,stations_list,tmp_dir,num_cores,tqdm,cddis=False):
+def rnx2dr(selected_df,num_cores,tqdm,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
-    rnx2dr_paths = rnx2dr_gen_paths(rnx_files,stations_list,tmp_dir,cddis=cddis)
-    num_cores = int(num_cores) #safety precaution if str value is specified
-#         display(self.analyse())
-    for i in range(len(stations_list)):
+    #Checking files that are already in place so not to overwrite
+    if_exists_array = _np.ndarray((selected_df.shape[0]),dtype=bool)
+    for i in range(if_exists_array.shape[0]):
+        if_exists_array[i] = not _os.path.exists(selected_df['dr_path'][i])
 
-        if rnx2dr_paths[i] is not None:
-            print(stations_list[i],'station conversion to binary...')
+    selected_df2convert = selected_df[['rnx_path','dr_path']].values[if_exists_array]
 
-            #Checking files that are already in place so not to overwrite
-            if_exists_array = _np.ndarray((len(rnx2dr_paths[i])),dtype=bool)
-            for j in range(len(if_exists_array)):
-                if_exists_array[j] = not _os.path.exists(rnx2dr_paths[i][j,1])
+    if selected_df2convert.shape[0] > 0:
+        num_cores = num_cores if selected_df2convert.shape[0] > num_cores else selected_df2convert.shape[0]
+        chunksize = int(_np.ceil(selected_df2convert.shape[0] / num_cores))
+        print ('Number of files to process:', selected_df2convert.shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
 
-            rnx2dr_paths_2convert = rnx2dr_paths[i][if_exists_array]
-
-            if rnx2dr_paths_2convert.shape[0] > 0:
-                num_cores = num_cores if rnx2dr_paths_2convert.shape[0] > num_cores else rnx2dr_paths_2convert.shape[0]
-                chunksize = int(_np.ceil(rnx2dr_paths_2convert.shape[0] / num_cores))
-                print ('Number of files to process:', rnx2dr_paths_2convert.shape[0],'| Adj. num_cores:', num_cores,'| Chunksize:', chunksize,end=' ')
-
-                with _Pool(processes = num_cores) as p:
-                    if tqdm: list(_tqdm.tqdm_notebook(p.imap(_2dr, rnx2dr_paths_2convert), total=rnx2dr_paths_2convert.shape[0]))
-                    else: p.map(_2dr, rnx2dr_paths_2convert)
-            else:
-                #In case length of unconverted files array is 0 - nothing will be converted
-                print('Found', rnx2dr_paths[i].shape[0],'RNX files converted.\nNothing to convert. All available rnx files are already converted')
-        else:
-            print('gx_convert.rnx2dr:Warning:Please check rnx_in folder. No rnx files were found for station', stations_list[i])
+        with _Pool(processes = num_cores) as p:
+            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_2dr, selected_df2convert), total=selected_df2convert.shape[0]))
+            else: p.map(_2dr, selected_df2convert)
+    else:
+        #In case length of unconverted files array is 0 - nothing will be converted
+        print('RNX files converted.\nNothing to convert. All available rnx files are already converted')
