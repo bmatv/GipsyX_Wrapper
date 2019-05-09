@@ -174,7 +174,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
     
     #find all dr.gx files in rnx_dr folder
-    dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*/*/.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
+    dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*/*/*.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
 
     dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
     # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
@@ -186,7 +186,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
         else: rs = _pd.concat(p.map(_drinfo2df, dr_good),axis=0)
 
     #Saving extracted data for furthe processing
-    _dump_write(data = rs,filename=tmp_dir+'rnx_dr/drinfo.zstd',cname='zstd',num_cores=num_cores)
+    _dump_write(data = rs,filename=tmp_dir+'/rnx_dr/drinfo.zstd',cname='zstd',num_cores=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
