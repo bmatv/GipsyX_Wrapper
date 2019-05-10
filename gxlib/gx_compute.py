@@ -34,7 +34,7 @@ def _gd2e(gd2e_set):
     _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                             filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
    
-def gd2e(gd2e_table,num_cores):
+def gd2e(gd2e_table,num_cores,tqdm):
     '''We should ignore stations_list as we already selected stations within merge_table'''
 
     if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
