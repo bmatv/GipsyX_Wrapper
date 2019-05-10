@@ -34,21 +34,18 @@ def _gd2e(gd2e_set):
     _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                             filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
    
-def gd2e(trees_df,merge_tables,tmp_dir,tropNom_type,project_name,num_cores,gnss_products_dir,staDb_path,tqdm):
+def gd2e(gd2e_table):
     '''We should ignore stations_list as we already selected stations within merge_table'''
-    print('---{}---'.format(project_name))
 
-    tmp = _gen_gd2e_table(trees_df, merge_tables,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path)
-
-    if tmp[tmp['file_exists']==0].shape[0] ==0:
-        print('{} is already processed'.format(stations_list[i]))
+    if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
+        print('All files are already processed')
     else:
-        gd2e_table = tmp[tmp['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
+        gd2e_table = gd2e_table[gd2e_table['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
         num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
         print('Processing.  # files left: {} | Adj. # of threads: {}'.format(gd2e_table.shape[0],num_cores))
 
         with _Pool(processes = num_cores) as p:
-            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table[i].shape[0]))
+            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
             else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
 
 def _get_tdps_pn(path_dir):

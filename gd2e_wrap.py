@@ -113,19 +113,8 @@ class gd2e_class:
             years_list = self.years_list)
 
     def gd2e(self):
-        '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
-        merge_table = self._merge_table(mode=self.mode)
-        return gx_compute.gd2e(gnss_products_dir=self.gnss_products_dir,
-                merge_tables=merge_table,
-                num_cores=self.num_cores,
-                project_name=self.project_name,
-                staDb_path=self.staDb_path,
-                stations_list=self.stations_list,
-                tmp_dir=self.tmp_dir,
-                trees_df=self.gen_trees(),
-                tropNom_type=self.tropNom_type,
-                years_list=self.years_list,
-                tqdm=self.tqdm)
+        gx_compute.gd2e(self._gd2e_table)
+
     def solutions(self):
         return gx_extract.gather_solutions(num_cores=self.num_cores,
                                             project_name=self.project_name,
