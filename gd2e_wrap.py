@@ -30,9 +30,9 @@ class gd2e_class:
         self.tqdm = tqdm
         self.PPPtype = self._check_PPPtype(PPPtype)
         self.project_name = project_name 
-        self.IGS_logs_dir = IGS_logs_dir
-        self.rnx_dir=rnx_dir
-        self.tmp_dir=tmp_dir
+        self.IGS_logs_dir = _os.path.abspath(IGS_logs_dir)
+        self.rnx_dir=_os.path.abspath(rnx_dir)
+        self.tmp_dir=_os.path.abspath(tmp_dir)
         self.cddis=cddis
         self.stations_list=stations_list
         self.years_list=years_list
