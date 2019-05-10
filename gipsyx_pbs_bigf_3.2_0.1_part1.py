@@ -5,7 +5,7 @@
 #PBS -o /scratch/bogdanm/output_pos_01.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_bigf3.2
+#PBS -N gx_bigf3.2p1
 
 import os as _os, sys as _sys
 
@@ -14,9 +14,9 @@ if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 
 
-'''Kunanyi'''
+'''Kunanyi. This is part one of the project'''
 from mGNSS_class import mGNSS_class; import trees_options;
-stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE']
+stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO']
 
 years_list=[2010,2011,2012,2013];num_cores = 28
 
