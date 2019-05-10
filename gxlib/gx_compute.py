@@ -106,11 +106,14 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
     '''
-    tmp = _pd.DataFrame()                         
+
+    tmp = _pd.DataFrame()
+                                          
     tmp['filename'] = merge_table['path']
     tmp['class'] =  merge_table['completeness']
-    
+    tmp['station_name'] = merge_table['station_name']
     tmp.loc[tmp['class'] == 3, 'filename'] += '.30h' # Using .loc[row_indexer,col_indexer] = value instead
+
 
     tmp['year'] = merge_table['begin'].dt.year.astype(str)
     tmp['dayofyear'] = merge_table['begin'].dt.dayofyear.astype(str).str.zfill(3)
@@ -121,14 +124,15 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     # tmp['gnss_products_dir'] = gnss_products_dir
     tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'].astype(str) + '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
+  
     tmp['year'] = _pd.to_numeric(tmp['year'])
 
     #cleaning unused years and class 0 as merge_table is not filtering by year to stay consistent withib merged timeframe
-    tmp = tmp[tmp['year'].isin(years_list)&tmp['class']!=0] 
+    tmp = tmp[ (tmp['year'].isin(years_list)) & (tmp['class']!=0)] 
     
     #Check if files exist (from what left):
     file_exists = _np.zeros(tmp.shape[0],dtype=int)
     for j in range(tmp.shape[0]):
         file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.zstd') #might be useful to update this name to a dynamically generated
     tmp['file_exists']=file_exists
-    return tmp
+    return tmp.sort_values(by=['station_name','year','dayofyear'])
