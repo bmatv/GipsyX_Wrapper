@@ -116,7 +116,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     tmp['dayofyear'] = merge_table['begin'].dt.dayofyear.astype(str).str.zfill(3)
     tmp = tmp.join(other=trees_df,on='year') #adds tree paths
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
-    tmp['output'] = tmp_dir+'/gd2e/'+project_name #+'/'+merge_table['station_name']+'/'+tmp['year']+ '/' + tmp['dayofyear']
+    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name']+'/'+tmp['year']+ '/' + tmp['dayofyear']
 
     # tmp['gnss_products_dir'] = gnss_products_dir
     tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year'].astype(str) + '/' + tmp['dayofyear'] + '/'
