@@ -102,7 +102,7 @@ class gd2e_class:
         project_name = self.project_name)
 
     def _gd2e_table(self):
-        gx_compute._gen_gd2e_table(
+        return gx_compute._gen_gd2e_table(
             trees_df = self.gen_trees(),
             merge_table = self._merge_table(mode=self.mode),
             tmp_dir = self.tmp_dir,
