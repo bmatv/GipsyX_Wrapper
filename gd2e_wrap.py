@@ -113,7 +113,7 @@ class gd2e_class:
             years_list = self.years_list)
 
     def gd2e(self):
-        gx_compute.gd2e(self._gd2e_table)
+        gx_compute.gd2e(self._gd2e_table())
 
     def solutions(self):
         return gx_extract.gather_solutions(num_cores=self.num_cores,
