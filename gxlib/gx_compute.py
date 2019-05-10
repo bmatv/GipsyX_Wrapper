@@ -13,7 +13,7 @@ def _gd2e(gd2e_set):
     if not _os.path.exists(gd2e_set['output']):_os.makedirs(gd2e_set['output'])
     process = _Popen([  'gd2e.py',
                         '-drEditedFile', gd2e_set['filename'],
-                        '-recList', gd2e_set['station'],
+                        '-recList', gd2e_set['station_name'],
                         '-runType', 'PPP',
                         '-orbClk', gd2e_set['orbClk_path'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
