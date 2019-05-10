@@ -100,9 +100,21 @@ class gd2e_class:
         PPPtype = self.PPPtype,
         VMF1_dir = self.VMF1_dir,
         project_name = self.project_name)
+
+    def _gd2e_table(self):
+        gx_compute._gen_gd2e_table(
+            trees_df = self.gen_trees(),
+            merge_table = self._merge_table(mode=self.mode),
+            tmp_dir = self.tmp_dir,
+            tropNom_type = self.tropNom_type,
+            project_name = self.project_name,
+            gnss_products_dir = self.gnss_products_dir,
+            staDb_path = self.staDb_path,
+            years_list = self.years_list)
+
     def gd2e(self):
         '''merge_table is executed separately to decide based on mode parameter where gd2e will process merged 30h dr file or 24h dr file as both files are in the folder'''
-        merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir,mode=self.mode)
+        merge_table = self._merge_table(mode=self.mode)
         return gx_compute.gd2e(gnss_products_dir=self.gnss_products_dir,
                 merge_tables=merge_table,
                 num_cores=self.num_cores,
