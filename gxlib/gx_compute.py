@@ -34,15 +34,15 @@ def _gd2e(gd2e_set):
     _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                             filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
    
-def gd2e(gd2e_table,num_cores,tqdm):
+def gd2e(gd2e_table,project_name,num_cores,tqdm):
     '''We should ignore stations_list as we already selected stations within merge_table'''
 
     if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
-        print('All files are already processed')
+        print('{} already processed'.format(project_name))
     else:
         gd2e_table = gd2e_table[gd2e_table['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
         num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
-        print('Processing.  # files left: {} | Adj. # of threads: {}'.format(gd2e_table.shape[0],num_cores))
+        print('Processing {} |  # files left: {} | Adj. # of threads: {}'.format(project_name,gd2e_table.shape[0],num_cores))
 
         with _Pool(processes = num_cores) as p:
             if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
