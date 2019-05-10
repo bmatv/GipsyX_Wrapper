@@ -111,7 +111,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
                                           
     tmp['filename'] = merge_table['path']
     tmp['class'] =  merge_table['completeness']
-    tmp[tmp['class'] == 3]['filename'] += '30h'
+    tmp[tmp['class'] == 3]['filename'] = tmp[tmp['class'] == 3]['filename'] + '.30h'
 
 
     tmp['year'] = merge_table['begin'].dt.year.astype(str)
