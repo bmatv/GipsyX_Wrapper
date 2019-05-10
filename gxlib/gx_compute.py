@@ -132,4 +132,5 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     for j in range(tmp.shape[0]):
         file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.zstd') #might be useful to update this name to a dynamically generated
     tmp['file_exists']=file_exists
-    return tmp.sort_values(by=['station_name','year','dayofyear']).reset_index(drop=True,inplace=True) #resetting index just so the view won't change while debugging columns
+
+    return tmp.sort_values(by=['station_name','year','dayofyear']).reset_index(drop=True) #resetting index just so the view won't change while debugging columns
