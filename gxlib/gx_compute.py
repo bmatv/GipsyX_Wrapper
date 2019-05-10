@@ -26,7 +26,7 @@ def _gd2e(gd2e_set):
     residuals = _get_residuals(gd2e_set['output'])
     debug_tree = _get_debug_tree(gd2e_set['output'])
     runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -gdCov'.format(
-        gd2e_set['filename'],gd2e_set['station'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
+        gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'])
     rtgx_log = _get_rtgx_log(gd2e_set['output'])
     rtgx_err = _get_rtgx_err(gd2e_set['output'])
 
