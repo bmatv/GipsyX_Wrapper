@@ -1,4 +1,5 @@
 from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex, gx_eterna
+import os as _os
 
 class gd2e_class:
     def __init__(self,
