@@ -124,10 +124,14 @@ def dr_merge(merge_table,num_cores,tqdm):
     ifexists = ifexists.astype(bool)
 
     merge_table_class3_run = merge_table_class3[~ifexists]
-    num_cores = num_cores if merge_table_class3_run.shape[0] > num_cores else merge_table_class3_run.shape[0]
-    
-    print('Number of files to merge:', merge_table_class3_run.shape[0],'| Adj. num_cores:', num_cores)
+    if  merge_table_class3[~ifexists] is None:
+        print('All merge files present')
 
-    with _Pool(processes = num_cores) as p:
-        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3_run.to_records()), total=merge_table_class3_run.shape[0]))
-        else: p.map(_merge, merge_table_class3_run.to_records())
+    else:
+        num_cores = num_cores if merge_table_class3_run.shape[0] > num_cores else merge_table_class3_run.shape[0]
+        
+        print('Number of files to merge:', merge_table_class3_run.shape[0],'| Adj. num_cores:', num_cores)
+
+        with _Pool(processes = num_cores) as p:
+            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3_run.to_records()), total=merge_table_class3_run.shape[0]))
+            else: p.map(_merge, merge_table_class3_run.to_records())
