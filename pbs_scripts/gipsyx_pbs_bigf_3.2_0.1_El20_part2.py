@@ -5,7 +5,7 @@
 #PBS -o /scratch/bogdanm/output_bigf3.2_El20_p2.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_bigf3.2_20_p2
+#PBS -N gx_bigf3.2_20p2
 
 import os as _os, sys as _sys
 
