@@ -2,10 +2,10 @@
 #PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_3.2_wetz.txt
+#PBS -o /scratch/bogdanm/output_3.2_wetz_synth.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_3.2wetz
+#PBS -N gx_3.2wetz_sy
 
 import os as _os, sys as _sys
 

@@ -2,10 +2,10 @@
 #PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_057_wetz_synth.txt
+#PBS -o /scratch/bogdanm/output_3.2_wetz.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_057wetz_sy
+#PBS -N gx_3.2wetz
 
 import os as _os, sys as _sys
 
@@ -18,7 +18,7 @@ if GIPSY_WRAP_PATH not in _sys.path:
 from mGNSS_class import mGNSS_class;import trees_options
 stations_list=['CAMO'];years_list=[2010,2011,2012,2013];num_cores = 28
 
-
+pos_s = 3.2
 penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100]
 
 #Processing 
@@ -32,7 +32,7 @@ for wetz_s in penna_wetz_list:
                                 rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s',
                                 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/',
                                 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',
-                                tropNom_input = 'trop+penna',
+                                tropNom_input = 'trop',
                                 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/',
                                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                                 rate = 300,
@@ -40,7 +40,7 @@ for wetz_s in penna_wetz_list:
                                 ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
-                                pos_s = 0.57, wetz_s=wetz_s,PPPtype='kinematic',tqdm=False)
+                                pos_s = pos_s, wetz_s=wetz_s,PPPtype='kinematic',tqdm=False)
     kinematic_project.gd2e()
 
 

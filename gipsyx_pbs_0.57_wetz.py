@@ -2,10 +2,10 @@
 #PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_057_wetz_synth.txt
+#PBS -o /scratch/bogdanm/output_057_wetz.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_057wetz_sy
+#PBS -N gx_057wetz
 
 import os as _os, sys as _sys
 
@@ -32,7 +32,7 @@ for wetz_s in penna_wetz_list:
                                 rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s',
                                 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/',
                                 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',
-                                tropNom_input = 'trop+penna',
+                                tropNom_input = 'trop',
                                 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/',
                                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                                 rate = 300,
