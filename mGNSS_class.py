@@ -57,7 +57,7 @@ class mGNSS_class:
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
                                     ionex_type=self.ionex_type, #type of files
                                     num_cores=self.num_cores)
-        self.ElMin=ElMin
+        self.ElMin=int(ElMin)
         self.rate=rate
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
@@ -68,7 +68,7 @@ class mGNSS_class:
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
-        self.project_name = self._project_name_construct(project_name,self.tropNom_type) #static projects are marked as project_name_[mode]_static
+        self.project_name = self._project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
         
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
@@ -91,7 +91,7 @@ class mGNSS_class:
         return tropNom_type
 
 
-    def _project_name_construct(self,project_name,tropNom_type):
+    def _project_name_construct(self,project_name):
         '''pos_s and wetz_s are im mm/sqrt(s)'''
         if self.PPPtype=='kinematic':
             project_name = '{}_{}_{}'.format(str(project_name),str(self.pos_s),str(self.wetz_s))
@@ -100,6 +100,9 @@ class mGNSS_class:
         #adding _synth if tropNom type == trop+penna
         if self.tropNom_input == 'trop+penna':
             project_name += '_synth'
+        # the last component in proj_name will be ElMin if it is not default 7 degrees
+        if self.ElMin!=7:
+            project_name += '_El{}'.format(self.ElMin)
         return project_name
         
     def init_gd2e(self, mode):
