@@ -22,7 +22,7 @@ years_list=[2010,2011,2012,2013];num_cores = 28
 
 
 
-kinematic_project = mGNSS_class(project_name = 'bigf',
+kinematic_project = mGNSS_class(project_name = 'bigf1',
                             stations_list=stations_list,
                             years_list=years_list,
                             tree_options = trees_options.rw_otl, 
