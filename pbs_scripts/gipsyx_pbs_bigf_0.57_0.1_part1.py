@@ -1,5 +1,5 @@
 #!/scratch/bogdanm/miniconda3/envs/py37/bin/python
-#PBS -l walltime=24:00:00
+#PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
 #PBS -o /scratch/bogdanm/output_big057p1.txt
