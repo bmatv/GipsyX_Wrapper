@@ -7,8 +7,8 @@ from multiprocessing import Pool as _Pool
 import pyarrow as _pa 
 import blosc as _blosc
 
-# if _pa.__version__ !='0.13.0':
-#     raise Exception('pyarrow should be version 0.13.0 only') 
+if _pa.__version__ !='0.13.0':
+    raise Exception('pyarrow should be version 0.13.0 only') 
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
