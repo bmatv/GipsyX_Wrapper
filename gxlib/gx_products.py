@@ -39,7 +39,7 @@ def _date2igs(date):
     day_in_week = ((gps_seconds%_seconds_week)/86400).astype(_np.int)
     return gps_week.astype(_np.str).astype(object), day_in_week.astype(_np.str).astype(object)
 
-def _gen_sets(begin,end,products_type,products_dir,repro2=True):
+def _gen_sets(begin,end,products_type,products_dir):
     '''Generates filenames list'''
     products_dir = _os.path.abspath(products_dir)
     
@@ -50,14 +50,22 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
     
     gps_week,day_in_week = _date2igs(date_array)
     igs_days = gps_week+day_in_week
-    
-    if not repro2:
+
+    years = date_array.astype('datetime64[Y]').astype(_np.str).astype(object)
+#     return igs_days+years+'cod'
+    if products_type == 'esa':
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
-    else:
+    elif products_type == 'es2':
         products_type = products_type[:2]+'2' #esa becomes es2, gfz becomes gf2 etc in repro2
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
+    elif products_type == 'cod':
+        products_type=products_type.upper()
+        #We expect the clk files to be corrected for the message
+        sp3_path = products_dir + '/' + years+ '/' + products_type  +igs_days +'.EPH.Z'
+
+        clk_path = products_dir + '/' + years+ '/'+ products_type + igs_days +'.CLK.Z'
         
     #checking if files are locally available
     sp3_path_avail_mask = _np.asarray([_os.path.isfile(f) for f in sp3_path])
@@ -75,12 +83,12 @@ def _gen_sets(begin,end,products_type,products_dir,repro2=True):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.join(products_dir,'igs2gipsyx')
+        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx'))
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + products_type + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
 
-        tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp') #creating tmp directory processes will work in
+        tmp_dir = _os.path.join(out_dir,'tmp') #creating tmp directory processes will work in
         if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
 
         [_os.makedirs(out_path) for out_path in out_array if not _os.path.exists(out_path)] #creating unique year directories
@@ -108,16 +116,16 @@ def _sp3ToPosTdp(np_set):
     miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
     miscProducts.make()
 
-def igs2jpl(begin,end,products_type,products_dir,tqdm,repro2=True,num_cores=None):
+def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
     
 
-    sets = _gen_sets(begin,end,products_type,products_dir,repro2).to_records()
+    sets = _gen_sets(begin,end,products_type,products_dir).to_records()
     
     with _mp.Pool(num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
         else: p.map(_sp3ToPosTdp, sets)
     
-    tmp_dir = _os.path.join(products_dir,'igs2gipsyx','tmp')
+    tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx','tmp'))
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
 
 
@@ -136,7 +144,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True):
     year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
     
     output_merged_dir = _os.path.abspath(GNSSproducts_dir)
-    target_dir = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.path.basename(output_merged_dir)+'_30h_init')) +'/' + year_str + '/'+ dayofyear_str
+    target_dir = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,'init')) +'/' + year_str + '/'+ dayofyear_str
     
 
     
@@ -145,7 +153,10 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True):
     
     repository.fill(GNSSproducts_dir)
     h24.fill(h24_bool)
-    return _np.column_stack([products_begin,products_end,repository,target_dir,h24])
+    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24])
+    
+    with Pool(processes=num_cores) as p:
+        p.map(_gen_orbclk,input_sets)
 
 
 def _gen_orbclk(input_set):
