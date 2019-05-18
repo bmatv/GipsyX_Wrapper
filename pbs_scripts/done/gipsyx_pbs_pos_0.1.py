@@ -44,3 +44,5 @@ for pos_s in penna_pos_s_list_upd:
                                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                                 pos_s = pos_s, wetz_s=0.1,PPPtype='kinematic',tqdm=False)
     kinematic_project.gd2e()
+
+print('Done')
