@@ -2,7 +2,7 @@ import os as _os,sys as _sys
 import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
-import multiprocessing as _mp
+from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
 
 from .gx_aux import J2000origin as _J2000origin
@@ -14,6 +14,7 @@ import gcore.IgsGcoreConversions as _IgsGcoreConversions
 
 _DEFAULT_COEFF=_os.path.expandvars('$GOA_VAR/sta_info/otide_cmcoeff_got48ac')
 
+from gcore.GNSSproducts import FetchGNSSproducts
 
 '''Function to convert date to gps week and day number
 Expects single value of date to convert or an array of dates.
@@ -86,7 +87,7 @@ def _gen_sets(begin,end,products_type,products_dir):
         out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx'))
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
-        out_array = out_array + '/' + products_type + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
+        out_array = out_array + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
 
         tmp_dir = _os.path.join(out_dir,'tmp') #creating tmp directory processes will work in
         if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
@@ -117,11 +118,9 @@ def _sp3ToPosTdp(np_set):
     miscProducts.make()
 
 def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
-    
-
     sets = _gen_sets(begin,end,products_type,products_dir).to_records()
     
-    with _mp.Pool(num_cores) as p:
+    with _Pool(num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
         else: p.map(_sp3ToPosTdp, sets)
     
@@ -129,10 +128,7 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
 
 
-
-from gcore.GNSSproducts import FetchGNSSproducts
-
-def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True):
+def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,makeShadow_bool=True,tqdm=True):
     begin64 = _np.datetime64(begin).astype('datetime64[D]')
     end64 = _np.datetime64(end).astype('datetime64[D]')
     products_day = _np.arange(begin64,end64)
@@ -150,13 +146,17 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True):
     
     repository = _np.ndarray((products_day.shape),object)
     h24 = _np.ndarray((products_day.shape),bool)
+    makeShadow = _np.ndarray((products_day.shape),bool)
     
     repository.fill(GNSSproducts_dir)
     h24.fill(h24_bool)
-    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24])
+    makeShadow.fill(makeShadow_bool)
     
-    with _Pool(processes=num_cores) as p:
-        p.map(_gen_orbclk,input_sets)
+    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24,makeShadow])
+#     return input_sets
+    with _Pool(processes = num_cores) as p:
+        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gen_orbclk, input_sets), total=input_sets.shape[0]))
+        else: p.map(_gen_orbclk, input_sets)
 
 
 def _gen_orbclk(input_set):
@@ -164,24 +164,22 @@ def _gen_orbclk(input_set):
     endTime = input_set[1]
     GNSSproducts = input_set[2]
     targetDir = input_set[3]
-    hr24 = input_set[4]
+    h24 = input_set[4]
+    makeShadow = input_set[5]
     
     #check if target folder exists and create one if not
     if not _os.path.exists(targetDir):
         _os.makedirs(targetDir)
-    
-    fetchGNSSproducts = FetchGNSSproducts()
-    fetchGNSSproducts.targetDir = targetDir
-    fetchGNSSproducts.repository = GNSSproducts
-    fetchGNSSproducts.highRate = False
-    fetchGNSSproducts.quat = False
-    fetchGNSSproducts.prodType = 'fid' #metavar='nf|nnr|fid', default='fid'
-    '''type of products to fetch. Can be fiducial-free (nf), no-net-rotation (nnr) or fiducial (fid).
-    Note that this only applies if you are fetching final-type products. Default is fid.'''
-    fetchGNSSproducts.hr24=hr24
         
-    intersection = False
-    makeShadowFile = True
+    args = ['/home/bogdanm/Desktop/GipsyX_Wrapper/fetchGNSSproducts_J2000.py',
+                      '-startTime',str(startTime),
+                      '-endTime', str(endTime),
+                      '-GNSSproducts', GNSSproducts,
+                      '-targetDir', targetDir+'/']
+    args.append( '-hr24') if h24 else None
+    args.append ('-makeShadowFile') if makeShadow else None
+
     
-    productStr, satList = fetchGNSSproducts.makeFiles(startTime,endTime, intersection=intersection,shad = makeShadowFile)
-    return productStr, satList
+    process = _Popen(args,stdout=_PIPE)
+    out, err = process.communicate()
+    return out,err
