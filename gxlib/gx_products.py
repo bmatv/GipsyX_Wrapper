@@ -155,7 +155,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True):
     h24.fill(h24_bool)
     input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24])
     
-    with Pool(processes=num_cores) as p:
+    with _Pool(processes=num_cores) as p:
         p.map(_gen_orbclk,input_sets)
 
 
