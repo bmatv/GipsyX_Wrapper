@@ -281,7 +281,10 @@ class mGNSS_class:
                     
                     tmp_mGNSS = _pd.concat([_update_mindex(tmp_synth,'OTL'),_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                     tmp_blq.append(tmp_mGNSS)
-            gx_aux._dump_write(data = tmp_blq,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+
+            tmp_blq_concat = _pd.concat(tmp_blq,keys=self.stations_list,axis=0)
+            gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+            
 
         else:
             tmp_blq = gx_aux._dump_read(gather_path)          
