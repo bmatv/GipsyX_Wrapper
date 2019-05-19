@@ -287,8 +287,8 @@ class mGNSS_class:
             
 
         else:
-            tmp_blq = gx_aux._dump_read(gather_path)          
-        return tmp_blq
+            tmp_blq_concat = gx_aux._dump_read(gather_path)          
+        return tmp_blq_concat
     
     
     def spectra(self,restore_otl = True,remove_outliers=True,sampling=1800):
