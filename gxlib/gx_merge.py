@@ -124,7 +124,7 @@ def dr_merge(merge_table,num_cores,tqdm):
     ifexists = ifexists.astype(bool)
 
     merge_table_class3_run = merge_table_class3[~ifexists]
-    if  merge_table_class3[~ifexists] is None:
+    if  (merge_table_class3[~ifexists]).shape[0] == 0:
         print('All merge files present')
 
     else:
