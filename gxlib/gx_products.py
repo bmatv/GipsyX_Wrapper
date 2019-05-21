@@ -86,8 +86,8 @@ def _gen_sets(begin,end,products_type,products_dir):
 
     print('sp3: found {}%. missing {}%'.format(sp3_avail*100,sp3_unavail*100))
     print('clk: found {}%. missing {}%'.format(clk_avail*100,clk_unavail*100))
-    if clk_unavail>0:
-        return(clk_unavail)
+    if clk_path[~clk_path_avail_mask].shape[0] != 0:
+        return(clk_path[~clk_path_avail_mask].shape[0])
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
