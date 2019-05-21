@@ -2,6 +2,7 @@ import os as _os,sys as _sys
 import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
+import multiprocessing as _mp
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
 
@@ -58,15 +59,19 @@ def _gen_sets(begin,end,products_type,products_dir):
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
     elif products_type == 'es2':
-        products_type = products_type[:2]+'2' #esa becomes es2, gfz becomes gf2 etc in repro2
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
-    elif products_type == 'cod':
+    elif products_type == 'co2':
+        sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.eph.Z'
+        clk_path = products_dir + '/' + gps_week+ '/repro2/' + 'es2' +igs_days +'.clk.Z' #taking clocks from esa reprocessed
+    elif products_type == 'co2015':
         products_type=products_type.upper()
         #We expect the clk files to be corrected for the message
         sp3_path = products_dir + '/' + years+ '/' + products_type  +igs_days +'.EPH.Z'
 
         clk_path = products_dir + '/' + years+ '/'+ products_type + igs_days +'.CLK.Z'
+    else:
+        raise Exception('Product type not understood. Please check.')
         
     #checking if files are locally available
     sp3_path_avail_mask = _np.asarray([_os.path.isfile(f) for f in sp3_path])
@@ -84,7 +89,7 @@ def _gen_sets(begin,end,products_type,products_dir):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx'))
+        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx','products_type'))
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
