@@ -3,6 +3,7 @@ import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
 import multiprocessing as _mp
+from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree
 
