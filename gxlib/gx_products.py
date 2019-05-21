@@ -91,7 +91,7 @@ def _gen_sets(begin,end,products_type,products_dir):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx','products_type'))
+        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx',products_type))
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
