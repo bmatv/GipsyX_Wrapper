@@ -149,7 +149,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
     
     output_merged_dir = _os.path.abspath(GNSSproducts_dir)
-    target_dir = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.pardir,'init',_os.path.dirname(GNSSproducts_dir))) +'/' + year_str + '/'+ dayofyear_str
+    target_dir = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.pardir,'init',_os.path.basename(GNSSproducts_dir))) +'/' + year_str + '/'+ dayofyear_str
     
 
     
