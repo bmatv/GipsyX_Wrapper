@@ -61,7 +61,7 @@ def _gen_sets(begin,end,products_type,products_dir):
     elif products_type == 'es2':
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
-    elif products_type == 'co2':
+    elif (products_type == 'co2')or(products_type == 'cf2'): #cf2 and co2 have same paths except for type_name
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.eph.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + 'es2' +igs_days +'.clk.Z' #taking clocks from esa reprocessed
     elif products_type == 'co2015':
@@ -86,8 +86,8 @@ def _gen_sets(begin,end,products_type,products_dir):
 
     print('sp3: found {}%. missing {}%'.format(sp3_avail*100,sp3_unavail*100))
     print('clk: found {}%. missing {}%'.format(clk_avail*100,clk_unavail*100))
-    if clk_path[~clk_path_avail_mask].shape[0] != 0:
-        return(clk_path[~clk_path_avail_mask].shape[0])
+    if (sp3_path[~sp3_path_avail_mask].shape[0] != 0):
+        return( sp3_path[~sp3_path_avail_mask])
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
