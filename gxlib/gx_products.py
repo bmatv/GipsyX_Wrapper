@@ -125,7 +125,8 @@ def _sp3ToPosTdp(np_set):
     miscProducts.make()
 
 def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
-    sets = _gen_sets(begin,end,products_type,products_dir).to_records()
+    sets = _gen_sets(begin,end,products_type,products_dir)
+    sets = sets.to_records()
     
     with _Pool(num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
