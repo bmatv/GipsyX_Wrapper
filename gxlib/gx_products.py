@@ -59,7 +59,7 @@ def _gen_sets(begin,end,products_type,products_dir):
     if products_type == 'esa':
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
-    elif products_type == 'es2':
+    elif (products_type == 'es2')or (products_type == 'gr2'):
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
     elif (products_type == 'co2')or(products_type == 'cf2'): #cf2 and co2 have same paths except for type_name
