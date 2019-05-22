@@ -46,7 +46,7 @@ _pseudo_range_glo = [['Global:DataTypes:IonoFreeC_1P_2P', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:ElMin', '7'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:ElDepWeight', 'SqrtSin'],
-['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:PostSmoothEdit', '2e5 2e4 25 20 10 5'],
+['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:PostSmoothEdit', '2e5 2e4 12.5 10 5 2.5'],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeC_1P_2P:DataLinkSpec_PC_GLO:SignalPath:Platforms', '.* R.*']]
 
@@ -66,7 +66,7 @@ _carrier_phase_glo = [['Global:DataTypes:IonoFreeL_1P_2P', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:DataBias:StochasticAdj:UseItOrLoseItInterval', '3600'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:ElMin', '7'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:ElDepWeight', 'SqrtSin'],
-['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:PostSmoothEdit', '2e5 2e4 0.25 0.2 0.1 .05'],
+['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:PostSmoothEdit', '2e5 2e4 0.25 0.1 0.05 .025'],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath', ''],
 ['Global:DataTypes:IonoFreeL_1P_2P:DataLinkSpec_LC_GLO:SignalPath:Platforms', '.* R.*']]
 
