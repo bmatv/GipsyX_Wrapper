@@ -59,9 +59,32 @@ def _gen_sets(begin,end,products_type,products_dir):
     if products_type == 'esa':
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
-    elif (products_type == 'es2')or(products_type == 'gr2'): #es2 and gr2 are complete with clk and sp3
+    elif products_type == 'es2': #es2 is complete with clk and sp3
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
+    elif products_type == 'gr2': #es2 and gr2 are complete with clk and sp3
+        igs_days_num = igs_days.astype(int)
+
+        reprocessed_bool = igs_days_num<=17726      # according to CNES recommendations to use rouutine grg after 28/12/2013
+        non_reprocessed_bool =  igs_days_num>17726  #
+        
+        sp3_path_repro = products_dir + '/' + gps_week[reprocessed_bool]+ '/repro2/' + products_type +igs_days[reprocessed_bool] +'.sp3.Z'
+        clk_path_repro = products_dir + '/' + gps_week[reprocessed_bool]+ '/repro2/' + products_type +igs_days[reprocessed_bool] +'.clk.Z'
+
+        sp3_path_non_repro = products_dir + '/' + gps_week[non_reprocessed_bool]+ '/' + 'grg' +igs_days[non_reprocessed_bool] +'.sp3.Z'
+        clk_path_non_repro = products_dir + '/' + gps_week[non_reprocessed_bool]+ '/' + 'grg' +igs_days[non_reprocessed_bool] +'.clk.Z'
+
+        if (igs_days[reprocessed_bool].shape[0]>0)&(igs_days[non_reprocessed_bool].shape[0]>0):
+            sp3_path = _np.concatenate([sp3_path_repro,sp3_path_non_repro])
+            clk_path = _np.concatenate([clk_path_repro,clk_path_non_repro])
+        elif (igs_days[reprocessed_bool].shape[0]>0)&(igs_days[non_reprocessed_bool].shape[0]==0):
+            sp3_path = sp3_path_repro
+            clk_path = clk_path_repro
+        elif (igs_days[reprocessed_bool].shape[0]==0)&(igs_days[non_reprocessed_bool].shape[0]>0):
+            sp3_path = sp3_path_non_repro
+            clk_path = clk_path_non_repro
+        else:
+            raise Exception('Something wrong. No files selected for conversion')
     elif (products_type == 'co2')or(products_type == 'cf2'): #cf2 and co2 have same paths except for type_name
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.eph.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + 'es2' +igs_days +'.clk.Z' #taking clocks from esa reprocessed
