@@ -156,7 +156,7 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
         else: p.map(_sp3ToPosTdp, sets)
     
-    tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx','tmp'))
+    tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx',products_type,'tmp'))
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
 
 
