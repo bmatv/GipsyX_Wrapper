@@ -165,26 +165,26 @@ def _gen_penna_tdp_file(np_set):
 
         tmp_x = _pd.DataFrame()
         tmp_x['Time'] = df['Time']
-        tmp_x['NominalValue'] = tmp_xyz['X']
+        tmp_x['Value'] = tmp_xyz['X']
         tmp_x['Name'] = '.Station.' + staDb['Station'].iloc[i] + '.State.Pos.X'
-        tmp_x['Value'] = refxyz['X']
+        tmp_x['NominalValue'] = refxyz['X']
 
         tmp_y = _pd.DataFrame()
         tmp_y['Time'] = df['Time']
-        tmp_y['NominalValue'] = tmp_xyz['Y']
+        tmp_y['Value'] = tmp_xyz['Y']
         tmp_y['Name'] = '.Station.' + staDb['Station'].iloc[i] + '.State.Pos.Y'
-        tmp_y['Value'] = refxyz['Y']
+        tmp_y['NominalValue'] = refxyz['Y']
 
         tmp_z = _pd.DataFrame()
         tmp_z['Time'] = df['Time']
-        tmp_z['NominalValue'] = tmp_xyz['Z']
+        tmp_z['Value'] = tmp_xyz['Z']
         tmp_z['Name'] = '.Station.' + staDb['Station'].iloc[i] + '.State.Pos.Z'
-        tmp_z['Value'] = refxyz['Z']
+        tmp_z['NominalValue'] = refxyz['Z']
 
         '''tdp_xyz is a completed list ready for string conversion and output'''
         tdp_xyz[i] = _pd.concat([tmp_x,tmp_y,tmp_z])
         #tdp_xyz[i]['NominalValue'] = 0.0 #Zeroing nominals
-        tdp_xyz[i]['Sigma'] = 1.0
+        tdp_xyz[i]['Sigma'] = 0.0
 
         tdp = _pd.concat([tdp,tdp_xyz[i]],sort=False) # will sort later when all stations in place so false
 
