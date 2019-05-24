@@ -361,7 +361,7 @@ def get_spectra(data,window_size = 14016):
     data.fillna(0,inplace=True)
     constellation_spectra = []
     for component in data:
-        comp_spectrum = _np.asarray(signal.welch(data[component].values,fs=48,return_onesided=True,window=gen_parzen(14016,0.1)))
+        comp_spectrum = _np.asarray(signal.welch(data[component].values,fs=48,return_onesided=True,window=gen_parzen(window_size,0.1)))
         tmp_df = _pd.DataFrame(data = comp_spectrum[1],index = comp_spectrum[0], columns = [component])
         constellation_spectra.append(tmp_df)
     constellation_spectra_df = _pd.concat(constellation_spectra,axis=1)
