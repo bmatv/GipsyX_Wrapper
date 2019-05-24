@@ -357,7 +357,7 @@ def gen_parzen(samples,fraction):
 #     return parzen_window_left.shape,parzen_window_right.shape
     return window
 
-def get_spectra(data):
+def get_spectra(data,window_size = 14016):
     data.fillna(0,inplace=True)
     constellation_spectra = []
     for component in data:
