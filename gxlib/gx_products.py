@@ -64,9 +64,9 @@ def _gen_sets(begin,end,products_type,products_dir):
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
     elif products_type == 'gr2': #es2 and gr2 are complete with clk and sp3
         igs_days_num = igs_days.astype(int)
-
-        reprocessed_bool = igs_days_num<=17726      # according to CNES recommendations to use rouutine grg after 28/12/2013
-        non_reprocessed_bool =  igs_days_num>17726  #
+        boudary_date = 17696 # according to docu it should be 17726 : according to CNES recommendations to use rouutine grg after 28/12/2013
+        reprocessed_bool = igs_days_num<=boudary_date      # 
+        non_reprocessed_bool =  igs_days_num>boudary_date  #
         
         sp3_path_repro = products_dir + '/' + gps_week[reprocessed_bool]+ '/repro2/' + products_type +igs_days[reprocessed_bool] +'.sp3.Z'
         clk_path_repro = products_dir + '/' + gps_week[reprocessed_bool]+ '/repro2/' + products_type +igs_days[reprocessed_bool] +'.clk.Z'
