@@ -11,6 +11,9 @@ penna_k_randomwalk = [[
 
         ['GRN_STATION_CLK_WHITE:Clk:Bias', '0.0'],
         ['GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj', '3.0e8 3.0e8 $GLOBAL_DATA_RATE WHITENOISE'],
+        ['GRN_STATION_CLK_WHITE:Clk:Model', 'On'],
+        Model On
+
 
         # Station properties. e.g. CAMB. So we will get wetz etc in the output. Highly important!!!
         ['Station', '`cat $STATIONLIST`'+'\nStation `staDb2TreeIn.py -s $STATIONLIST -y2kSecs $GLOBAL_EPOCH -d $STA_DB`'],
