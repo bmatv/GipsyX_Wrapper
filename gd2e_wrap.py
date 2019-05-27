@@ -26,6 +26,7 @@ class gd2e_class:
                  pos_s = 0.57,  # mm/sqrt(s)
                  wetz_s = 0.1,   # mm/sqrt(s)
                  PPPtype = 'kinematic',
+                 static_clk = False,
                  tqdm = True
                  ): 
         self.tqdm = tqdm
@@ -56,7 +57,7 @@ class gd2e_class:
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
         self.ElMin=ElMin
-
+        self.static_clk = static_clk
         
 
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
@@ -100,7 +101,8 @@ class gd2e_class:
         wetz_s = self.wetz_s,
         PPPtype = self.PPPtype,
         VMF1_dir = self.VMF1_dir,
-        project_name = self.project_name)
+        project_name = self.project_name,
+        static_clk = self.static_clk)
 
     def _gd2e_table(self):
         return gx_compute._gen_gd2e_table(

@@ -34,6 +34,7 @@ class mGNSS_class:
                 wetz_s = 0.1, # mm/sqrt(s)
                 PPPtype = 'kinematic',
                 cddis = False,
+                static_clk = False,
                 tqdm = True):
         
         self.tqdm=tqdm
@@ -69,7 +70,8 @@ class mGNSS_class:
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
         self.project_name = self._project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
-        
+        self.static_clk = static_clk
+
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
@@ -130,6 +132,7 @@ class mGNSS_class:
                 pos_s = self.pos_s,
                 wetz_s = self.wetz_s,
                 PPPtype = self.PPPtype,
+                static_clk = self.static_clk,
                 tqdm=self.tqdm)
     
     def gen_trees(self):
