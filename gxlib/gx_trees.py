@@ -13,7 +13,7 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name,static_clk = False):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
@@ -39,6 +39,9 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     ([['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1E} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]])
 
     VMF1 dir is also expected ['Station:VMF1dataDir', '/mnt/Data/bogdanm/Products/VMF1_Products'],
+
+    static_clk can be used for gps only and only for basic test on consistency with Penna&Bos publication
+    if static_clk: remove all 
     '''
 
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -64,6 +67,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
         tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','1.0']]
         tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
 
+
+
     #adding VMF1 dir parameter that can change
     tmp_options_add += [['Station:VMF1dataDir', _os.path.abspath(VMF1_dir)]]
 
@@ -73,6 +78,10 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     GLONASS_DataLink = _pseudo_range_glo + _carrier_phase_glo
     if mode == 'GPS':
         DataLink = GPS_DataLink
+        if static_clk: #static_clk only for GPS as it is specified for the whole tree file and GLONASS doesn't have clk products
+            tmp_options_remove += ['GRN_STATION_CLK_WHITE:Clk:Bias', 'GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj','GRN_STATION_CLK_WHITE:Clk:Model']
+            tmp_options_add += [['GRN_STATION_CLK_WHITE:Clk:Bias:ConstantAdj', '1.0']]
+
     elif mode == 'GLONASS':
         DataLink = GLONASS_DataLink
     elif mode == 'GPS+GLONASS':
