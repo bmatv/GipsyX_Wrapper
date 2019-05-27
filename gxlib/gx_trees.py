@@ -78,10 +78,6 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     GLONASS_DataLink = _pseudo_range_glo + _carrier_phase_glo
     if mode == 'GPS':
         DataLink = GPS_DataLink
-        if static_clk: #static_clk only for GPS as it is specified for the whole tree file and GLONASS doesn't have clk products
-            tmp_options_remove += ['GRN_STATION_CLK_WHITE:Clk:Bias', 'GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj','GRN_STATION_CLK_WHITE:Clk:Model']
-            tmp_options_add += [['GRN_STATION_CLK_WHITE:Clk:Bias:ConstantAdj', '1.0']]
-
     elif mode == 'GLONASS':
         DataLink = GLONASS_DataLink
     elif mode == 'GPS+GLONASS':
@@ -132,9 +128,18 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
         #Adding options to default tree. These options are stored as tree_options[0]
         for option in tmp_options_add:
             input_tree.entries[option[0]] = _treeUtils.treevalue(option[1])  # write standard parameters
+            
+
+#         if(mode == 'GPS')&(static_clk): #static_clk only for GPS as it is specified for the whole tree file and GLONASS doesn't have clk products
+        clk_options_remove = ['GRN_STATION_CLK_WHITE:Clk:Bias', 'GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj','GRN_STATION_CLK_WHITE:Clk:Model']
+        for option in clk_options_remove:
+            input_tree.entries.pop(option, None)
+        input_tree.entries['GRN_STATION_CLK_WHITE:Clk:Bias:ConstantAdj'] =  _treeUtils.treevalue('1.0')
+            
+            
         #Add blq file location manually. At this step will override any tree option
         input_tree.entries['GRN_STATION_CLK_WHITE:Tides:OceanLoadFile'] =  _treeUtils.treevalue(blq_file)
-
+        
         #ElMin parameter change, default is 7
         if ElMin != 7:
             #find all ElMin entries
@@ -145,6 +150,5 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
                 input_tree.entries[key] = _treeUtils.treevalue(str(ElMin)) # updating all ElMin keys with new angle value
 
         input_tree.save(out_df['tree_path'][i] + 'ppp_0.tree')
-    # return year type path_trees
 
     return out_df.set_index(['year']) 
