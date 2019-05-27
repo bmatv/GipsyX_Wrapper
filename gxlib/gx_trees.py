@@ -79,7 +79,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     if mode == 'GPS':
         DataLink = GPS_DataLink
         if static_clk: #static_clk only for GPS as it is specified for the whole tree file and GLONASS doesn't have clk products
-            tmp_options_remove += ['GRN_STATION_CLK_WHITE:Clk:Bias', 'GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj','GRN_STATION_CLK_WHITE:Clk:Model']
+            tmp_options_remove +=[ ['GRN_STATION_CLK_WHITE:Clk:Bias', 'GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj','GRN_STATION_CLK_WHITE:Clk:Model']]
             tmp_options_add += [['GRN_STATION_CLK_WHITE:Clk:Bias:ConstantAdj', '1.0']]
 
     elif mode == 'GLONASS':
