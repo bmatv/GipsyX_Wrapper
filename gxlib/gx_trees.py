@@ -130,11 +130,11 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
             input_tree.entries[option[0]] = _treeUtils.treevalue(option[1])  # write standard parameters
             
 
-#         if(mode == 'GPS')&(static_clk): #static_clk only for GPS as it is specified for the whole tree file and GLONASS doesn't have clk products
-        clk_options_remove = ['GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj']
-        for option in clk_options_remove:
-            input_tree.entries.pop(option, None)
-        input_tree.entries['GRN_STATION_CLK_WHITE:Clk:Bias:ConstantAdj'] =  _treeUtils.treevalue('1.0')
+        if(mode == 'GPS')&(static_clk): #static_clk only for GPS as it is specified for the whole tree file and GLONASS doesn't have clk products
+            clk_options_remove = ['GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj']
+            for option in clk_options_remove:
+                input_tree.entries.pop(option, None)
+            input_tree.entries['GRN_STATION_CLK_WHITE:Clk:Bias:ConstantAdj'] =  _treeUtils.treevalue('1.0')
             
             
         #Add blq file location manually. At this step will override any tree option
