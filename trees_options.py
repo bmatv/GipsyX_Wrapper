@@ -6,8 +6,11 @@ penna_k_randomwalk = [[
         ['GRN_STATION_CLK_WHITE:Trop:Mapping', 'VMF1'],
         ['GRN_STATION_CLK_WHITE:Trop:Model', 'On'],
         ['GRN_STATION_CLK_WHITE:Trop:WetZ', '0.1'],
-        ['GRN_STATION_CLK_WHITE:Trop:GradNorth:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
-        ['GRN_STATION_CLK_WHITE:Trop:GradEast:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
+        # ['GRN_STATION_CLK_WHITE:Trop:GradNorth:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
+        # ['GRN_STATION_CLK_WHITE:Trop:GradEast:StochasticAdj', '1.0 5e-6 $GLOBAL_DATA_RATE RANDOMWALK'],
+
+        ['GRN_STATION_CLK_WHITE:Trop:GradNorth:StochasticAdj', '3.0e8 3.0e8 $GLOBAL_DATA_RATE WHITENOISE'],
+        ['GRN_STATION_CLK_WHITE:Trop:GradEast:StochasticAdj', '3.0e8 3.0e8 $GLOBAL_DATA_RATE WHITENOISE'],
 
         ['GRN_STATION_CLK_WHITE:Clk:Bias', '0.0'],
         ['GRN_STATION_CLK_WHITE:Clk:Bias:StochasticAdj', '3.0e8 3.0e8 $GLOBAL_DATA_RATE WHITENOISE'],
