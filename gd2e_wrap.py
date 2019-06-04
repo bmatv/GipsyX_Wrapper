@@ -43,7 +43,7 @@ class gd2e_class:
         self.VMF1_dir = VMF1_dir
         self.tropNom_type = tropNom_type
         self.tree_options = tree_options
-        self.selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
+        # self.selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
         self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir)
         self.gnss_products_dir = gnss_products_dir
         self.ionex_type=ionex_type
@@ -75,7 +75,8 @@ class gd2e_class:
         else: return PPPtype
     
     def rnx2dr(self):
-        gx_convert.rnx2dr(selected_df = self.selected_rnx, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
+        selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
+        gx_convert.rnx2dr(selected_df = selected_rnx, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
 
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm)
