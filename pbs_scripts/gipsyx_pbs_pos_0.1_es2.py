@@ -25,7 +25,7 @@ penna_pos_s_list_upd = [0.0032, 0.01,0.032,0.1,0.18,0.32, 1, 1.8, 10,32,100,320]
 
 #Processing 
 for pos_s in penna_pos_s_list_upd:
-    kinematic_project = mGNSS_class(project_name = 'penna_co15',
+    kinematic_project = mGNSS_class(project_name = 'penna_es2',
                                 stations_list=stations_list,
                                 years_list=years_list,
                                 tree_options = trees_options.rw_otl, 
