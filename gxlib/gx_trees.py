@@ -54,8 +54,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
     
     #switching off and on ambres
-    if ambres: tmp_options_add += [['AmbRes','On']]
-    else: tmp_options_add += [['AmbRes','Off']]
+    if ambres: tmp_options_add += [['Global:AmbRes','On']]
+    else: tmp_options_add += [['Global:AmbRes','Off']]
 
     '''Static or Kinematic PPP. Kinematic is default'''
     if PPPtype == 'kinematic':
