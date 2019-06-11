@@ -35,7 +35,7 @@ class mGNSS_class:
                 PPPtype = 'kinematic',
                 cddis = False,
                 static_clk = False,
-                tqdm = True
+                tqdm = True,
                 ambres = True):
         
         self.tqdm=tqdm
