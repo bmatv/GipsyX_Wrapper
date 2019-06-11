@@ -72,12 +72,13 @@ class mGNSS_class:
 
         self.project_name = self._project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
         self.static_clk = static_clk
+        self.ambres = ambres
 
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
-        self.ambres = ambres
+        
 
     def _check_PPPtype(self,PPPtype):
         PPPtypes = ['static', 'kinematic']
