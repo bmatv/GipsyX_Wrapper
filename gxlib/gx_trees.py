@@ -13,7 +13,7 @@ if _PYGCOREPATH not in _sys.path:
 
 import gcore.treeUtils as _treeUtils
 
-def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name,static_clk = False):
+def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name,static_clk = False, ambres = True):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
@@ -43,7 +43,6 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
     static_clk can be used for gps only and only for basic test on consistency with Penna&Bos publication
     if static_clk: remove all 
     '''
-
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
@@ -54,6 +53,10 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
 
     tmp_options_add = tree_options[0].copy(); tmp_options_remove = tree_options[1].copy() #Adding tmp vars to prevent original options from overwriting
     
+    #switching off and on ambres
+    if ambres: tmp_options_add += [['AmbRes','On']]
+    else: tmp_options_add += [['AmbRes','Off']]
+
     '''Static or Kinematic PPP. Kinematic is default'''
     if PPPtype == 'kinematic':
         # adding coordinate process noise

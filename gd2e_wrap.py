@@ -27,7 +27,9 @@ class gd2e_class:
                  wetz_s = 0.1,   # mm/sqrt(s)
                  PPPtype = 'kinematic',
                  static_clk = False,
-                 tqdm = True
+                 tqdm = True,
+                 ambres = True
+
                  ): 
         self.tqdm = tqdm
         self.PPPtype = self._check_PPPtype(PPPtype)
@@ -58,7 +60,7 @@ class gd2e_class:
         self.hardisp_path = hardisp_path
         self.ElMin=ElMin
         self.static_clk = static_clk
-        
+        self.ambres = ambres
 
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
@@ -103,7 +105,8 @@ class gd2e_class:
         PPPtype = self.PPPtype,
         VMF1_dir = self.VMF1_dir,
         project_name = self.project_name,
-        static_clk = self.static_clk)
+        static_clk = self.static_clk,
+        ambres = self.ambres)
 
     def _gd2e_table(self):
         return gx_compute._gen_gd2e_table(
