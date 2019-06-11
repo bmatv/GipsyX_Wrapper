@@ -75,9 +75,9 @@ class mGNSS_class:
 
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
-        self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS'
+        self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
-        self.ambres = ambres)
+        self.ambres = ambres
 
     def _check_PPPtype(self,PPPtype):
         PPPtypes = ['static', 'kinematic']
@@ -136,7 +136,7 @@ class mGNSS_class:
                 wetz_s = self.wetz_s,
                 PPPtype = self.PPPtype,
                 static_clk = self.static_clk,
-                tqdm=self.tqdm
+                tqdm=self.tqdm,
                 ambres = self.ambres)
     
     def gen_trees(self):
