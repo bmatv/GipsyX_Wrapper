@@ -2,10 +2,10 @@
 #PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_bigf3.2_El20_p1_es2.txt
+#PBS -o /scratch/bogdanm/output_bigf3.2_El20_p2_co15.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_bigf3.2_20p1
+#PBS -N gx_bigf3.2_20p2
 
 import os as _os, sys as _sys
 
@@ -14,16 +14,16 @@ if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 
 
-'''Kunanyi. This is part one of the project. Bos test with 20 degrees ElMin
+'''Kunanyi. This is part two of the project. Bos test with 20 degrees ElMin
 Reprocessing with new postSmooth for GLONASS'''
 from mGNSS_class import mGNSS_class; import trees_options;
-stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO']
-
+# stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE']
+stations_list=['CHIO','CARI', 'SWAS', 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE']
 years_list=[2010,2011,2012,2013];num_cores = 28
 
 
 
-kinematic_project = mGNSS_class(project_name = 'bigf1_es2',
+kinematic_project = mGNSS_class(project_name = 'bigf2_co15',
                             stations_list=stations_list,
                             years_list=years_list,
                             tree_options = trees_options.rw_otl, 
@@ -37,7 +37,7 @@ kinematic_project = mGNSS_class(project_name = 'bigf1_es2',
                             IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                             rate = 300,
                             ElMin=20,
-                            gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2/',
+                            gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/',
                             ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                             eterna_path='/scratch/bogdanm/Products/otl/eterna',
                             hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
@@ -46,3 +46,4 @@ kinematic_project.gd2e()
 
 
 print('Done')
+
