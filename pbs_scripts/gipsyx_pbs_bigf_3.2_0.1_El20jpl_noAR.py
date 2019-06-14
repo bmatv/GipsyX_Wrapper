@@ -2,10 +2,10 @@
 #PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_bigf3.2_El20_jpl.txt
+#PBS -o /scratch/bogdanm/output_bigf3.2_El20_jpl_noAR.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_bigf3.2_20jpl
+#PBS -N gx_bigf3.2_20jpl_noAR
 
 import os as _os, sys as _sys
 
@@ -22,7 +22,7 @@ years_list=[2010,2011,2012,2013];num_cores = 28
 
 
 
-kinematic_project = mGNSS_class(project_name = 'bigf_jpl',
+kinematic_project = mGNSS_class(project_name = 'bigf_jpl_noAR',
                             stations_list=stations_list,
                             years_list=years_list,
                             tree_options = trees_options.rw_otl, 
