@@ -35,7 +35,7 @@ kinematic_project = mGNSS_class(project_name = 'bigf_jpl_noAR',
                             IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/',
                             IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                             rate = 300,
-                            gnss_products_dir='/mnt/data/bogdanm/Products/JPL_GPS_Products_IGb08/init/Final/',
+                            gnss_products_dir='/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/init/Final/',
                             ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
                             eterna_path='/scratch/bogdanm/Products/otl/eterna',
                             hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
