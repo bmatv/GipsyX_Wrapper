@@ -299,7 +299,7 @@ class mGNSS_class:
             tmp_blq_concat = gx_aux._dump_read(gather_path)          
         return tmp_blq_concat
     
-def analyze_gps(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False):
+    def analyze_gps(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False):
         #Useful for canalysis of gps only products (e.g. JPL)
         eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
         if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
