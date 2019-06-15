@@ -299,7 +299,53 @@ class mGNSS_class:
             tmp_blq_concat = gx_aux._dump_read(gather_path)          
         return tmp_blq_concat
     
-    
+def analyze_gps(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False):
+        #Useful for canalysis of gps only products (e.g. JPL)
+        eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
+        if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
+
+        if restore_otl: gather_path = _os.path.join(eterna_gathers_dir,self.project_name + '_et_otl_gps.zstd') #files with OTL siganl restored
+        else: gather_path = _os.path.join(eterna_gathers_dir,self.project_name + '_et_nootl_gps.zstd') #raw files with only residual OTL
+
+        if force: #if force - remove gather file!
+            if _os.path.exists(gather_path): _os.remove(gather_path)
+
+        if not _os.path.exists(gather_path):
+            '''If force == True -> reruns Eterna even if Eterna files exist'''
+            gather = self.gps.envs()
+            tmp_blq=[]
+            if not restore_otl:
+                for i in range(len(gather)): #looping through stations
+                    gps_et = gx_eterna.env2eterna(gather[i],remove_outliers)
+                   
+                    tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
+                   
+                    tmp_mGNSS = _update_mindex(tmp_gps,'GPS')
+                    tmp_blq.append(tmp_mGNSS)
+                    
+            else:
+                for i in range(len(gather)): #looping through stations
+                    gps_et = gx_eterna.env2eterna(gather[i],remove_outliers)
+                    #timeframe is the same so we can take any of three. gps_et in this case
+                    synth_otl = gx_hardisp.gen_synth_otl(dataset = gps_et,station_name = self.stations_list[i],hardisp_path=self.hardisp_path,blq_file=self.blq_file,sampling=sampling)
+                    
+                    gps_et+=synth_otl
+                    
+                    #snth analysis to double check. Analysis is done in gps project for now
+                    tmp_synth = gx_eterna.analyse_et(synth_otl,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force,otl_env=True)
+                    
+                    tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
+                    
+                    tmp_mGNSS = _pd.concat([_update_mindex(tmp_synth,'OTL'),_update_mindex(tmp_gps,'GPS')],axis=1)
+                    tmp_blq.append(tmp_mGNSS)
+
+            tmp_blq_concat = _pd.concat(tmp_blq,keys=self.stations_list,axis=0)
+            gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+            
+
+        else:
+            tmp_blq_concat = gx_aux._dump_read(gather_path)          
+        return tmp_blq_concat    
     def spectra(self,restore_otl = True,remove_outliers=True,sampling=1800):
         gather = self.gather_mGNSS()
         tmp=[]
