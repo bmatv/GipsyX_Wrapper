@@ -9,8 +9,11 @@ from datetime import datetime as _datetime
 
 
 def blq2hardisp(blq_file):
-    blq_file_read = _pd.read_csv(blq_file, comment='$', header=None)[:-2].values
-
+    blq_file = _pd.read_csv(blq_file, comment='$', header=None)#[:-2].values
+    #we should be ready for different formats: with and without service rows in the end. Namely: Warnings and Errors
+    blq_raw = blq_file.squeeze()
+    blq_file_read = (blq_raw[(blq_raw!='Warnings:') & (blq_raw!='Errors:')]).values
+    
     n_stations = int(blq_file_read.shape[0] / 7)
 
     sites = (_pd.Series(blq_file_read.reshape(
