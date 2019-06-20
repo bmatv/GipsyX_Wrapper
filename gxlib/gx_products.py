@@ -59,7 +59,7 @@ def _gen_sets(begin,end,products_type,products_dir):
     if products_type == 'esa':
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
-    elif (products_type == 'es2')or(products_type == 'ig2'): #es2 is complete with clk and sp3
+    elif (products_type == 'es2')or(products_type == 'ig2')or(products_type == 'jp2'): #es2 is complete with clk and sp3
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
     elif products_type == 'gr2': #es2 and gr2 are complete with clk and sp3
