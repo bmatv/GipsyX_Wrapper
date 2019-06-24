@@ -145,7 +145,7 @@ def _sp3ToPosTdp(np_set):
                                     _os.path.join(np_set['out'], str(np_set['date'])+'.tdp.gz'), 
                                     stationClk=False)
     
-    miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame )
+    miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame)
     miscProducts.make()
 
 def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
