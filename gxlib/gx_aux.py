@@ -270,3 +270,61 @@ def wetz(tdps):
         wetz_column_name = columns[_pd.Series(columns).str.contains('WetZ')].values[0]
         wetz[i] = dataframe[[wetz_column_name,]]
     return wetz
+
+def get_const_df(ConstellationInfoFile,constellation):
+    '''returns timeline of SVs count for the constellation specified. The constellationInfo file is of the JPL's format'''
+    #reading constellation file
+    file = _pd.read_fwf(ConstellationInfoFile,comment='#',header=None,)
+    #selecting constellation needed
+    if constellation not in ['GPS','GLONASS']:
+        raise ValueError('GPS or GLONASS only')
+    if constellation == 'GLONASS':
+        data = file[file[1]=='SLO']
+    if constellation == 'GPS':
+        prn = file[file[1]=='PRN']
+        data = prn[prn[6]=='G']
+
+    df = _pd.DataFrame()
+    df['SV'] = data[0] 
+    df['begin'] = (data[2] +" "+ data[3]).astype('datetime64')
+
+
+    end_dates = data[4].copy()
+    end_dates[end_dates=='0000-00-00'] = '2100-01-01' #changing 0 date to year 2100 to convert to datetime64
+    end = (end_dates +" "+ data[5]).astype('datetime64')
+    
+    df['end'] = end
+    df.sort_values(by=['begin','end'],inplace=True)
+    #build unique SV table
+    unique_SV = df['SV'].unique()
+    df_SV = _pd.DataFrame(index=unique_SV,columns=['begin','end'])
+    for SV in unique_SV:
+        df_SV.loc[SV]['begin'] = df[df['SV'] == SV]['begin'].min()
+        df_SV.loc[SV]['end'] = df[df['SV'] == SV]['end'].max()
+    
+    df_SV.begin = df_SV.begin.astype('datetime64')
+    df_SV.end = df_SV.end.astype('datetime64')
+    begin = df_SV['begin'].values
+    end = df_SV['end'].values
+    # end_dates
+    array_count = _np.arange(df_SV.shape[0])+1
+    
+    
+    for date in end:
+        array_count[begin>=date]-= 1
+        
+    df_SV['count'] = array_count
+    df_SV['SV'] = df_SV.index
+    
+    begin_day,end_day = df_SV.begin.values.astype('datetime64[D]').astype('datetime64')[[0,-1]]
+
+    daily_date = _np.arange(begin_day,end_day)
+    daily_count = _np.ndarray((daily_date.shape))
+    
+    for i in range(df_SV.shape[0]-1):
+
+        daily_count[(daily_date>=df_SV['begin'].values[i])&(daily_date<df_SV['begin'].values[i+1])] = df_SV['count'][i]
+    df_total = _pd.DataFrame(index=daily_date)
+    df_total['count'] = daily_count.astype(int)
+    
+    return df_total
