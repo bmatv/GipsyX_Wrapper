@@ -2,10 +2,10 @@
 #PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/output_057_wetz_co15.txt
+#PBS -o /scratch/bogdanm/output_3.2_wetz_co15.txt
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_057wetz_co15
+#PBS -N gx_3.2wetz_co15
 
 import os as _os, sys as _sys
 
@@ -18,17 +18,17 @@ if GIPSY_WRAP_PATH not in _sys.path:
 from mGNSS_class import mGNSS_class;import trees_options
 stations_list=['CAMO'];years_list=[2010,2011,2012,2013];num_cores = 28
 
-pos_s = 0.57
+pos_s = 3.2
 penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100]
 
 #Processing 
 for wetz_s in penna_wetz_list:
-    kinematic_project = mGNSS_class(project_name = 'penna_co15',
+    kinematic_project = mGNSS_class(project_name = 'penna_co15_ce',
                                 stations_list=stations_list,
                                 years_list=years_list,
                                 tree_options = trees_options.rw_otl, 
                                 num_cores=num_cores,
-                                blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/bigf_complete.blq',
+                                blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq',
                                 rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s',
                                 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/',
                                 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',

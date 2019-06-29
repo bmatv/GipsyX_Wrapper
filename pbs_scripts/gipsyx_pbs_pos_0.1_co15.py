@@ -25,12 +25,12 @@ penna_pos_s_list_upd = [0.0032, 0.01,0.032,0.1,0.18,0.32, 1, 1.8, 10,32,100,320]
 
 #Processing 
 for pos_s in penna_pos_s_list_upd:
-    kinematic_project = mGNSS_class(project_name = 'penna_co15',
+    kinematic_project = mGNSS_class(project_name = 'penna_co15_ce',
                                 stations_list=stations_list,
                                 years_list=years_list,
                                 tree_options = trees_options.rw_otl, 
                                 num_cores=num_cores,
-                                blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/bigf_complete.blq',
+                                blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq',
                                 rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s',
                                 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/',
                                 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',
