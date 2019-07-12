@@ -61,7 +61,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     #getting paths to all log files needed    
     logs = _np.ndarray((len(stations_list)),dtype=object)
     for i in range(len(stations_list)):
-        logs[i] = _glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*')[0]
+        logs[i] = sorted(_glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*'+'.log'))[-1] #should be the last log created in case multiple exist
 
     with open(staDb_path,'w') as output:
         output.write("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
