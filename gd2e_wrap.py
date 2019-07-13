@@ -94,34 +94,36 @@ class gd2e_class:
         Generates zenith tropnominals from VMF1 model files.'''
         gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
     def gen_trees(self):
-        return gx_trees.gen_trees(ionex_type=self.ionex_type,
-        tmp_dir=self.tmp_dir,
-        tree_options=self.tree_options,
-        blq_file=self.blq_file, 
-        mode = self.mode,
-        ElMin=self.ElMin,
-        pos_s = self.pos_s,
-        wetz_s = self.wetz_s,
-        PPPtype = self.PPPtype,
-        VMF1_dir = self.VMF1_dir,
-        project_name = self.project_name,
-        static_clk = self.static_clk,
-        ambres = self.ambres)
+        return gx_trees.gen_trees(  ionex_type=self.ionex_type,
+                                    tmp_dir=self.tmp_dir,
+                                    tree_options=self.tree_options,
+                                    blq_file=self.blq_file, 
+                                    mode = self.mode,
+                                    ElMin=self.ElMin,
+                                    pos_s = self.pos_s,
+                                    wetz_s = self.wetz_s,
+                                    PPPtype = self.PPPtype,
+                                    VMF1_dir = self.VMF1_dir,
+                                    project_name = self.project_name,
+                                    static_clk = self.static_clk,
+                                    ambres = self.ambres)
 
     def _gd2e_table(self):
-        return gx_compute._gen_gd2e_table(
-            trees_df = self.gen_trees(),
-            merge_table = self._merge_table(mode=self.mode),
-            tmp_dir = self.tmp_dir,
-            tropNom_type = self.tropNom_type,
-            project_name = self.project_name,
-            gnss_products_dir = self.gnss_products_dir,
-            staDb_path = self.staDb_path,
-            years_list = self.years_list,
-            mode=self.mode)
+        return gx_compute._gen_gd2e_table(  trees_df = self.gen_trees(),
+                                            merge_table = self._merge_table(mode=self.mode),
+                                            tmp_dir = self.tmp_dir,
+                                            tropNom_type = self.tropNom_type,
+                                            project_name = self.project_name,
+                                            gnss_products_dir = self.gnss_products_dir,
+                                            staDb_path = self.staDb_path,
+                                            years_list = self.years_list,
+                                            mode=self.mode)
 
     def gd2e(self):
-        gx_compute.gd2e(gd2e_table = self._gd2e_table(),project_name = self.project_name, num_cores=self.num_cores,tqdm=self.tqdm)
+        gx_compute.gd2e(gd2e_table = self._gd2e_table(),
+                        project_name = self.project_name,
+                        num_cores=self.num_cores,
+                        tqdm=self.tqdm)
 
     def solutions(self):
         return gx_extract.gather_solutions(num_cores=self.num_cores,
