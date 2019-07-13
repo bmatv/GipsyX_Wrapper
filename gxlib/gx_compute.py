@@ -18,7 +18,7 @@ def _gd2e(gd2e_set):
                         '-orbClk', gd2e_set['orbClk_path'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
                         '-tdpInput', gd2e_set['tdp'],
-                        '-staDb', gd2e_set['staDb_path']
+                        '-staDb', gd2e_set['staDb_path'],
                         '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['output'],stdout=_PIPE)
     # Do we really need a -gdCov option?
     out, err = process.communicate()
