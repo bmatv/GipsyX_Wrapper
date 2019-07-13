@@ -117,7 +117,8 @@ class gd2e_class:
             project_name = self.project_name,
             gnss_products_dir = self.gnss_products_dir,
             staDb_path = self.staDb_path,
-            years_list = self.years_list)
+            years_list = self.years_list,
+            mode=self.mode)
 
     def gd2e(self):
         gx_compute.gd2e(gd2e_table = self._gd2e_table(),project_name = self.project_name, num_cores=self.num_cores,tqdm=self.tqdm)

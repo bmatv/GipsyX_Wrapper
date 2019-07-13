@@ -18,7 +18,8 @@ def _gd2e(gd2e_set):
                         '-orbClk', gd2e_set['orbClk_path'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
                         '-treeSequenceDir', gd2e_set['tree_path'],
                         '-tdpInput', gd2e_set['tdp'],
-                        '-staDb', gd2e_set['staDb_path']], cwd=gd2e_set['output'],stdout=_PIPE)
+                        '-staDb', gd2e_set['staDb_path']
+                        '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['output'],stdout=_PIPE)
     # Do we really need a -gdCov option?
     out, err = process.communicate()
 
@@ -98,11 +99,12 @@ def _get_rtgx_err(path_dir):
     return rtgx_err
 
 
-def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list):
+def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode):
     '''Generates an np recarray that is used as sets for _gd2e
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
     '''
+    re_df = _pd.Series(index = ['GPS','GLONASS','GPS+GLONASS'],data=['^GPS\d{2}$','^R\d{3}$','^(GPS\d{2})|(R\d{3})$'])
 
     tmp = _pd.DataFrame()
                                           
@@ -123,6 +125,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     tmp['staDb_path'] = staDb_path
   
     tmp['year'] = _pd.to_numeric(tmp['year'])
+    tmp['selectGnss'] = re_df.loc[mode]
 
     #cleaning unused years and class 0 as merge_table is not filtering by year to stay consistent withib merged timeframe
     tmp = tmp[ (tmp['year'].isin(years_list)) & (tmp['class']!=0)] 
