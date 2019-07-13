@@ -27,7 +27,6 @@ stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
 
 
-
 kinematic_project = mGNSS_class(project_name = 'nz_esa_ce',
                             tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/',
                             rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz',
