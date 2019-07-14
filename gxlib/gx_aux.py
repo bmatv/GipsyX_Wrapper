@@ -122,6 +122,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
             print('Overwriting existing staDb file')
             with open(staDb_path,'w') as output: output.write(buf)
     else:
+        print('Writing new staDb file')
         with open(staDb_path,'w') as output: output.write(buf)
 
 #     return staDb_path,crc_ex, crc
