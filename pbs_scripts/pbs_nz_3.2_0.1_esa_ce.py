@@ -46,7 +46,8 @@ kinematic_project = mGNSS_class(project_name = 'nz_esa_ce',
                             hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                             pos_s = 3.2, wetz_s=0.1,PPPtype='kinematic',tqdm=False)
 
-kinematic_project.rnx2dr()
+# kinematic_project.rnx2dr()
+kinematic_project.get_drInfo()
 # kinematic_project.gd2e()
 
 
