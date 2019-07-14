@@ -192,21 +192,23 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     
     for station in stations:
         for year in years:
-            dr_good_station_year = dr_good[(split_df.iloc[:,-4] == station) & (split_df.iloc[:,-3] == year)]
-    
-            num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
-    
+            filename = '{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station,year=year)
+            if not _os.path.exists(filename):
+                dr_good_station_year = dr_good[(split_df.iloc[:,-4] == station) & (split_df.iloc[:,-3] == year)]
+        
+                num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
+        
 
-            with _Pool(processes = num_cores) as p:
-                if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
-                                                                         total=dr_good_station_year.shape[0],
-                                                                         desc='{} {}'.format(station,year))),axis=0,ignore_index=True)
-                else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
+                with _Pool(processes = num_cores) as p:
+                    if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
+                                                                            total=dr_good_station_year.shape[0],
+                                                                            desc='{} {}'.format(station,year))),axis=0,ignore_index=True)
+                    else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
 
-            drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
-            drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
-            #Saving extracted data for furthe processing
-            _dump_write(data = drinfo_df,filename=('{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station,year=year)),cname='zstd',num_cores=num_cores)
+                drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
+                drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
+                #Saving extracted data for furthe processing
+                _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
