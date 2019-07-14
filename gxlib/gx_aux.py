@@ -175,24 +175,36 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     Naming convention for 30h files was changed
     that are present in the directory so original files are difficult to extract. Need to change merging naming'''
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
-    
+    drinfo_dir = _os.path.join(tmp_dir,'rnx_dr','drinfo')
+    if not _os.path.exists(drinfo_dir):
+        _os.makedirs(drinfo_dir)
     #find all dr.gx files in rnx_dr folder
     dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*/*/*.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
 
     dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
     # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
-
-    num_cores = num_cores if dr_good.shape[0] > num_cores else dr_good.shape[0]
+    print ('Number of files to process:', dr_good.shape[0])
     
-    print ('Number of files to process:', dr_good.shape[0],'| Adj. num_cores:', num_cores, end=' ')
-    with _Pool(processes = num_cores) as p:
-        if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0,ignore_index=True)
-        else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
+    #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
+    split_df = pd.Series(dr_good).str.split('/',expand=True)
+    stations = split_df.iloc[:,-4].unique();  stations.sort()
+    years = split_df.iloc[:,-3].unique();     years.sort()
+    
+    for station in stations:
+        for year in years:
+            dr_good_station_year = dr_good[(split_df.iloc[:,-4] == station) & (split_df.iloc[:,-3] == year)]
+    
+            num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
+    
 
-    drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
-    drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
-    #Saving extracted data for furthe processing
-    _dump_write(data = drinfo_df,filename=tmp_dir+'/rnx_dr/drinfo.zstd',cname='zstd',num_cores=num_cores)
+            with _Pool(processes = num_cores) as p:
+                if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0,ignore_index=True)
+                else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
+
+            drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
+            drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
+            #Saving extracted data for furthe processing
+            _dump_write(data = drinfo_df,filename=('{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station,year=year)),cname='zstd',num_cores=num_cores)
 
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
