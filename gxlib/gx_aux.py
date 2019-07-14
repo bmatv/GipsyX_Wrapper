@@ -198,7 +198,9 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     
 
             with _Pool(processes = num_cores) as p:
-                if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good), total=dr_good.shape[0])),axis=0,ignore_index=True)
+                if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
+                                                                         total=dr_good_station_year.shape[0],
+                                                                         desc='{} {}'.format(station,year))),axis=0,ignore_index=True)
                 else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
 
             drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
