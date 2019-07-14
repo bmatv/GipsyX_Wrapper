@@ -6,6 +6,7 @@ from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
 from multiprocessing import Pool as _Pool
 import pyarrow as _pa 
 import blosc as _blosc
+import binascii as _binascii
 
 if _pa.__version__ !='0.13.0':
     raise Exception('pyarrow should be version 0.13.0 only') 
@@ -60,56 +61,70 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
         _os.makedirs(staDb_dir)
     #getting paths to all log files needed    
     logs = _np.ndarray((len(stations_list)),dtype=object)
+    
     for i in range(len(stations_list)):
         logs[i] = sorted(_glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*'+'.log'))[-1] #should be the last log created in case multiple exist
 
-    with open(staDb_path,'w') as output:
-        output.write("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
-        for file in logs:
-            with open(file, 'r') as f:
-                data = f.read()
-        # Site ID
-            matches_ID = _re.findall(_regex_ID, data)
-        # Site Location, only one location line per BIGF log
-            matches_loc = _re.findall(_regex_loc, data)
-            output.write("{ID}  ID  {IERS} {loc_2} {loc_1}\n".format(ID=matches_ID[0][1], IERS=matches_ID[0][3] if matches_ID[0][3] != '' else 'UNKNOWN',
-                                                            loc_2=matches_loc[0][1], loc_1=matches_loc[0][2]))
+    
+    buf = ("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
+    for file in logs:
+        with open(file, 'r') as f:
+            data = f.read()
+    # Site ID
+        matches_ID = _re.findall(_regex_ID, data)
+    # Site Location, only one location line per BIGF log
+        matches_loc = _re.findall(_regex_loc, data)
+        buf += ("{ID}  ID  {IERS} {loc_2} {loc_1}\n".format(ID=matches_ID[0][1], IERS=matches_ID[0][3] if matches_ID[0][3] != '' else 'UNKNOWN',
+                                                        loc_2=matches_loc[0][1], loc_1=matches_loc[0][2]))
 
-            output.write("{ID}  STATE 1-01-01 00:00:00 {X:.15e}  {Y:.15e} {Z:.15e} {X_v:.15e}  {Y_v:.15e} {Z_v:.15e}\n".format(ID=matches_ID[0][1],
-                                                                                                                    X=float(matches_loc[0][4]) if matches_loc[0][4] != '' else 0,
-                                                                                                                    Y=float(matches_loc[0][5]) if matches_loc[0][5] != '' else 0,
-                                                                                                                    Z=float(matches_loc[0][6]) if matches_loc[0][6] != '' else 0,
-                                                                                                                    X_v=0, Y_v=0, Z_v=0))
-        # Receiver Information
-            rec = []
-            matches_rec = _re.finditer(_regex_rec, data)
-            for matchNum, match in enumerate(matches_rec):
-                for groupNum in range(0, len(match.groups())):
-                    groupNum = groupNum + 1
-                rec.append(match.groups())
-                output.write("{ID}  RX {d_inst} {t_inst}:00 {rec_type} # {rec_num} {rec_fw_v}\n".format(ID=matches_ID[0][1], d_inst=rec[matchNum][5], t_inst=rec[
-                    matchNum][7] if rec[matchNum][7] != '' else '00:00', rec_type=rec[matchNum][0], rec_num=rec[matchNum][2], rec_fw_v=rec[matchNum][3]))
-        # Antenna Information
-            ant = []
-            matches_ant = _re.finditer(_regex_ant, data)
-            for matchNum, match in enumerate(matches_ant):
-                for groupNum in range(0, len(match.groups())):
-                    groupNum = groupNum + 1
-                ant.append(match.groups())
+        buf += ("{ID}  STATE 1-01-01 00:00:00 {X:.15e}  {Y:.15e} {Z:.15e} {X_v:.15e}  {Y_v:.15e} {Z_v:.15e}\n".format(ID=matches_ID[0][1],
+                                                                                                                X=float(matches_loc[0][4]) if matches_loc[0][4] != '' else 0,
+                                                                                                                Y=float(matches_loc[0][5]) if matches_loc[0][5] != '' else 0,
+                                                                                                                Z=float(matches_loc[0][6]) if matches_loc[0][6] != '' else 0,
+                                                                                                                X_v=0, Y_v=0, Z_v=0))
+    # Receiver Information
+        rec = []
+        matches_rec = _re.finditer(_regex_rec, data)
+        for matchNum, match in enumerate(matches_rec):
+            for groupNum in range(0, len(match.groups())):
+                groupNum = groupNum + 1
+            rec.append(match.groups())
+            buf += ("{ID}  RX {d_inst} {t_inst}:00 {rec_type} # {rec_num} {rec_fw_v}\n".format(ID=matches_ID[0][1], d_inst=rec[matchNum][5], t_inst=rec[
+                matchNum][7] if rec[matchNum][7] != '' else '00:00', rec_type=rec[matchNum][0], rec_num=rec[matchNum][2], rec_fw_v=rec[matchNum][3]))
+    # Antenna Information
+        ant = []
+        matches_ant = _re.finditer(_regex_ant, data)
+        for matchNum, match in enumerate(matches_ant):
+            for groupNum in range(0, len(match.groups())):
+                groupNum = groupNum + 1
+            ant.append(match.groups())
 
-                # Each field is whitespace delimited:
-                # Field 0:         Station identifier (arbitrary string length)
-                # Field 1:         Record key, must be 'ANT'
-                # Field 2:         Date of epoch in calendar format YYYY-MM-DD (year, month, day as integers) 
-                # Field 3:         Time of epoch in HH:MM:SS format (hours, minutes, seconds as integers)
-                # Field 4:         Antenna type
-                # Field 5:         Radome type
-                # Field 6,7,8:     Site vector in meters (east, north, vertical)
-                # Field 9:         Comments starting with '#' 
+            # Each field is whitespace delimited:
+            # Field 0:         Station identifier (arbitrary string length)
+            # Field 1:         Record key, must be 'ANT'
+            # Field 2:         Date of epoch in calendar format YYYY-MM-DD (year, month, day as integers) 
+            # Field 3:         Time of epoch in HH:MM:SS format (hours, minutes, seconds as integers)
+            # Field 4:         Antenna type
+            # Field 5:         Radome type
+            # Field 6,7,8:     Site vector in meters (east, north, vertical)
+            # Field 9:         Comments starting with '#' 
 
-                output.write("{ID}  ANT {d_inst} {t_inst}:00 {ant_type} {radome_type} {east} {north} {vertical} # {ant_num}\n".
-                    format(ID=matches_ID[0][1], d_inst=ant[matchNum][12], t_inst=ant[matchNum][13] if ant[matchNum][13]!= '' else '00:00', ant_type=ant[matchNum][0],
-                            radome_type=ant[matchNum][8] if ant[matchNum][8]!= '' else 'NONE', vertical=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
+            buf += ("{ID}  ANT {d_inst} {t_inst}:00 {ant_type} {radome_type} {east} {north} {vertical} # {ant_num}\n".
+                format(ID=matches_ID[0][1], d_inst=ant[matchNum][12], t_inst=ant[matchNum][13] if ant[matchNum][13]!= '' else '00:00', ant_type=ant[matchNum][0],
+                        radome_type=ant[matchNum][8] if ant[matchNum][8]!= '' else 'NONE', vertical=ant[matchNum][4], north=ant[matchNum][5], east=ant[matchNum][6], ant_num=ant[matchNum][2]))
+
+    #we read the existing staDb, do the crc, compare, overwrite if different
+    if _os.path.exists(staDb_path):
+        with open(staDb_path,'rb') as ex_staDb:
+            crc_ex = _binascii.crc32(ex_staDb.read())& 0xffffffff
+        crc = _binascii.crc32(buf.encode('ascii'))& 0xffffffff
+        if crc_ex!=crc:
+            print('Overwriting existing staDb file')
+            with open(staDb_path,'w') as output: output.write(buf)
+    else:
+        with open(staDb_path,'w') as output: output.write(buf)
+
+#     return staDb_path,crc_ex, crc
     return staDb_path
 
 def get_chalmers(staDb_path):
