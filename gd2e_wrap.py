@@ -28,7 +28,8 @@ class gd2e_class:
                  PPPtype = 'kinematic',
                  static_clk = False,
                  tqdm = True,
-                 ambres = True
+                 ambres = True,
+                 staDb_path = None
 
                  ): 
         self.tqdm = tqdm
@@ -46,7 +47,7 @@ class gd2e_class:
         self.tropNom_type = tropNom_type
         self.tree_options = tree_options
         # self.selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
-        self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir)
+        self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path
         self.gnss_products_dir = gnss_products_dir
         self.ionex_type=ionex_type
         self.IONEX_products = IONEX_products

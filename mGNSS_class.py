@@ -78,7 +78,7 @@ class mGNSS_class:
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
-        
+        self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) #single staDb path for all modes
 
     def _check_PPPtype(self,PPPtype):
         PPPtypes = ['static', 'kinematic']
@@ -138,7 +138,8 @@ class mGNSS_class:
                 PPPtype = self.PPPtype,
                 static_clk = self.static_clk,
                 tqdm=self.tqdm,
-                ambres = self.ambres)
+                ambres = self.ambres,
+                staDb_path = self.staDb_path)
     
     def gen_trees(self):
         self.gps.gen_trees()
