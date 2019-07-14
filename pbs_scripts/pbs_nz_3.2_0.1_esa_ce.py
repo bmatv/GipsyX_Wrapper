@@ -15,7 +15,7 @@ if GIPSY_WRAP_PATH not in _sys.path:
 
 
 '''Kunanyi. This is part one of the project'''
-from mGNSS_class import mGNSS_class; import trees_options;
+from mGNSS_class import mGNSS_class; import trees_options
 stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
                 'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
                 'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
