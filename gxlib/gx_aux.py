@@ -203,7 +203,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
                     if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
                                                                             total=dr_good_station_year.shape[0],
                                                                             desc='{} {}'.format(station,year))),axis=0,ignore_index=True)
-                    else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good),axis=0,ignore_index=True)
+                    else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good_station_year),axis=0,ignore_index=True)
 
                 drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
                 drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
