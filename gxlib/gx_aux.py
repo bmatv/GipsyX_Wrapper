@@ -186,9 +186,9 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     print ('Number of files to process:', dr_good.shape[0])
     
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
-    split_df = pd.Series(dr_good).str.split('/',expand=True)
-    stations = split_df.iloc[:,-4].unique();  stations.sort()
-    years = split_df.iloc[:,-3].unique();     years.sort()
+    split_df = _pd.Series(dr_good).str.split('/',expand=True)
+    stations = split_df.iloc[:,-4].unique();                    stations.sort()
+    years = split_df.iloc[:,-3].unique();                       years.sort()
     
     for station in stations:
         for year in years:
