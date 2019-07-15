@@ -1,7 +1,8 @@
 import pandas as _pd
 import glob as _glob
 import os as _os, sys as _sys
-
+import tempfile as _tempfile
+from .gx_aux import _CRC32_from_file
 _sys.path.append('..')
 
 from trees_options import _carrier_phase_glo, _carrier_phase_gps, _pseudo_range_glo, _pseudo_range_gps
@@ -12,7 +13,6 @@ if _PYGCOREPATH not in _sys.path:
     _sys.path.insert(0,_PYGCOREPATH)
 
 import gcore.treeUtils as _treeUtils
-
 def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name,static_clk = False, ambres = True):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
@@ -70,12 +70,8 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
         tmp_options_add += [['GRN_STATION_CLK_WHITE:State:Pos:ConstantAdj','1.0']]
         tmp_options_add += [['GRN_STATION_CLK_WHITE:Trop:WetZ:StochasticAdj','0.5 {:.1e} $GLOBAL_DATA_RATE RANDOMWALK'.format(float(wetz_s)/1000)]]
 
-
-
     #adding VMF1 dir parameter that can change
     tmp_options_add += [['Station:VMF1dataDir', _os.path.abspath(VMF1_dir)]]
-
-
     #Modifying tree_optins[0] according to mode selected. Mode cannot be None here as DataLink paraeters should be present at least for one constellation
     GPS_DataLink = _pseudo_range_gps + _carrier_phase_gps
     GLONASS_DataLink = _pseudo_range_glo + _carrier_phase_glo
@@ -87,9 +83,7 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
         DataLink = (GPS_DataLink + GLONASS_DataLink)
     
     tmp_options_add += DataLink
-    
-
-
+  
     # reading ionex filenames
     out_df = _pd.DataFrame()
 #         default_tree = '/home/bogdanm/Desktop/GipsyX_trees/Trees_kinematic_VMF1_IONEX/ppp_0.tree'
@@ -150,8 +144,20 @@ def gen_trees(tmp_dir, ionex_type, tree_options,blq_file, mode, ElMin, pos_s, we
             ElMin_keys = keys_series[keys_series.str.contains('ElMin')].values # object ndarray of keys to update
 
             for key in ElMin_keys:
-                input_tree.entries[key] = _treeUtils.treevalue(str(ElMin)) # updating all ElMin keys with new angle value
-
-        input_tree.save(out_df['tree_path'][i] + 'ppp_0.tree')
+                input_tree.entries[key] = _treeUtils.treevalue(str(ElMin)) # updating all ElMin keys with new angle value 
+        
+        #check if tree file already exists. If doesn't exist, we just write what we have
+        tree_path = out_df['tree_path'][i] + 'ppp_0.tree'
+        if not _os.path.exists(path=tree_path):
+            input_tree.save(tree_path)
+        #if exists, we check if they are different before overwriting
+        else:
+            #need to write to tmp file as some additional operations are done whent tree.save
+            tmp_file = _tempfile.NamedTemporaryFile(dir=out_df['tree_path'][i]) #generates tmp file with random name
+            input_tree.save(tmp_file.name)
+            crc_new = _CRC32_from_file(tmp_file.name); tmp_file.close() #closing of tmp file == deletion
+            crc_old = _CRC32_from_file(tree_path)
+            if crc_new == crc_old: pass #if the same => skip
+            else: print('overwriting {} tree file'.format(out_df['year'][i]));input_tree.save(tree_path) # if different => ooverwrite
 
     return out_df.set_index(['year']) 
