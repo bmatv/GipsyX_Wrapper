@@ -469,7 +469,7 @@ def plot_tree(blq_df,station_name,normalize=True):
         y['GLONASS'] -= y_norm
         y['GPS+GLONASS'] -= y_norm
         
-        
+    
     #Get scale:
     x_scale = x.abs().max().max()
     y_scale = y.abs().max().max()
@@ -482,9 +482,7 @@ def plot_tree(blq_df,station_name,normalize=True):
     table = _pd.concat([x.unstack(),y.unstack(),(semiAxisA*2*coeff95).unstack(),(semiAxisP*2*coeff95).unstack(),phase.unstack()],axis=1)
     table.columns=['x','y','width','height','angle']
 
-    
 
-    
     fig,ax=plt.subplots(ncols = 4,nrows=2,figsize=(15,10))
     coord_c = ['up','east','north']
     color = ['c','b','y']
@@ -499,17 +497,11 @@ def plot_tree(blq_df,station_name,normalize=True):
             gps_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['GPS']
             glo_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['GLONASS']
             gps_glo_xy = table.loc(axis=0)[:,coord_c[i],otl_c[j]].loc['GPS+GLONASS']
-            
-            
-
-            
 
             otl_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',color=color[i],marker='+') #label='OTL'+' '+ coord_c[i],
             gps_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',c='red',marker='+',label='GPS' if (i ==0)&(j==0) else None)
             glo_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',c='green',marker='+',label='GLONASS'if (i ==0)&(j==0) else None)
             gps_glo_xy.plot(ax=ax.flat[j],kind='scatter',x='x',y='y',c='k',marker='+',label='GPS+GLONASS'if (i ==0)&(j==0) else None)
-
-
 
             ax.flat[j].plot(_pd.concat([otl_xy,gps_xy])['x'].values,_pd.concat([otl_xy,gps_xy])['y'].values,c=color[i],zorder=0)
             ax.flat[j].plot(_pd.concat([otl_xy,glo_xy])['x'].values,_pd.concat([otl_xy,glo_xy])['y'].values,c=color[i],zorder=0)
@@ -553,7 +545,6 @@ def plot_specta(mGNSSspectra_df):
         if i ==0:fig.legend(loc='lower center',markerscale=10/ms,ncol=3,)
     fig.tight_layout(rect=(0,0.05,1,1))
     plt.show()
-    
     
 def _update_mindex(dataframe, lvl_name):
     '''Inserts a top level named as lvl_name into dataframe_in'''
