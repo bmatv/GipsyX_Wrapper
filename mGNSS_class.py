@@ -73,12 +73,14 @@ class mGNSS_class:
         self.project_name = self._project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
         self.static_clk = static_clk
         self.ambres = ambres
+        
+        self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) #single staDb path for all modes
 
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
-        self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) #single staDb path for all modes
+
 
     def _check_PPPtype(self,PPPtype):
         PPPtypes = ['static', 'kinematic']
