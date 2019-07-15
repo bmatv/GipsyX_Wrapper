@@ -233,7 +233,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     for file in sorted(_glob.glob('{}/*.zstd'.format(drinfo_dir))):
         tmp.append(_dump_read(file))
     print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drinfo.zstd')
-    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drinfo'.format(rnx_dir),cname='zstd',num_cores=num_cores)
+    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drinfo.zstd'.format(rnx_dir),cname='zstd',num_cores=num_cores)
     
 
 
