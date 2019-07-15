@@ -29,8 +29,8 @@ class gd2e_class:
                  static_clk = False,
                  tqdm = True,
                  ambres = True,
-                 staDb_path = None
-
+                 staDb_path = None,
+                 trees_df = None
                  ): 
         self.tqdm = tqdm
         self.PPPtype = self._check_PPPtype(PPPtype)
@@ -65,7 +65,7 @@ class gd2e_class:
 
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
-        
+        self.trees_df = trees_df
 
     def _check_mode(self,mode):
         modes = ['GPS', 'GLONASS','GPS+GLONASS']
@@ -107,7 +107,7 @@ class gd2e_class:
                                     VMF1_dir = self.VMF1_dir,
                                     project_name = self.project_name,
                                     static_clk = self.static_clk,
-                                    ambres = self.ambres)
+                                    ambres = self.ambres) if self.trees_df is None else self.trees_df
 
     def _gd2e_table(self):
         return gx_compute._gen_gd2e_table(  trees_df = self.gen_trees(),
