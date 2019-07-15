@@ -226,6 +226,8 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
                 #Saving extracted data for furthe processing
                 _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
 
+
+
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,stations_list,reference_df):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
@@ -360,3 +362,8 @@ def get_const_df(ConstellationInfoFile,constellation):
     df_total['count'] = daily_count.astype(int)
     
     return df_total
+
+def _CRC32_from_file(filename):
+    buf = open(filename,'rb').read()
+    buf = (_binascii.crc32(buf) & 0xFFFFFFFF)
+    return "%08X" % buf
