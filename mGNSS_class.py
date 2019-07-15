@@ -1,4 +1,4 @@
-from gd2e_wrap import gd2e_class, gx_convert, gx_aux, gx_ionex, gx_eterna, gx_merge, gx_tdps
+from gd2e_wrap import gd2e_class, gx_convert, gx_aux, gx_ionex, gx_eterna, gx_merge, gx_tdps, gx_trees
 from gxlib import gx_hardisp
 import trees_options
 import pandas as _pd
@@ -142,9 +142,20 @@ class mGNSS_class:
                 staDb_path = self.staDb_path)
     
     def gen_trees(self):
-        self.gps.gen_trees()
-        self.glo.gen_trees()
-        self.gps_glo.gen_trees()
+        '''Creating single universal tree with GPS+GLONASS mode. Constellation switched in gd2e.py calls'''
+        return gx_trees.gen_trees(  ionex_type=self.ionex_type,
+                                    tmp_dir=self.tmp_dir,
+                                    tree_options=self.tree_options,
+                                    blq_file=self.blq_file, 
+                                    mode = self.gps_glo.mode,
+                                    ElMin=self.ElMin,
+                                    pos_s = self.pos_s,
+                                    wetz_s = self.wetz_s,
+                                    PPPtype = self.PPPtype,
+                                    VMF1_dir = self.VMF1_dir,
+                                    project_name = self.project_name, #the GNSS_class single project name
+                                    static_clk = self.static_clk,
+                                    ambres = self.ambres)
         
     
     def rnx2dr(self):
