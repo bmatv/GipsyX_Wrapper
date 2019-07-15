@@ -191,7 +191,9 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     Naming convention for 30h files was changed
     that are present in the directory so original files are difficult to extract. Need to change merging naming'''
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
-    drinfo_dir = _os.path.join(tmp_dir,'rnx_dr','drinfo')
+    rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
+    drinfo_dir = _os.path.join(rnx_dir,'drinfo')
+
     if not _os.path.exists(drinfo_dir):
         _os.makedirs(drinfo_dir)
     #find all dr.gx files in rnx_dr folder
@@ -199,7 +201,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
 
     dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
     # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
-    print ('Number of files to process:', dr_good.shape[0])
+    print ('dr files found:', dr_good.shape[0])
     
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
     split_df = _pd.Series(dr_good).str.split('/',expand=True)
@@ -226,6 +228,13 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
                 #Saving extracted data for furthe processing
                 _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
 
+    #After all stationyear files were generated => gather them to single dr_info file. Will be rewritten on every call (dr_info unique files will get updated if new files were added)
+    tmp = []
+    for file in sorted(_glob.glob('{}/*.zstd'.format(drinfo_dir))):
+        tmp.append(_dump_read(file))
+    print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drinfo.zstd')
+    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drinfo'.format(rnx_dir),cname='zstd',num_cores=num_cores)
+    
 
 
 '''section of solution to ENV conversion'''
