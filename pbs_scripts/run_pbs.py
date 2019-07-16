@@ -122,5 +122,7 @@ for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]),
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,
-                    command='gen_tropNom')
+                    command='gd2e()')
     qsub_python_code(code,name='nz_cod_ce{}'.format(str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
+
+#gen_tropNom can not be run rhis way as we need all the stations to be present
