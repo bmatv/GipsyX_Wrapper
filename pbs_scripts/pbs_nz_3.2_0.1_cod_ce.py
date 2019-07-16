@@ -2,10 +2,10 @@
 #PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
-#PBS -o /scratch/bogdanm/out_nz_3.2_esa_p1
+#PBS -o /scratch/bogdanm/out_nz_3.2_cod_p1
 #PBS -m ae
 #PBS -M bogdan.matviichuk@utas.edu.au
-#PBS -N gx_nz_esa_ce
+#PBS -N gx_nz_cod_ce
 
 import os as _os, sys as _sys
 
