@@ -36,6 +36,7 @@ class mGNSS_class:
                 cddis = False,
                 static_clk = False,
                 tqdm = True,
+                staDb_path = None,
                 ambres = True):
         
         self.tqdm=tqdm
@@ -74,7 +75,8 @@ class mGNSS_class:
         self.static_clk = static_clk
         self.ambres = ambres
         
-        self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) #single staDb path for all modes
+        self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path #single staDb path for all modes.
+        #Need to be able to fetch external StaDb for pbs
 
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
