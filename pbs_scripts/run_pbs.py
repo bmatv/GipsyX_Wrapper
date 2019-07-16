@@ -87,7 +87,7 @@ def gen_code(   stations_list,
                 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq',
                 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',
                 tropNom_input = 'trop',
-                IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/',
+                IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs/',
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
                 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/cod/', #we should use esa unreprocessed products
