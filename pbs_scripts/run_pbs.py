@@ -31,7 +31,7 @@ def qsub_python_code(code,name,email='bogdan.metviichuk@utas.edu.au',cleanup=Fal
         pbs_script.write(TEMPLATE_SERIAL.format(name=name, logfile_path = logfile_path, email=email, code=code))
 
     try:
-        subprocess.call('qsub',pbs_script_path,shell=True)
+        subprocess.call(['qsub',pbs_script_path],shell=True)
     finally:
         if cleanup:
             _os.remove(pbs_script_path)
