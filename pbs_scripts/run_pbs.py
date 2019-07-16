@@ -83,15 +83,14 @@ def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,
                             blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate,
                             gnss_products_dir = gnss_products_dir,ionex_type=ionex_type,eterna_path=eterna_path,hardisp_path = hardisp_path,pos_s = pos_s, wetz_s=wetz_s,PPPtype=PPPtype,tqdm=tqdm,command=command)
 #------------------------------------------------------------------------------------------
-'''Execution part here'''
+'''Execution part here''' 
 stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
                 'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
                 'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
                 'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OROA', 'PKNO', 'RAHI', 'RAKW',
-                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'SCTB', 'TAUP', 'TAUW', 'TGRI', 'TRNG',
-                'TRWH', 'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG',
-                'WITH']
-
+                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'TAUP', 'TAUW', 'TGRI', 'TRNG', 'TRWH',
+                'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG', 'WITH']
+#'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
 num_nodes = 10
 
