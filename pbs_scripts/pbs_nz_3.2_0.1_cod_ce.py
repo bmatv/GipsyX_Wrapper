@@ -27,7 +27,7 @@ stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
 
 
-kinematic_project = mGNSS_class(project_name = 'nz_esa_ce',
+kinematic_project = mGNSS_class(project_name = 'nz_cod_ce',
                             tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/',
                             rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz',
                             stations_list=stations_list,
@@ -37,7 +37,7 @@ kinematic_project = mGNSS_class(project_name = 'nz_esa_ce',
                             blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq', #to be changed in the future
                             VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',
                             tropNom_input = 'trop',
-                            IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/',
+                            IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs',
                             IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                             rate = 300,
                             gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2/',
@@ -47,7 +47,7 @@ kinematic_project = mGNSS_class(project_name = 'nz_esa_ce',
                             pos_s = 3.2, wetz_s=0.1,PPPtype='kinematic',tqdm=False)
 
 # kinematic_project.rnx2dr()
-kinematic_project.get_drInfo()
+kinematic_project.gen_tropNom()
 # kinematic_project.gd2e()
 
 
