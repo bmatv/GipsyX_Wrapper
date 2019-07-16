@@ -112,7 +112,7 @@ IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 stations_list_arrays = np.array_split(stations_list,num_nodes)
 for i in range(len(stations_list_arrays)):
-    code = gen_code(stations_list = ",".join(stations_list_arrays[i]),
+    code = gen_code(stations_list = ", ".join(stations_list_arrays[i]),
                     staDb_path = staDb_path,
                     years_list=years_list,
                     num_cores=num_cores,
