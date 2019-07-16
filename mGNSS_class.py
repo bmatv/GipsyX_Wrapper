@@ -37,15 +37,13 @@ class mGNSS_class:
                 static_clk = False,
                 tqdm = True,
                 staDb_path = None,
-                ambres = True,
-                trees_df = None):
+                ambres = True):
         
         self.tqdm=tqdm
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.cddis=cddis
         self.tmp_dir=tmp_dir
-        self.trees_df = trees_df
         self.stations_list=stations_list
         self.years_list=years_list
         self.num_cores = num_cores
@@ -162,7 +160,7 @@ class mGNSS_class:
                                     VMF1_dir = self.VMF1_dir,
                                     project_name = self.project_name, #the GNSS_class single project name
                                     static_clk = self.static_clk,
-                                    ambres = self.ambres) if self.trees_df is None else self.trees_df
+                                    ambres = self.ambres)
         
     
     def rnx2dr(self):
