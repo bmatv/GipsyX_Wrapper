@@ -20,7 +20,7 @@ if GIPSY_WRAP_PATH not in _sys.path:
 import trees_options
 
 
-def qsub_python_code(code,name,email='bogdan.metviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs'):
+def qsub_python_code(code,name,email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs'):
     '''name should have number in it'''
     if not _os.path.exists(pbs_base):
         _os.makedirs(pbs_base)
