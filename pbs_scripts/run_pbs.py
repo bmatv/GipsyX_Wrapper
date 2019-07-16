@@ -2,8 +2,7 @@ import subprocess
 
 import numpy as np
 
-TEMPLATE_SERIAL = """
-#!/scratch/bogdanm/miniconda3/envs/py37/bin/python
+TEMPLATE_SERIAL = """#!/scratch/bogdanm/miniconda3/envs/py37/bin/python
 #PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=28
 #PBS -j oe
