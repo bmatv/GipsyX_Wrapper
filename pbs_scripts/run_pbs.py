@@ -29,11 +29,11 @@ def qsub_python_code(code,name,email='bogdan.matviichuk@utas.edu.au',cleanup=Fal
     with open(pbs_script_path,'w') as pbs_script:
         pbs_script.write(TEMPLATE_SERIAL.format(name=name, logfile_path = logfile_path, email=email, code=code))
 
-    try:
-        subprocess.call('qsub {}'.format(pbs_script_path),shell=True)
-    finally:
-        if cleanup:
-            _os.remove(pbs_script_path)
+    # try:
+    #     subprocess.call('qsub {}'.format(pbs_script_path),shell=True)
+    # finally:
+    #     if cleanup:
+    #         _os.remove(pbs_script_path)
 
 TEMPLATE_MGNSS = '''import os as _os, sys as _sys
 GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
@@ -66,15 +66,6 @@ kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 tqdm = {tqdm})
 kinematic_project.{command}'''
                             
-stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
-                'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
-                'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
-                'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OROA', 'PKNO', 'RAHI', 'RAKW',
-                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'SCTB', 'TAUP', 'TAUW', 'TGRI', 'TRNG',
-                'TRWH', 'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG',
-                'WITH']
-
-years_list=[2014,2015,2016,2017,2018];num_cores = 28
 
 def gen_code(   stations_list,
                 years_list,
@@ -87,7 +78,7 @@ def gen_code(   stations_list,
                 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq',
                 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products',
                 tropNom_input = 'trop',
-                IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs/',
+                IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs',
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
                 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/cod/', #we should use esa unreprocessed products
@@ -100,8 +91,19 @@ def gen_code(   stations_list,
                             gnss_products_dir = gnss_products_dir,ionex_type=ionex_type,eterna_path=eterna_path,hardisp_path = hardisp_path,pos_s = pos_s, wetz_s=wetz_s,PPPtype=PPPtype,tqdm=tqdm,command=command)
 
 
+stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
+                'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
+                'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
+                'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OROA', 'PKNO', 'RAHI', 'RAKW',
+                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'SCTB', 'TAUP', 'TAUW', 'TGRI', 'TRNG',
+                'TRWH', 'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG',
+                'WITH']
+
+years_list=[2014,2015,2016,2017,2018];num_cores = 28
 
 stations_list_arrays = np.array_split(stations_list,10)
 for i in range(len(stations_list_arrays)):
-    code = gen_code(stations_list_arrays[i],years_list,num_cores,command='drMerge()')
-    qsub_python_code(code,name='nz_cod_ce{}'.format(str(i)) ,email='bogdan.metviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
+    code = gen_code(stations_list = ",".join(stations_list_arrays[i]),
+                    years_list=years_list,
+                    num_cores=num_cores, command='drMerge()')
+    qsub_python_code(code,name='nz_cod_ce{}'.format(str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
