@@ -14,7 +14,7 @@ import gipsyx.tropNom as _tropNom
 import gcore.StationDataBase as _StationDataBase
 import gcore.EarthCoordTrans as _eo
 
-from .gx_aux import J2000origin
+from .gx_aux import J2000origin, _dump_read
 
 def _gen_VMF1_tropNom(tropnom_param):
     '''Reads the staDb, gets list of station in the staDb, reads input arguments'''
@@ -42,8 +42,8 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     staDb.read(staDb_path) #reading staDb into staDb object
     stns = staDb.getStationList() #creating array with available station names
     
-    drinfo_file = _np.load(file=tmp_dir+'/rnx_dr/drinfo.npz')
-    drinfo_years_list = drinfo_file['years_list']
+    drinfo_file = _dump_read(filename=tmp_dir+'/rnx_dr/drinfo.zstd')
+    drinfo_years_list = drinfo_file.begin.dt.year.unique()
 
     #creating folder and file structure taking into account leap year.
     #resulting paths look as follows: year/doy/30h_tropNominal.vmf1
