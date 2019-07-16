@@ -1,4 +1,3 @@
-import os
 import subprocess
 import trees_options
 import numpy as np
@@ -15,12 +14,15 @@ TEMPLATE_SERIAL = """
 {code}
 """
 
-
+import os as _os, sys as _sys
+GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
+if GIPSY_WRAP_PATH not in _sys.path:
+    _sys.path.insert(0,GIPSY_WRAP_PATH)
 
 def qsub_python_code(code,name,email='bogdan.metviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs'):
     '''name should have number in it'''
-    if not os.path.exists(pbs_base):
-        os.makedirs(pbs_base)
+    if not _os.path.exists(pbs_base):
+        _os.makedirs(pbs_base)
     logfile_path = '{}/{}.log'.format(pbs_base,name)
     pbs_script_path = '{}/{}.qsub'.format(pbs_base,name)
     with open(pbs_script_path,'w') as pbs_script:
