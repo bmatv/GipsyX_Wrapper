@@ -20,9 +20,8 @@ stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 
                 'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
                 'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
                 'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OROA', 'PKNO', 'RAHI', 'RAKW',
-                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'SCTB', 'TAUP', 'TAUW', 'TGRI', 'TRNG',
-                'TRWH', 'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG',
-                'WITH']
+                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'TAUP', 'TAUW', 'TGRI', 'TRNG', 'TRWH',
+                'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG', 'WITH']
 
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
 
