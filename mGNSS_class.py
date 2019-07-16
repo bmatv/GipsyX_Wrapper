@@ -152,7 +152,7 @@ class mGNSS_class:
                                     tmp_dir=self.tmp_dir,
                                     tree_options=self.tree_options,
                                     blq_file=self.blq_file, 
-                                    mode = self.gps_glo.mode,
+                                    mode = 'GPS+GLONASS', #mGNSS tree is GPS+GLONASS by default. Should be universal
                                     ElMin=self.ElMin,
                                     pos_s = self.pos_s,
                                     wetz_s = self.wetz_s,
