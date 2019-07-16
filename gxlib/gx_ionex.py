@@ -161,18 +161,17 @@ class ionex:
             buf = (header)
             #writing TEC data
             for j in range(len(GIM_data[i])):
-                buf = ('{:6d}{:<54s}{}{:<4s}\n'.format(i+1,' ','START OF TEC MAP',' '))
-                buf = (GIM_data[i][j,0])
-                buf = ('{:6d}{:<54s}{}{:<6s}\n'.format(i+1,' ','END OF TEC MAP',' '))
+                buf += ('{:6d}{:<54s}{}{:<4s}\n'.format(i+1,' ','START OF TEC MAP',' '))
+                buf += (GIM_data[i][j,0])
+                buf += ('{:6d}{:<54s}{}{:<6s}\n'.format(i+1,' ','END OF TEC MAP',' '))
 
             #writing RMS data
             for j in range(len(GIM_data[i])):
-                buf = ('{:6d}{:<54s}{}{:<4s}\n'.format(i+1,' ','START OF RMS MAP',' '))
-                buf = (GIM_data[i][j,1])
-                buf = ('{:6d}{:<54s}{}{:<6s}\n'.format(i+1,' ','END OF RMS MAP',' '))
+                buf += ('{:6d}{:<54s}{}{:<4s}\n'.format(i+1,' ','START OF RMS MAP',' '))
+                buf += (GIM_data[i][j,1])
+                buf += ('{:6d}{:<54s}{}{:<6s}\n'.format(i+1,' ','END OF RMS MAP',' '))
 
-            buf = (EOF)
-                
+            buf += (EOF)
             with open(path+self.ionex_type+str(self.years_present[i]),'w') as output:
                 output.write(buf)
 # ionex_files = ionex()
