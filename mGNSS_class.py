@@ -37,14 +37,15 @@ class mGNSS_class:
                 static_clk = False,
                 tqdm = True,
                 staDb_path = None,
-                ambres = True):
+                ambres = True,
+                trees_df = None):
         
         self.tqdm=tqdm
         self.IGS_logs_dir = IGS_logs_dir
         self.rnx_dir=rnx_dir
         self.cddis=cddis
         self.tmp_dir=tmp_dir
-        
+        self.trees_df = trees_df
         self.stations_list=stations_list
         self.years_list=years_list
         self.num_cores = num_cores
@@ -143,7 +144,9 @@ class mGNSS_class:
                 static_clk = self.static_clk,
                 tqdm=self.tqdm,
                 ambres = self.ambres,
-                staDb_path = self.staDb_path)
+                staDb_path = self.staDb_path,
+                trees_df = self.gen_trees()
+                )
     
     def gen_trees(self):
         '''Creating single universal tree with GPS+GLONASS mode. Constellation switched in gd2e.py calls'''
@@ -159,7 +162,7 @@ class mGNSS_class:
                                     VMF1_dir = self.VMF1_dir,
                                     project_name = self.project_name, #the GNSS_class single project name
                                     static_clk = self.static_clk,
-                                    ambres = self.ambres)
+                                    ambres = self.ambres) if self.trees_df is None else self.trees_df
         
     
     def rnx2dr(self):
