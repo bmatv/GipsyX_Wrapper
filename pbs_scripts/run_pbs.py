@@ -29,11 +29,11 @@ def qsub_python_code(code,name,email='bogdan.matviichuk@utas.edu.au',cleanup=Fal
     with open(pbs_script_path,'w') as pbs_script:
         pbs_script.write(TEMPLATE_SERIAL.format(name=name, logfile_path = logfile_path, email=email, code=code))
 
-    # try:
-    #     subprocess.call('qsub {}'.format(pbs_script_path),shell=True)
-    # finally:
-    #     if cleanup:
-    #         _os.remove(pbs_script_path)
+    try:
+        subprocess.call('qsub {}'.format(pbs_script_path),shell=True)
+    finally:
+        if cleanup:
+            _os.remove(pbs_script_path)
 
 TEMPLATE_MGNSS = '''import os as _os, sys as _sys
 GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
