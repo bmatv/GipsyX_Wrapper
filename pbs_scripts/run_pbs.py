@@ -92,7 +92,7 @@ def gen_code(   stations_list,
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
                 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/cod/', #we should use esa unreprocessed products
-                ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
+                ionex_type='cod',  #igs ionex map igsg2260.15i is missing data
                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                 pos_s = 3.2, wetz_s=0.1,PPPtype='kinematic',tqdm=False):
