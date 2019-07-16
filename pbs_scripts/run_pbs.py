@@ -46,7 +46,7 @@ from mGNSS_class import mGNSS_class; import trees_options
 kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 tmp_dir = '{tmp_dir}',
                                 rnx_dir = '{rnx_dir}',
-                                stations_list = {stations_list},
+                                stations_list = [{stations_list}],
                                 years_list = {years_list},
                                 tree_options = {tree_options},
                                 num_cores = {num_cores},
@@ -81,7 +81,7 @@ def gen_code(   stations_list,
                 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs',
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
-                gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/cod/', #we should use esa unreprocessed products
+                gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/cod/', #we should use esa/cod unreprocessed products
                 ionex_type='cod',  #igs ionex map igsg2260.15i is missing data
                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
