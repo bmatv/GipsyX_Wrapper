@@ -119,5 +119,5 @@ for i in range(len(stations_list_arrays)):
                     tmp_dir=tmp_dir,
                     project_name=project_name,
                     IGS_logs_dir=IGS_logs_dir,
-                    command='drMerge()')
+                    command='dr_merge()')
     qsub_python_code(code,name='nz_cod_ce{}'.format(str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
