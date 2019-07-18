@@ -33,7 +33,7 @@ def _gd2e(gd2e_set):
             gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
         rtgx_log = _get_rtgx_log(gd2e_set['cache'])
         rtgx_err = _get_rtgx_err(gd2e_set['cache'])
-        _rmtree(path=gd2e_set['cache'] #clearing cache after run
+        _rmtree(path=gd2e_set['cache']) #clearing cache after run
 
         output_dir = _os.path.dirname(gd2e_set['output'])
         if _os.path.exists(output_dir):
