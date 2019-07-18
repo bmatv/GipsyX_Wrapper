@@ -163,7 +163,9 @@ class mGNSS_class:
                                     VMF1_dir = self.VMF1_dir,
                                     project_name = self.project_name, #the GNSS_class single project name
                                     static_clk = self.static_clk,
-                                    ambres = self.ambres)
+                                    ambres = self.ambres,
+                                    years_list = self.years_list,
+                                    cache_path=self.cache_path)
         
     
     def rnx2dr(self):
