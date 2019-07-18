@@ -123,8 +123,9 @@ def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
     ionex_files = ionex_files[ionex_years.isin(years_list)] #selecting only those ionex files that are needed according to years list
 
     IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
+    if not _os.path.exists(IONEX_cached_path): _os.makedirs(IONEX_cached_path)
     for ionex_file in ionex_files:
-        _copy(src = ionex_file, dst = IONEX_cached_path+'/')
+        _copy(src = ionex_file, dst = IONEX_cached_path)
 
 def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,IONEX_products_dir,ionex_type): 
     '''Generates an np recarray that is used as sets for _gd2e
