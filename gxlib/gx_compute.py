@@ -164,6 +164,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     #Check if files exist (from what left):
     file_exists = _np.zeros(tmp.shape[0],dtype=int)
     for j in range(tmp.shape[0]):
+        return tmp['output'][j]
         file_exists[j] = _os.path.isfile(tmp['output'][j]) #might be useful to update this name to a dynamically generated
     tmp['file_exists']=file_exists
 
