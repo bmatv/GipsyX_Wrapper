@@ -5,7 +5,7 @@ import tqdm as _tqdm
 import multiprocessing as _mp
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
-from shutil import rmtree as _rmtree
+from shutil import rmtree as _rmtree, move as _move
 
 from .gx_aux import J2000origin as _J2000origin
 
@@ -201,8 +201,11 @@ def _gen_orbclk(input_set):
     targetDir = input_set[3]
     h24 = input_set[4]
     makeShadow = input_set[5]
+    products_day = input_set[6]
     
     #check if target folder exists and create one if not
+    if _os.path.exists(targetDir):
+        _rmtree(targetDir)
     if not _os.path.exists(targetDir):
         _os.makedirs(targetDir)
         
@@ -217,4 +220,17 @@ def _gen_orbclk(input_set):
     
     process = _Popen(args,stdout=_PIPE)
     out, err = process.communicate()
+    
+    #rename
+    files_ori = _glob.glob('{}/GNSS.*'.format(targetDir))
+    
+    files_ori_df = _pd.Series(files_ori).str.split('.',expand=True)
+    files_renamed = files_ori_df[0].str.slice(0,-4) + str(products_day) + '.' + files_ori_df[1]
+    for i in range(files_renamed.shape[0]):
+        _os.rename(files_ori[i],files_renamed[i])
+    #gzip
+    _Popen(['gzip *'],cwd=targetDir,shell=True).communicate()
+    #move one level up
+    for i in range(files_renamed.shape[0]):
+        _move(src=files_renamed[i]+'.gz',dst=_os.path.dirname(targetDir))
     return out,err
