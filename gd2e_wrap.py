@@ -52,7 +52,7 @@ class gd2e_class:
         self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path
         self.gnss_products_dir = _os.path.abspath(gnss_products_dir)
         self.ionex_type=ionex_type
-        self.IONEX_products = IONEX_products
+        self.IONEX_products = _os.path.abspath(IONEX_products)
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
                                     ionex_type=self.ionex_type, #type of files
                                     num_cores=self.num_cores)
@@ -122,7 +122,10 @@ class gd2e_class:
                                             gnss_products_dir = self.gnss_products_dir,
                                             staDb_path = self.staDb_path,
                                             years_list = self.years_list,
-                                            mode=self.mode)
+                                            mode=self.mode,
+                                            cache_path = self.cache_path,
+                                            IONEX_products_dir=self.IONEX_products,
+                                            ionex_type = self.ionex_type)
 
     def gd2e(self):
         gx_compute.gd2e(gd2e_table = self._gd2e_table(),
