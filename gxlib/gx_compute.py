@@ -13,38 +13,34 @@ def _gd2e(gd2e_set):
     
     
     if not _os.path.exists(gd2e_set['cache']):_os.makedirs(gd2e_set['cache']) #creatign cache dir
-    try:
-        process = _Popen([  'gd2e.py',
-                            '-drEditedFile', gd2e_set['filename'],
-                            '-recList', gd2e_set['station_name'],
-                            '-runType', 'PPP',
-                            '-GNSSproducts', gd2e_set['gnss_products_dir'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
-                            '-treeSequenceDir', gd2e_set['tree_path'],
-                            '-tdpInput', gd2e_set['tdp'],
-                            '-staDb', gd2e_set['staDb_path'],
-                            '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['cache'],stdout=_PIPE)
-        # Do we really need a -gdCov option?
-        out, err = process.communicate()
+    process = _Popen([  'gd2e.py',
+                        '-drEditedFile', gd2e_set['filename'],
+                        '-recList', gd2e_set['station_name'],
+                        '-runType', 'PPP',
+                        '-GNSSproducts', gd2e_set['gnss_products_dir'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
+                        '-treeSequenceDir', gd2e_set['tree_path'],
+                        '-tdpInput', gd2e_set['tdp'],
+                        '-staDb', gd2e_set['staDb_path'],
+                        '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['cache'],stdout=_PIPE)
+    # Do we really need a -gdCov option?
+    out, err = process.communicate()
 
-        solutions = _get_tdps_pn(gd2e_set['cache'])
-        residuals = _get_residuals(gd2e_set['cache'])
-        debug_tree = _get_debug_tree(gd2e_set['cache'])
-        runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
-            gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
-        rtgx_log = _get_rtgx_log(gd2e_set['cache'])
-        rtgx_err = _get_rtgx_err(gd2e_set['cache'])
-        _rmtree(path=gd2e_set['cache']) #clearing cache after run
+    solutions = _get_tdps_pn(gd2e_set['cache'])
+    residuals = _get_residuals(gd2e_set['cache'])
+    debug_tree = _get_debug_tree(gd2e_set['cache'])
+    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
+        gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
+    rtgx_log = _get_rtgx_log(gd2e_set['cache'])
+    rtgx_err = _get_rtgx_err(gd2e_set['cache'])
+    _rmtree(path=gd2e_set['cache']) #clearing cache after run
 
-        output_dir = _os.path.dirname(gd2e_set['output'])
-        if _os.path.exists(output_dir):
-            _rmtree(path=output_dir) #cleaning dir from previous runs if exists
-        _os.makedirs(output_dir) #creating output dir
+    output_dir = _os.path.dirname(gd2e_set['output'])
+    if _os.path.exists(output_dir):
+        _rmtree(path=output_dir) #cleaning dir from previous runs if exists
+    _os.makedirs(output_dir) #creating output dir
 
-        _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
-                                filename=gd2e_set['output'],cname='zstd')
-    except:
-        print('removing gd2e cache as exiting')
-        _rmtree(path=gd2e_set['cache'])
+    _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
+                            filename=gd2e_set['output'],cname='zstd')
    
 def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
     '''We should ignore stations_list as we already selected stations within merge_table'''
