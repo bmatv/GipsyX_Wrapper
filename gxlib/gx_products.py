@@ -176,9 +176,11 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
     
     output_merged_dir = _os.path.abspath(GNSSproducts_dir)
-    target_dir = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.pardir,'init',_os.path.basename(output_merged_dir))) +'/' + year_str + '/'+ dayofyear_str
-    
-
+    target_path = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.pardir,'init',_os.path.basename(output_merged_dir)))
+    if _os.path.exists(target_path):
+        _rmtree(target_path)
+        
+    target_dir = target_path +'/' + year_str + '/'+ dayofyear_str
     
     repository = _np.ndarray((products_day.shape),object)
     h24 = _np.ndarray((products_day.shape),bool)
@@ -205,11 +207,10 @@ def _gen_orbclk(input_set):
     products_day = input_set[6]
     
     #check if target folder exists and create one if not
-    if _os.path.exists(targetDir):
-        _rmtree(targetDir)
+
     if not _os.path.exists(targetDir):
         _os.makedirs(targetDir)
-        
+
     args = ['/home/bogdanm/Desktop/GipsyX_Wrapper/fetchGNSSproducts_J2000.py',
                       '-startTime',str(startTime),
                       '-endTime', str(endTime),
@@ -218,13 +219,13 @@ def _gen_orbclk(input_set):
     args.append( '-hr24') if h24 else None
     args.append ('-makeShadowFile') if makeShadow else None
 
-    
+
     process = _Popen(args,stdout=_PIPE)
     out, err = process.communicate()
-    
+
     #rename
     files_ori = _glob.glob('{}/GNSS.*'.format(targetDir))
-    
+
     files_ori_df = _pd.Series(files_ori).str.split('.',expand=True)
     files_renamed = files_ori_df[0].str.slice(0,-4) + str(products_day) + '.' + files_ori_df[1]
     for i in range(files_renamed.shape[0]):
