@@ -28,8 +28,8 @@ def _gd2e(gd2e_set):
     solutions = _get_tdps_pn(gd2e_set['cache'])
     residuals = _get_residuals(gd2e_set['cache'])
     debug_tree = _get_debug_tree(gd2e_set['cache'])
-    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
-        gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
+    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
+        gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['GNSSproducts'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
     rtgx_log = _get_rtgx_log(gd2e_set['cache'])
     rtgx_err = _get_rtgx_err(gd2e_set['cache'])
     _rmtree(path=gd2e_set['cache']) #clearing cache after run
