@@ -44,7 +44,7 @@ def _gd2e(gd2e_set):
                                 filename=gd2e_set['output'],cname='zstd')
     except:
         print('removing gd2e cache as exiting')
-        _rmtree(path=gd2e_set['cache']
+        _rmtree(path=gd2e_set['cache'])
    
 def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
     '''We should ignore stations_list as we already selected stations within merge_table'''
