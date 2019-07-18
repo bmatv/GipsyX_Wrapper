@@ -90,8 +90,6 @@ def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMi
     default_tree = _os.path.join(_os.environ['GCORE'], 'share/gd2e/DefaultTreeSeries/PPP/ppp_0.tree')
     input_tree = _treeUtils.tree(default_tree)
 
-    products_dir = _os.path.join(tmp_dir,_os.pardir,_os.pardir,'Products')
-
     years = _pd.Series(years_list).astype(str)
     ionex_files = cache_path +'/IONEX_merged/' + ionex_type + years #IONEX maps should be copied to cache on gd2e
     ionex_basenames = ionex_type + years
