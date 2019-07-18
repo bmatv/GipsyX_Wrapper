@@ -140,7 +140,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
 
     #real path to the output file. Advanced naming implemented to eiminate folder creation which is really slow to remove on HPC
-    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+'/'+tmp['station_name'].str.lower()+tmp['dayofyear']+tmp['year'].str.slice(-2)+'.zstd'
+    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+'/'+tmp['station_name'].str.lower()+tmp['dayofyear']+'.'+tmp['year'].str.slice(-2)+'.zstd'
 
     tmp['cache'] = cache_path + '/tmp/'+merge_table['station_name'].astype(str)+tmp['year']+tmp['dayofyear'] #creating a cache path for executable directory
     tmp['gnss_products_dir'] = gnss_products_dir
