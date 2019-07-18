@@ -188,8 +188,8 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     h24.fill(h24_bool)
     makeShadow.fill(makeShadow_bool)
     
-    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24,makeShadow])
-#     return input_sets
+    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24,makeShadow,products_day])
+
     with _Pool(processes = num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gen_orbclk, input_sets), total=input_sets.shape[0]))
         else: p.map(_gen_orbclk, input_sets)
