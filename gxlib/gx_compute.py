@@ -5,7 +5,7 @@ import tqdm as _tqdm
 import glob as _glob
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
-from shutil import rmtree as _rmtree, copyfile as _copyfile
+from shutil import rmtree as _rmtree, copy as _copy
 from .gx_aux import _dump_read,_dump_write
 
 
@@ -124,7 +124,7 @@ def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
 
     IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
     for ionex_file in ionex_files:
-        _copyfile(src = ionex_file, dst = IONEX_cached_path+'/')
+        _copy(src = ionex_file, dst = IONEX_cached_path+'/')
 
 def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,IONEX_products_dir,ionex_type): 
     '''Generates an np recarray that is used as sets for _gd2e
