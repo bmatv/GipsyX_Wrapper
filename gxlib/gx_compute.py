@@ -113,8 +113,9 @@ def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
     ionex_years = ionex_basenames.str.slice(-4).astype(int)
     ionex_files = ionex_files[ionex_years.isin(years_list)] #selecting only those ionex files that are needed according to years list
 
-    IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
-    if not _os.path.exists(IONEX_cached_path): _os.makedirs(IONEX_cached_path)
+    IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged') #need to remove when start
+    if _os.path.exists(IONEX_cached_path): _rmtree(IONEX_cached_path)
+    _os.makedirs(IONEX_cached_path)
     for ionex_file in ionex_files:
         _copy(src = ionex_file, dst = IONEX_cached_path)
 
@@ -142,6 +143,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     #real path to the output file. Advanced naming implemented to eiminate folder creation which is really slow to remove on HPC
     tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+'/'+tmp['station_name'].str.lower()+tmp['dayofyear']+'.'+tmp['year'].str.slice(-2)+'.zstd'
 
+    if _os.path.exists(cache_path + '/tmp/'): _rmtree(cache_path + '/tmp/')
     tmp['cache'] = cache_path + '/tmp/'+merge_table['station_name'].astype(str)+tmp['year']+tmp['dayofyear'] #creating a cache path for executable directory
     tmp['gnss_products_dir'] = gnss_products_dir
     # tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year']+ '/' + tmp['dayofyear'] + '/'
