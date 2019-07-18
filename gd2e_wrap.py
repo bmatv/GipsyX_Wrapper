@@ -9,6 +9,7 @@ class gd2e_class:
                  tree_options,
                  mode,
                  cddis=False,
+                 cache_path = '/run/user/1017',
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
@@ -33,6 +34,7 @@ class gd2e_class:
                  trees_df = None
                  ): 
         self.tqdm = tqdm
+        self.cache_path = _os.path.abspath(cache_path)
         self.PPPtype = self._check_PPPtype(PPPtype)
         self.project_name = project_name 
         self.IGS_logs_dir = _os.path.abspath(IGS_logs_dir)
@@ -48,7 +50,7 @@ class gd2e_class:
         self.tree_options = tree_options
         # self.selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
         self.staDb_path= gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path
-        self.gnss_products_dir = gnss_products_dir
+        self.gnss_products_dir = _os.path.abspath(gnss_products_dir)
         self.ionex_type=ionex_type
         self.IONEX_products = IONEX_products
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
@@ -107,7 +109,9 @@ class gd2e_class:
                                     VMF1_dir = self.VMF1_dir,
                                     project_name = self.project_name,
                                     static_clk = self.static_clk,
-                                    ambres = self.ambres) if self.trees_df is None else self.trees_df
+                                    ambres = self.ambres,
+                                    years_list = self.years_list,
+                                    cache_path = self.cache_path) if self.trees_df is None else self.trees_df
 
     def _gd2e_table(self):
         return gx_compute._gen_gd2e_table(  trees_df = self.gen_trees(),
@@ -124,7 +128,8 @@ class gd2e_class:
         gx_compute.gd2e(gd2e_table = self._gd2e_table(),
                         project_name = self.project_name,
                         num_cores=self.num_cores,
-                        tqdm=self.tqdm)
+                        tqdm=self.tqdm,
+                        cache_path = self.cache_path)
 
     def solutions(self):
         return gx_extract.gather_solutions(num_cores=self.num_cores,

@@ -2,52 +2,67 @@ import os as _os
 import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
+import glob as _glob
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
-from shutil import rmtree as _rmtree
+from shutil import rmtree as _rmtree, copy as _copy
 from .gx_aux import _dump_read,_dump_write
 
 
 def _gd2e(gd2e_set):
     
-    if not _os.path.exists(gd2e_set['output']):_os.makedirs(gd2e_set['output'])
-    process = _Popen([  'gd2e.py',
-                        '-drEditedFile', gd2e_set['filename'],
-                        '-recList', gd2e_set['station_name'],
-                        '-runType', 'PPP',
-                        '-orbClk', gd2e_set['orbClk_path'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
-                        '-treeSequenceDir', gd2e_set['tree_path'],
-                        '-tdpInput', gd2e_set['tdp'],
-                        '-staDb', gd2e_set['staDb_path'],
-                        '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['output'],stdout=_PIPE)
-    # Do we really need a -gdCov option?
-    out, err = process.communicate()
+    
+    if not _os.path.exists(gd2e_set['cache']):_os.makedirs(gd2e_set['cache']) #creatign cache dir
+    try:
+        process = _Popen([  'gd2e.py',
+                            '-drEditedFile', gd2e_set['filename'],
+                            '-recList', gd2e_set['station_name'],
+                            '-runType', 'PPP',
+                            '-GNSSproducts', gd2e_set['gnss_products_dir'], #used to be '-GNSSproducts', gd2e_set['gnss_products_dir'],
+                            '-treeSequenceDir', gd2e_set['tree_path'],
+                            '-tdpInput', gd2e_set['tdp'],
+                            '-staDb', gd2e_set['staDb_path'],
+                            '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['cache'],stdout=_PIPE)
+        # Do we really need a -gdCov option?
+        out, err = process.communicate()
 
-    solutions = _get_tdps_pn(gd2e_set['output'])
-    residuals = _get_residuals(gd2e_set['output'])
-    debug_tree = _get_debug_tree(gd2e_set['output'])
-    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
-        gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
-    rtgx_log = _get_rtgx_log(gd2e_set['output'])
-    rtgx_err = _get_rtgx_err(gd2e_set['output'])
+        solutions = _get_tdps_pn(gd2e_set['cache'])
+        residuals = _get_residuals(gd2e_set['cache'])
+        debug_tree = _get_debug_tree(gd2e_set['cache'])
+        runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -orbClk {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
+            gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['orbClk_path'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
+        rtgx_log = _get_rtgx_log(gd2e_set['cache'])
+        rtgx_err = _get_rtgx_err(gd2e_set['cache'])
+        _rmtree(path=gd2e_set['cache'] #clearing cache after run
 
-    _rmtree(path=gd2e_set['output']);_os.makedirs(gd2e_set['output'])
-    _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
-                            filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
+        if _os.path.exists(gd2e_set['output']):
+            _rmtree(path=gd2e_set['output']) #cleaning dir from previous runs if exists
+        _os.makedirs(gd2e_set['output']) #creating output dir
+
+        _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
+                                filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
+    except:
+        print('removing gd2e cache as exiting')
+        _rmtree(path=gd2e_set['cache']
    
-def gd2e(gd2e_table,project_name,num_cores,tqdm):
+def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
     '''We should ignore stations_list as we already selected stations within merge_table'''
+    try:
+        if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
+            print('{} already processed'.format(project_name))
+        else:
+            gd2e_table = gd2e_table[gd2e_table['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
+            num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
+            print('Processing {} |  # files left: {} | Adj. # of threads: {}'.format(project_name,gd2e_table.shape[0],num_cores))
 
-    if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
-        print('{} already processed'.format(project_name))
-    else:
-        gd2e_table = gd2e_table[gd2e_table['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
-        num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
-        print('Processing {} |  # files left: {} | Adj. # of threads: {}'.format(project_name,gd2e_table.shape[0],num_cores))
-
-        with _Pool(processes = num_cores) as p:
-            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
-            else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
+            with _Pool(processes = num_cores) as p:
+                if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
+                else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
+    except:
+        print('cleaning IONEX from RAM as exiting')
+        #cleaning after execution            
+        IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
+        _rmtree(IONEX_cached_path)
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
@@ -98,12 +113,24 @@ def _get_rtgx_err(path_dir):
     rtgx_err = _pd.read_csv(path_dir+'/rtgx_ppp_0.tree.err0_0',sep='\n',header=None,index_col=None).squeeze()
     return rtgx_err
 
+def cache_ionex_files(cache_path,products_dir,ionex_type,years_list):
+    #Copying IONEX maps to cache before execution-------------------------------------------------------------------------------------
 
-def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode):
+    ionex_files = _pd.Series(sorted(_glob.glob(products_dir+'/IONEX_merged/' + ionex_type + '*')))
+    ionex_basenames = ionex_files.str.split('/', expand=True).iloc[:, -1]
+    ionex_years = ionex_basenames.str.slice(-4).astype(int)
+    ionex_files = ionex_files[ionex_years.isin(years_list)] #selecting only those ionex files that are needed according to years list
+
+    IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
+    for ionex_file in ionex_files:
+        _copy(ionex_file, IONEX_cached_path)
+
+def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,products_dir,ionex_type): 
     '''Generates an np recarray that is used as sets for _gd2e
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
     '''
+
     re_df = _pd.Series(index = ['GPS','GLONASS','GPS+GLONASS'],data=['^GPS\d{2}$','^R\d{3}$','^(GPS\d{2})|(R\d{3})$'])
 
     tmp = _pd.DataFrame()
@@ -119,9 +146,9 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     tmp = tmp.join(other=trees_df,on='year') #adds tree paths
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
     tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+ '/' + tmp['dayofyear']
-
-    # tmp['gnss_products_dir'] = gnss_products_dir
-    tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year']+ '/' + tmp['dayofyear'] + '/'
+    tmp['cache'] = cache_path + '/tmp/'+merge_table['station_name'].astype(str)+tmp['year']+tmp['dayofyear'] #creating a cache path for executable directory
+    tmp['gnss_products_dir'] = gnss_products_dir
+    # tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year']+ '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
   
     tmp['year'] = _pd.to_numeric(tmp['year'])

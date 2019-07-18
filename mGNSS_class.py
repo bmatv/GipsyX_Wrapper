@@ -17,6 +17,7 @@ class mGNSS_class:
                 years_list,
                 tree_options,
                 tmp_dir,
+                cache_path = '/run/user/1017',
                 rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                 blq_file = '/mnt/Data/bogdanm/Products/otl/ocnld_coeff/bigf_complete.blq',
                 VMF1_dir = '/mnt/Data/bogdanm/Products/VMF1_Products',
@@ -41,6 +42,7 @@ class mGNSS_class:
         
         self.tqdm=tqdm
         self.IGS_logs_dir = IGS_logs_dir
+        self.cache_path = _os.path.abspath(cache_path)
         self.rnx_dir=rnx_dir
         self.cddis=cddis
         self.tmp_dir=tmp_dir
@@ -121,6 +123,7 @@ class mGNSS_class:
                 years_list = self.years_list,
                 tree_options = self.tree_options,
                 mode = mode,
+                cache_path=self.cache_path,
                 rnx_dir=self.rnx_dir,
                 cddis=self.cddis,
                 tmp_dir=self.tmp_dir,
