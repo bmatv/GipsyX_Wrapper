@@ -160,7 +160,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
 
     #cleaning unused years and class 0 as merge_table is not filtering by year to stay consistent withib merged timeframe
     tmp = tmp[ (tmp['year'].isin(years_list)) & (tmp['class']!=0)] 
-    
+    return tmp
     #Check if files exist (from what left):
     file_exists = _np.zeros(tmp.shape[0],dtype=int)
     for j in range(tmp.shape[0]):
