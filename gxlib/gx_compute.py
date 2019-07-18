@@ -44,22 +44,22 @@ def _gd2e(gd2e_set):
    
 def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
     '''We should ignore stations_list as we already selected stations within merge_table'''
-    try:
-        if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
-            print('{} already processed'.format(project_name))
-        else:
-            gd2e_table = gd2e_table[gd2e_table['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
-            num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
-            print('Processing {} |  # files left: {} | Adj. # of threads: {}'.format(project_name,gd2e_table.shape[0],num_cores))
+    # try:
+    if gd2e_table[gd2e_table['file_exists']==0].shape[0] ==0:
+        print('{} already processed'.format(project_name))
+    else:
+        gd2e_table = gd2e_table[gd2e_table['file_exists']==0].to_records() #converting to records in order for mp to work properly as it doesn't work with pandas Dataframe
+        num_cores = num_cores if gd2e_table.shape[0] > num_cores else gd2e_table.shape[0]
+        print('Processing {} |  # files left: {} | Adj. # of threads: {}'.format(project_name,gd2e_table.shape[0],num_cores))
 
-            with _Pool(processes = num_cores) as p:
-                if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
-                else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
-    except:
-        print('cleaning IONEX from RAM as exiting')
-        #cleaning after execution            
-        IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
-        _rmtree(IONEX_cached_path)
+        with _Pool(processes = num_cores) as p:
+            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
+            else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
+    # except:
+    #     print('cleaning IONEX from RAM as exiting')
+    #     #cleaning after execution            
+    #     IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
+    #     _rmtree(IONEX_cached_path)
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
