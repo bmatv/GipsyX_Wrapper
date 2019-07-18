@@ -164,15 +164,13 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
 
 
-def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,makeShadow_bool=True,tqdm=True):
+def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,makeShadow_bool=True,tqdm=True,run_dir = '/run/user/1017/'):
     begin64 = _np.datetime64(begin).astype('datetime64[D]')
     end64 = _np.datetime64(end).astype('datetime64[D]')
     products_day = _np.arange(begin64,end64)
     products_begin = ((products_day - _np.timedelta64(3,'h')) - _J2000origin).astype(int)
     products_end = (products_day + _np.timedelta64(27,'h') - _J2000origin).astype(int)
     
-    
-    dayofyear_str = (_pd.Series(products_day).dt.dayofyear).astype(str).str.zfill(3)
     year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
     
     output_merged_dir = _os.path.abspath(GNSSproducts_dir)
@@ -180,17 +178,19 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     if _os.path.exists(target_path):
         _rmtree(target_path)
         
-    target_dir = target_path +'/' + year_str + '/'+ dayofyear_str
+    target_dir = target_path +'/' + year_str
     
     repository = _np.ndarray((products_day.shape),object)
     h24 = _np.ndarray((products_day.shape),bool)
     makeShadow = _np.ndarray((products_day.shape),bool)
     
+    run = _os.path.abspath(run_dir)+ '/' +_pd.Series(products_day).astype(str)
+  
     repository.fill(GNSSproducts_dir)
     h24.fill(h24_bool)
     makeShadow.fill(makeShadow_bool)
     
-    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24,makeShadow,products_day])
+    input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24,makeShadow,products_day,run])
 
     with _Pool(processes = num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gen_orbclk, input_sets), total=input_sets.shape[0]))
@@ -205,17 +205,19 @@ def _gen_orbclk(input_set):
     h24 = input_set[4]
     makeShadow = input_set[5]
     products_day = input_set[6]
-    
+    run_dir = input_set[7]
     #check if target folder exists and create one if not
 
-    if not _os.path.exists(targetDir):
-        _os.makedirs(targetDir)
-
+    if _os.path.exists(run_dir): _rmtree(run_dir) #cleaning ram if failed
+    if not _os.path.exists(run_dir):
+        _os.makedirs(run_dir)
+    
+    
     args = ['/home/bogdanm/Desktop/GipsyX_Wrapper/fetchGNSSproducts_J2000.py',
                       '-startTime',str(startTime),
                       '-endTime', str(endTime),
                       '-GNSSproducts', GNSSproducts,
-                      '-targetDir', targetDir+'/']
+                      '-targetDir', run_dir]
     args.append( '-hr24') if h24 else None
     args.append ('-makeShadowFile') if makeShadow else None
 
@@ -224,15 +226,18 @@ def _gen_orbclk(input_set):
     out, err = process.communicate()
 
     #rename
-    files_ori = _glob.glob('{}/GNSS.*'.format(targetDir))
+    files_ori = _glob.glob('{}/GNSS.*'.format(run_dir))
 
     files_ori_df = _pd.Series(files_ori).str.split('.',expand=True)
     files_renamed = files_ori_df[0].str.slice(0,-4) + str(products_day) + '.' + files_ori_df[1]
     for i in range(files_renamed.shape[0]):
         _os.rename(files_ori[i],files_renamed[i])
     #gzip
-    _Popen(['gzip *'],cwd=targetDir,shell=True).communicate()
+    _Popen(['gzip *'],cwd=run_dir,shell=True).communicate()
     #move one level up
+    if not _os.path.exists(targetDir):
+        _os.makedirs(targetDir)
     for i in range(files_renamed.shape[0]):
-        _move(src=files_renamed[i]+'.gz',dst=_os.path.dirname(targetDir))
+        _move(src=files_renamed[i]+'.gz',dst=targetDir)
+    _rmtree(run_dir)
     return out,err
