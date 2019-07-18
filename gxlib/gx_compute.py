@@ -35,12 +35,13 @@ def _gd2e(gd2e_set):
         rtgx_err = _get_rtgx_err(gd2e_set['cache'])
         _rmtree(path=gd2e_set['cache'] #clearing cache after run
 
-        if _os.path.exists(gd2e_set['output']):
-            _rmtree(path=gd2e_set['output']) #cleaning dir from previous runs if exists
-        _os.makedirs(gd2e_set['output']) #creating output dir
+        output_dir = _os.path.dirname(gd2e_set['output'])
+        if _os.path.exists(output_dir):
+            _rmtree(path=output_dir) #cleaning dir from previous runs if exists
+        _os.makedirs(output_dir) #creating output dir
 
         _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
-                                filename=gd2e_set['output']+'/gipsyx_out.zstd',cname='zstd')
+                                filename=gd2e_set['output'],cname='zstd')
     except:
         print('removing gd2e cache as exiting')
         _rmtree(path=gd2e_set['cache']
@@ -145,7 +146,10 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     tmp['dayofyear'] = merge_table['begin'].dt.dayofyear.astype(str).str.zfill(3)
     tmp = tmp.join(other=trees_df,on='year') #adds tree paths
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
-    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+ '/' + tmp['dayofyear']
+
+    #real path to the output file. Advanced naming implemented to eiminate folder creation which is really slow to remove on HPC
+    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+'/'+tmp['station_name'].str.lower()+tmp['dayofyear']+tmp['year'].str.slice(-2)+'.zstd'
+
     tmp['cache'] = cache_path + '/tmp/'+merge_table['station_name'].astype(str)+tmp['year']+tmp['dayofyear'] #creating a cache path for executable directory
     tmp['gnss_products_dir'] = gnss_products_dir
     # tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year']+ '/' + tmp['dayofyear'] + '/'
@@ -160,7 +164,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     #Check if files exist (from what left):
     file_exists = _np.zeros(tmp.shape[0],dtype=int)
     for j in range(tmp.shape[0]):
-        file_exists[j] = _os.path.isfile(tmp['output'].iloc[j]+'/gipsyx_out.zstd') #might be useful to update this name to a dynamically generated
+        file_exists[j] = _os.path.isfile(tmp['output'][j]) #might be useful to update this name to a dynamically generated
     tmp['file_exists']=file_exists
 
     return tmp.sort_values(by=['station_name','year','dayofyear']).reset_index(drop=True) #resetting index just so the view won't change while debugging columns
