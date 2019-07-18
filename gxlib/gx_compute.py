@@ -114,9 +114,9 @@ def _get_rtgx_err(path_dir):
     rtgx_err = _pd.read_csv(path_dir+'/rtgx_ppp_0.tree.err0_0',sep='\n',header=None,index_col=None).squeeze()
     return rtgx_err
 
-def cache_ionex_files(cache_path,products_dir,ionex_type,years_list):
+def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
     #Copying IONEX maps to cache before execution-------------------------------------------------------------------------------------
-
+    products_dir = _os.path.join(IONEX_products_dir,_os.pardir)
     ionex_files = _pd.Series(sorted(_glob.glob(products_dir+'/IONEX_merged/' + ionex_type + '*')))
     ionex_basenames = ionex_files.str.split('/', expand=True).iloc[:, -1]
     ionex_years = ionex_basenames.str.slice(-4).astype(int)
@@ -126,12 +126,12 @@ def cache_ionex_files(cache_path,products_dir,ionex_type,years_list):
     for ionex_file in ionex_files:
         _copy(ionex_file, IONEX_cached_path)
 
-def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,products_dir,ionex_type): 
+def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,IONEX_products_dir,ionex_type): 
     '''Generates an np recarray that is used as sets for _gd2e
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
     '''
-
+    cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list)
     re_df = _pd.Series(index = ['GPS','GLONASS','GPS+GLONASS'],data=['^GPS\d{2}$','^R\d{3}$','^(GPS\d{2})|(R\d{3})$'])
 
     tmp = _pd.DataFrame()
