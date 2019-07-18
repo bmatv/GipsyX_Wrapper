@@ -34,12 +34,6 @@ def _gd2e(gd2e_set):
     rtgx_err = _get_rtgx_err(gd2e_set['cache'])
     _rmtree(path=gd2e_set['cache']) #clearing cache after run
 
-    output_dir = _os.path.dirname(gd2e_set['output'])
-    print(output_dir)
-    if _os.path.exists(output_dir):
-        _rmtree(path=output_dir) #cleaning dir from previous runs if exists
-    _os.makedirs(output_dir) #creating output dir
-
     _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                             filename=gd2e_set['output'],cname='zstd')
    
