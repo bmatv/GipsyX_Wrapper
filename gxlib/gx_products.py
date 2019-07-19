@@ -57,10 +57,10 @@ def _gen_sets(begin,end,products_type,products_dir):
 
     years = date_array.astype('datetime64[Y]').astype(_np.str).astype(object)
 #     return igs_days+years+'cod'
-    if ((products_type == 'esa')or(products_type == 'gfz')or(products_type == 'grg')):
+    if (products_type == 'esa')or(products_type == 'gfz')or(products_type == 'grg'):
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
-    if (products_type == 'cod')or(products_type == 'cof'):
+    elif (products_type == 'cod')or(products_type == 'cof'):
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.eph.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
     elif (products_type == 'es2')or(products_type == 'ig2')or(products_type == 'jp2'): #es2 is complete with clk and sp3
