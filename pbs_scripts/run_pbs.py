@@ -109,7 +109,8 @@ PPPtype='kinematic'
 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products'
 static_clk = False
 ambres = False
-cache_path = '/dev/shm' #Permission denied: '/run/user/402464'
+cache_path = '/scratch/bogdanm/cache' 
+#'/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
 
 
 #generating tree files that won't be overwritten as crc32 will be the same
