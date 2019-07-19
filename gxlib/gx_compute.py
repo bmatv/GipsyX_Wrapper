@@ -39,8 +39,8 @@ def _gd2e(gd2e_set):
 
         _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
                                 filename=gd2e_set['output'],cname='zstd')
-   except:
-       print('Problem found:',runAgain)
+    except:
+        print('Problem found:',runAgain)
 def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
     '''We should ignore stations_list as we already selected stations within merge_table'''
     # try:
