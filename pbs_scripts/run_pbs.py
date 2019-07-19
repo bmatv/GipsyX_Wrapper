@@ -47,7 +47,7 @@ from mGNSS_class import mGNSS_class; import trees_options
 kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 staDb_path = '{staDb_path}',
                                 tmp_dir = '{tmp_dir}',
-                                cache_path = '{cache_path}'
+                                cache_path = '{cache_path}',
                                 rnx_dir = '{rnx_dir}',
                                 stations_list = {stations_list},
                                 years_list = {years_list},
