@@ -172,7 +172,7 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None,run_dir = '
 
     tmp_dir = _os.path.join(run_dir,'tmp') #creating tmp directory processes will work in
     try:_rmtree(tmp_dir) #clearing memory before processing
-        except: print('Could not remove tmp')
+    except: print('Could not remove tmp')
     # tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower(),'tmp'))
     #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/tmp'
     
