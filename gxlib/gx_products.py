@@ -43,7 +43,7 @@ def _date2igs(date):
     day_in_week = ((gps_seconds%_seconds_week)/86400).astype(_np.int)
     return gps_week.astype(_np.str).astype(object), day_in_week.astype(_np.str).astype(object)
 
-def _gen_sets(begin,end,products_type,products_dir):
+def _gen_sets(begin,end,products_type,products_dir,run_dir):
     '''Generates filenames list'''
     products_dir = _os.path.abspath(products_dir)
     
@@ -97,10 +97,9 @@ def _gen_sets(begin,end,products_type,products_dir):
         sp3_path = products_dir + '/' + years+ '/' + 'COD'  +igs_days +'.EPH.Z'
         clk_path = products_dir + '/' + years+ '/'+ 'COD' + igs_days +'.CLK.Z'
     elif products_type == 'com':
-        products_type=products_type.upper()
         #We expect the clk files to be corrected for the message
-        sp3_path = products_dir + '/' + years+ '/' + products_type  +igs_days +'.EPH.Z'
-        clk_path = products_dir + '/' + years+ '/'+ products_type + igs_days +'.CLK.Z'
+        sp3_path = products_dir + '/' + years+ '/' + products_type.upper()  +igs_days +'.EPH.Z'
+        clk_path = products_dir + '/' + years+ '/'+ products_type.upper() + igs_days +'.CLK.Z'
     else:
         raise Exception('Product type not understood. Please check.')
         
@@ -122,25 +121,29 @@ def _gen_sets(begin,end,products_type,products_dir):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type))
+        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower()))
         #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/'
 
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
 
-        tmp_dir = _os.path.join(out_dir,'tmp') #creating tmp directory processes will work in
-        if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
+        tmp_dir = _os.path.join(run_dir,'tmp') #creating tmp directory processes will work in
+        if _os.path.isdir(tmp_dir): _rmtree(tmp_dir) #clearing memory before processing
+        _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
+        tmp_array = _np.ndarray((date_array.shape),dtype=object)
+        tmp_array.fill(tmp_dir) #filling with default values
 
         [_os.makedirs(out_path) for out_path in out_array if not _os.path.exists(out_path)] #creating unique year directories
-        return _pd.DataFrame(_np.column_stack((sp3_path,clk_path,date_array,date_array_J2000,out_array)),columns = ['sp3','clk', 'date', 'dateJ','out'])
+        return _pd.DataFrame(_np.column_stack((sp3_path,clk_path,date_array,date_array_J2000,out_array,tmp_array)),columns = ['sp3','clk', 'date', 'dateJ','out','tmp'])
     
 def _sp3ToPosTdp(np_set):
     
     process = _mp.current_process()
 
-    tmp_dir = _os.path.abspath(_os.path.join(np_set['out'],'tmp',str(process._identity[0])))
+    tmp_dir = _os.path.abspath(_os.path.join(np_set['tmp'],str(process._identity[0])))
     #creates tmp dirs in igs2gipsyx directory #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/tmp'
+                                              # /mnt/data/bogdanm/Products/CODE/igs2gipsyx/COM/tmp
     if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
     _os.chdir(tmp_dir)
     
@@ -157,18 +160,23 @@ def _sp3ToPosTdp(np_set):
     miscProducts = _IgsGcoreConversions.ConvertedGcoreProds(np_set['dateJ'], np_set['out'], refClk, frame)
     miscProducts.make()
 
-def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
+def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None,run_dir = '/run/user/1017/'):
     #products_dir = '/mnt/data/bogdanm/Products/CODE/source/MGEX/'
-    sets = _gen_sets(begin,end,products_type,products_dir)
+    sets = _gen_sets(begin,end,products_type,products_dir,run_dir = run_dir)
     sets = sets.to_records()
     
     with _Pool(num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
         else: p.map(_sp3ToPosTdp, sets)
     
-    tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type,'tmp'))
+
+    tmp_dir = _os.path.join(run_dir,'tmp') #creating tmp directory processes will work in
+    try:_rmtree(tmp_dir) #clearing memory before processing
+        except: print('Could not remove tmp')
+    # tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower(),'tmp'))
     #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/tmp'
-    _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
+    
+    #cleaning tmp directory as newer instances of process_id will create mess
 
 
 def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,makeShadow_bool=True,tqdm=True,run_dir = '/run/user/1017/'):
@@ -191,7 +199,10 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     h24 = _np.ndarray((products_day.shape),bool)
     makeShadow = _np.ndarray((products_day.shape),bool)
     
-    run = _os.path.abspath(run_dir)+ '/' +_pd.Series(products_day).astype(str)
+    tmp_merge_path = _os.path.abspath(run_dir)+ '/tmp_merge/'
+    run = tmp_merge_path +_pd.Series(products_day).astype(str)
+    # Need to clear run before new execution just in case
+    if _os.path.exists(tmp_merge_path) : _rmtree(tmp_merge_path)
   
     repository.fill(GNSSproducts_dir)
     h24.fill(h24_bool)
