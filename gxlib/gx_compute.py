@@ -151,7 +151,10 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
 
     #real path to the output file. Advanced naming implemented to eiminate folder creation which is really slow to remove on HPC
     output_dirs = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year'] #to calcel race condition with folder creation I need to create all first
-    return output_dirs
+    dir_structure =  output_dirs.unique()
+    for dir in dir_structure:
+        if not _os.path.isdir(dir): _os.makedirs(dir)
+
     tmp['output'] = output_dirs + '/'+tmp['station_name'].str.lower()+tmp['dayofyear']+'.'+tmp['year'].str.slice(-2)+'.zstd'
 
     if _os.path.exists(cache_path + '/tmp/'): _rmtree(cache_path + '/tmp/')
