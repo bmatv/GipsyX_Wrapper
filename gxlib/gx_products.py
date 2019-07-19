@@ -122,7 +122,9 @@ def _gen_sets(begin,end,products_type,products_dir):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx',products_type))
+        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type))
+        #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/'
+
         out_array = _np.ndarray((date_array.shape),dtype=object)
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
@@ -137,8 +139,8 @@ def _sp3ToPosTdp(np_set):
     
     process = _mp.current_process()
 
-    tmp_dir = _os.path.abspath(_os.path.join(np_set['out'],_os.pardir,'tmp',str(process._identity[0])))
-    #creates tmp dirs in igs2gipsyx directory
+    tmp_dir = _os.path.abspath(_os.path.join(np_set['out'],'tmp',str(process._identity[0])))
+    #creates tmp dirs in igs2gipsyx directory #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/tmp'
     if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
     _os.chdir(tmp_dir)
     
@@ -156,6 +158,7 @@ def _sp3ToPosTdp(np_set):
     miscProducts.make()
 
 def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
+    #products_dir = '/mnt/data/bogdanm/Products/CODE/source/MGEX/'
     sets = _gen_sets(begin,end,products_type,products_dir)
     sets = sets.to_records()
     
@@ -163,7 +166,8 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None):
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
         else: p.map(_sp3ToPosTdp, sets)
     
-    tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx',products_type,'tmp'))
+    tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type,'tmp'))
+    #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/tmp'
     _rmtree(tmp_dir) #cleaning tmp directory as newer instances of process_id will create mess
 
 
