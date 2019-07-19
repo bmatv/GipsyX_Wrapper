@@ -216,6 +216,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     with _Pool(processes = num_cores) as p:
         if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gen_orbclk, input_sets), total=input_sets.shape[0]))
         else: p.map(_gen_orbclk, input_sets)
+    _rmtree(tmp_merge_path) #cleaning
 
 
 def _gen_orbclk(input_set):
