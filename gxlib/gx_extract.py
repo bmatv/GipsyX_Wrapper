@@ -74,7 +74,7 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores,tqdm):
     All stations all years.
     '''
 
-    station_files = _np.asarray(sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + station_name + '/*/*/*.zstd')))
+    station_files = _np.asarray(sorted(_glob.glob(tmp_dir + '/gd2e/' + project_name + '/' + station_name + '/*/*.zstd')))
     tmp_data = _np.asarray(_gather_tdps(station_files, num_cores,tqdm))
 
     # Stacking list of tmp tdps and residuals into one np array
