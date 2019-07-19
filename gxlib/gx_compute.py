@@ -31,7 +31,7 @@ def _gd2e(gd2e_set):
                         '-selectGnss', gd2e_set['selectGnss']], cwd=gd2e_set['cache'],stdout=_PIPE)
     # Do we really need a -gdCov option?
     out, err = process.communicate()
-
+    
     solutions = _get_tdps_pn(gd2e_set['cache'])
     residuals = _get_residuals(gd2e_set['cache'])
     debug_tree = _get_debug_tree(gd2e_set['cache'])
@@ -44,6 +44,8 @@ def _gd2e(gd2e_set):
                             filename=gd2e_set['output'],cname='zstd')
     # except:
     #     print('Problem found:',runAgain)
+    # return out, err
+
 def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
     '''We should ignore stations_list as we already selected stations within merge_table'''
     # try:
@@ -148,7 +150,9 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     tmp['tdp'] = tmp_dir+'/tropNom/' + tmp['year'] + '/' + tmp['dayofyear'] + '/' + tropNom_type
 
     #real path to the output file. Advanced naming implemented to eiminate folder creation which is really slow to remove on HPC
-    tmp['output'] = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year']+'/'+tmp['station_name'].str.lower()+tmp['dayofyear']+'.'+tmp['year'].str.slice(-2)+'.zstd'
+    output_dirs = tmp_dir+'/gd2e/'+project_name +'/'+merge_table['station_name'].astype(str)+'/'+tmp['year'] #to calcel race condition with folder creation I need to create all first
+    return output_dirs
+    tmp['output'] = output_dirs + '/'+tmp['station_name'].str.lower()+tmp['dayofyear']+'.'+tmp['year'].str.slice(-2)+'.zstd'
 
     if _os.path.exists(cache_path + '/tmp/'): _rmtree(cache_path + '/tmp/')
     tmp['cache'] = cache_path + '/tmp/'+merge_table['station_name'].astype(str)+tmp['year']+tmp['dayofyear'] #creating a cache path for executable directory
