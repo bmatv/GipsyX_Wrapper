@@ -109,7 +109,7 @@ PPPtype='kinematic'
 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products'
 static_clk = False
 ambres = False
-cache_path = '/scratch/bogdanm/cache' 
+cache_path = '/dev/shm'#'/scratch/bogdanm/cache' 
 #'/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
 
 
