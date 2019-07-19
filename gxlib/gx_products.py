@@ -93,10 +93,13 @@ def _gen_sets(begin,end,products_type,products_dir):
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.eph.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + 'es2' +igs_days +'.clk.Z' #taking clocks from esa reprocessed
     elif products_type == 'co2015':
+        #We expect the clk files to be corrected for the message
+        sp3_path = products_dir + '/' + years+ '/' + 'COD'  +igs_days +'.EPH.Z'
+        clk_path = products_dir + '/' + years+ '/'+ 'COD' + igs_days +'.CLK.Z'
+    elif products_type == 'com':
         products_type=products_type.upper()
         #We expect the clk files to be corrected for the message
         sp3_path = products_dir + '/' + years+ '/' + products_type  +igs_days +'.EPH.Z'
-
         clk_path = products_dir + '/' + years+ '/'+ products_type + igs_days +'.CLK.Z'
     else:
         raise Exception('Product type not understood. Please check.')
