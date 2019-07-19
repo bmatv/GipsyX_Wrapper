@@ -128,7 +128,7 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
         out_array.fill(out_dir) #filling with default values
         out_array = out_array + '/' + date_array.astype('datetime64[Y]').astype(str) #updating out paths with year folders
 
-        tmp_dir = _os.path.join(run_dir,'tmp') #creating tmp directory processes will work in
+        tmp_dir = _os.path.join(run_dir,'tmp_igs2jpl') #creating tmp directory processes will work in
         if _os.path.isdir(tmp_dir): _rmtree(tmp_dir) #clearing memory before processing
         _os.makedirs(tmp_dir) #this should automatically create out and tmp dirs
         tmp_array = _np.ndarray((date_array.shape),dtype=object)
@@ -170,7 +170,7 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None,run_dir = '
         else: p.map(_sp3ToPosTdp, sets)
     
 
-    tmp_dir = _os.path.join(run_dir,'tmp') #creating tmp directory processes will work in
+    tmp_dir = _os.path.join(run_dir,'tmp_igs2jpl') #creating tmp directory processes will work in
     try:_rmtree(tmp_dir) #clearing memory before processing
     except: print('Could not remove tmp')
     # tmp_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower(),'tmp'))
