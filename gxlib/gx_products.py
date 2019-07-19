@@ -250,7 +250,10 @@ def _gen_orbclk(input_set):
     #rename
     files_ori = _glob.glob('{}/GNSS.*'.format(run_dir))
 
-    files_ori_df = _pd.Series(files_ori).str.split('.',expand=True)
+    try:
+        files_ori_df = _pd.Series(files_ori).str.split('.',expand=True)
+    except: print(str(products_day),'problem found')
+        
     files_renamed = files_ori_df[0].str.slice(0,-4) + str(products_day) + '.' + files_ori_df[1]
     for i in range(files_renamed.shape[0]):
         _os.rename(files_ori[i],files_renamed[i])
