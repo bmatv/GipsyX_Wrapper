@@ -11,7 +11,10 @@ from .gx_aux import _dump_read,_dump_write
 
 def _gd2e(gd2e_set):
     
-    
+    out_dir = _os.path.dirname(gd2e_set['output'])
+    if not _os.path.exists(out_dir):_os.makedirs(out_dir) #creating out dir
+
+
     if not _os.path.exists(gd2e_set['cache']):_os.makedirs(gd2e_set['cache']) #creatign cache dir
     runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
         gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
