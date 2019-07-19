@@ -47,6 +47,7 @@ from mGNSS_class import mGNSS_class; import trees_options
 kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 staDb_path = '{staDb_path}',
                                 tmp_dir = '{tmp_dir}',
+                                cache_path = '{cache_path}'
                                 rnx_dir = '{rnx_dir}',
                                 stations_list = {stations_list},
                                 years_list = {years_list},
@@ -69,18 +70,18 @@ kinematic_project = mGNSS_class(project_name = '{project_name}',
 kinematic_project.{command}'''
                             
 
-def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,IGS_logs_dir,staDb_path,blq_file,VMF1_dir,pos_s, wetz_s,PPPtype, ionex_type,  
+def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,IGS_logs_dir,staDb_path,blq_file,VMF1_dir,pos_s, wetz_s,PPPtype, ionex_type,  cache_path,
                 tropNom_input = 'trop',
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
-                gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/cod/', #we should use esa/cod unreprocessed products
+                gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com', #we should use COD MGEX, ESA and GFZ later
                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                 rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz',
                 tree_options = 'trees_options.rw_otl',
                 tqdm=False):
     return TEMPLATE_MGNSS.format(project_name = project_name,staDb_path = staDb_path,tmp_dir=tmp_dir,rnx_dir=rnx_dir,stations_list=stations_list,years_list=years_list,tree_options = tree_options,num_cores=num_cores,
-                            blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate,
+                            blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate, cache_path = cache_path,
                             gnss_products_dir = gnss_products_dir,ionex_type=ionex_type,eterna_path=eterna_path,hardisp_path = hardisp_path,pos_s = pos_s, wetz_s=wetz_s,PPPtype=PPPtype,tqdm=tqdm,command=command)
 #------------------------------------------------------------------------------------------
 '''Execution part here''' 
@@ -108,17 +109,18 @@ PPPtype='kinematic'
 VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products'
 static_clk = False
 ambres = False
-
+cache_path = '/run/user/402464'
 
 
 #generating tree files that won't be overwritten as crc32 will be the same
-gen_trees(ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,
-VMF1_dir = VMF1_dir,project_name = project_name,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
+gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',
+            ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,years_list=years_list,cache_path = cache_path,
+            VMF1_dir = VMF1_dir,project_name = project_name,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 stations_list_arrays = np.array_split(stations_list,num_nodes)
 for i in range(len(stations_list_arrays)):
-    code = gen_code(stations_list = list(stations_list_arrays[i]),
+    code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,
                     command='analyze()')
