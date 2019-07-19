@@ -187,7 +187,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     products_end = (products_day + _np.timedelta64(27,'h') - _J2000origin).astype(int)
     #rewriting 1st and last values. These are 27 hour products precisely according to boundaries specified
     products_begin[0] = (products_day[0] - _J2000origin).astype(int)
-    products_end[-1] = (products_day[-1] + _np.timedelta64(24,'h')- _J2000origin).astype(int)
+    products_end[-1] = (products_day[-1] + _np.timedelta64(24,'h') - _np.timedelta64(5,'m')- _J2000origin).astype(int)
 
     year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
     
