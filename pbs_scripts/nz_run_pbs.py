@@ -18,7 +18,7 @@ GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
 if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 import trees_options
-from gxlib.gx_aux import gen_staDb
+from gxlib.gx_aux import gen_staDb, _project_name_construct
 from gxlib.gx_trees import gen_trees
 
 def qsub_python_code(code,name,email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs'):
@@ -113,10 +113,11 @@ cache_path = '/dev/shm'#'/scratch/bogdanm/cache'
 #'/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
 
 
+project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin)
 #generating tree files that won't be overwritten as crc32 will be the same
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',
             ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,years_list=years_list,cache_path = cache_path,
-            VMF1_dir = VMF1_dir,project_name = project_name,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
+            VMF1_dir = VMF1_dir,project_name = project_name_construct,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 stations_list_arrays = np.array_split(stations_list,num_nodes)
