@@ -74,7 +74,7 @@ def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,
                 tropNom_input = 'trop',
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
-                gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com', #we should use COD MGEX, ESA and GFZ later
+                gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/REPRO_2015', #we should use COD MGEX, ESA and GFZ later
                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
                 rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz',
@@ -85,20 +85,17 @@ def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,
                             gnss_products_dir = gnss_products_dir,ionex_type=ionex_type,eterna_path=eterna_path,hardisp_path = hardisp_path,pos_s = pos_s, wetz_s=wetz_s,PPPtype=PPPtype,tqdm=tqdm,command=command)
 #------------------------------------------------------------------------------------------
 '''Execution part here''' 
-stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
-                'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
-                'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
-                'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OROA', 'PKNO', 'RAHI', 'RAKW',
-                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'TAUP', 'TAUW', 'TGRI', 'TRNG', 'TRWH',
-                'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG', 'WITH']
+stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO',
+                'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS',
+                'ANLX','HERT','LOFT','WEAR','CAMO','BRAE','BRST','ZIM2']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
-years_list=[2014,2015,2016,2017,2018];num_cores = 28
+years_list=[2010,2011,2012,2013];num_cores = 28
 num_nodes = 10
 
 #We need to generate unique staDb with all the stations
-tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/'
-project_name = 'nz_cod_ce'
-IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
+tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/'
+project_name = 'eu_cod_ce'
+IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/bigf_igs_logs'
 ionex_type='cod' #igs ionex map igsg2260.15i is missing data
 tree_options = trees_options.rw_otl
 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq'
@@ -125,7 +122,7 @@ for i in range(len(stations_list_arrays)):
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,
                     command='gd2e()')
-    qsub_python_code(code,name='nz_cod_ce{}'.format(str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
+    qsub_python_code(code,name='{}{}'.format(project_name,str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
 #gen_tropNom can not be run rhis way as we need all the stations to be present
 
