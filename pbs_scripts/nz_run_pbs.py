@@ -71,7 +71,7 @@ kinematic_project.{command}'''
                             
 
 def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,IGS_logs_dir,staDb_path,blq_file,VMF1_dir,pos_s, wetz_s,PPPtype, ionex_type,  cache_path,
-                tropNom_input = 'trop',
+                tropNom_input,
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
                 gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com', #we should use COD MGEX, ESA and GFZ later
@@ -110,6 +110,7 @@ VMF1_dir = '/scratch/bogdanm/Products/VMF1_Products'
 static_clk = False
 ambres = False
 cache_path = '/dev/shm'#'/scratch/bogdanm/cache' 
+tropNom_input = 'trop'
 #'/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
 
 
