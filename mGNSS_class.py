@@ -72,7 +72,9 @@ class mGNSS_class:
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
 
-        self.project_name = self._project_name_construct(project_name) #static projects are marked as project_name_[mode]_static
+        self.project_name = gx_aux._project_name_construct( project_name, self.PPPtype,
+                                                            self.pos_s, self.wetz_s,
+                                                            self.tropNom_input, self.ElMin) #static projects are marked as project_name_[mode]_static
         self.static_clk = static_clk
         self.ambres = ambres
         
