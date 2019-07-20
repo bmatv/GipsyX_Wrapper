@@ -48,6 +48,20 @@ def _dump_read(filename):
     deserialized = _pa.deserialize(decompressed)
     return deserialized
 
+def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin):
+    '''pos_s and wetz_s are im mm/sqrt(s)'''
+    if PPPtype=='kinematic':
+        project_name = '{}_{}_{}'.format(str(project_name),str(pos_s),str(wetz_s))
+    if PPPtype=='static':
+        project_name = '{}_static'.format(str(project_name))
+    #adding _synth if tropNom type == trop+penna
+    if tropNom_input == 'trop+penna':
+        project_name += '_synth'
+    # the last component in proj_name will be ElMin if it is not default 7 degrees
+    if ElMin!=7:
+        project_name += '_El{}'.format(ElMin)
+    return project_name
+
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
     #Making staDb directory in tmp folder 
