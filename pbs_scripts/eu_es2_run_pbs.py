@@ -1,5 +1,4 @@
 import subprocess
-
 import numpy as np
 
 TEMPLATE_SERIAL = """#!/scratch/bogdanm/miniconda3/envs/py37/bin/python
@@ -74,10 +73,10 @@ def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,
                 tropNom_input,
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
-                gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/REPRO_2015', #we should use COD MGEX, ESA and GFZ later
+                gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2', #we should use COD MGEX, ESA and GFZ later
                 eterna_path='/scratch/bogdanm/Products/otl/eterna',
                 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
-                rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz',
+                rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s',
                 tree_options = 'trees_options.rw_otl',
                 tqdm=False):
     return TEMPLATE_MGNSS.format(project_name = project_name,staDb_path = staDb_path,tmp_dir=tmp_dir,rnx_dir=rnx_dir,stations_list=stations_list,years_list=years_list,tree_options = tree_options,num_cores=num_cores,
@@ -94,9 +93,9 @@ num_nodes = 10
 
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/'
-project_name = 'eu_cod_ce'
+project_name = 'eu_es2_ce'
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/bigf_igs_logs'
-ionex_type='cod' #igs ionex map igsg2260.15i is missing data
+ionex_type='esa' #igs ionex map igsg2260.15i is missing data
 tree_options = trees_options.rw_otl
 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq'
 ElMin = 7
