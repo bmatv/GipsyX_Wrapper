@@ -47,18 +47,23 @@ class ionex:
         self.ionex_type = ionex_type #add checker here
         self.ionex_prods_dir = _os.path.abspath(ionex_prods_dir)
         self.output_path = _os.path.abspath(_os.path.join(self.ionex_prods_dir,_os.pardir))
-        self.num_cores = num_cores
-        self.ionex_files_list = self._extended_list()
-        self.years_present = self.ionex_files_list.iloc[:,0].unique()
-        self.merge_lists = self._create_lists4merge(self.ionex_files_list,self.years_present)
+        self.num_cores = num_cores        
              
+
+    def get_merge_lists(self):
+        return self._create_lists4merge(self._extended_list(),self.years_present())
+
     def _extended_list(self):
         path_series = _pd.Series(sorted(_glob.glob(_os.path.abspath(_os.path.join(self.ionex_prods_dir,'*/*', self.ionex_type+'*')))))
         properties_series = path_series.str.split('/',expand=True).iloc[:,-3:]
         properties_series.iloc[:,0] = properties_series.iloc[:,0].astype(int)
         return _pd.concat((properties_series,path_series),axis=1)
-    
-    def _get_ionex_list(self,year,extended_list):
+
+    def years_present(self):
+        return self._extended_list().iloc[:,0].unique()
+
+    def _get_ionex_list(self,year):
+        extended_list = self._extended_list()
         if len(extended_list[extended_list.iloc[:,0]==year-1])==0 & len(extended_list[extended_list.iloc[:,0]==year+1])==0:
             list_files_out =  extended_list[extended_list.iloc[:,0]==year]
 
@@ -78,7 +83,7 @@ class ionex:
     def _create_lists4merge(self,ionex_files_list,years_present):
         merge_lists = _np.ndarray((len(years_present)),dtype=object)
         for i in range(len(years_present)):
-            merge_lists[i]=self._get_ionex_list(years_present[i],ionex_files_list)
+            merge_lists[i]=self._extended_list()(years_present[i],ionex_files_list)
         return merge_lists
     
     def _GIM_gen_header(self,merge_list,data_GIM_final):
@@ -151,12 +156,12 @@ class ionex:
             
         EOF = '{:<60s}{}{:<9s}\n'.format(' ','END OF FILE',' ')
     
-        GIM_data=_np.ndarray((len(self.years_present)),dtype=object)
-        for i in range(len(self.years_present)):
+        GIM_data=_np.ndarray((len(self.years_present())),dtype=object)
+        for i in range(len(self.years_present())):
             
             
-            GIM_data[i] = self.get_ionex_data(self.merge_lists[i])
-            header = self._GIM_gen_header(self.merge_lists[i][:,3],GIM_data[i])
+            GIM_data[i] = self.get_ionex_data(self.get_merge_lists()[i])
+            header = self._GIM_gen_header(self.get_merge_lists()[i][:,3],GIM_data[i])
             
             buf = (header)
             #writing TEC data
@@ -172,7 +177,7 @@ class ionex:
                 buf += ('{:6d}{:<54s}{}{:<6s}\n'.format(i+1,' ','END OF RMS MAP',' '))
 
             buf += (EOF)
-            with open(path+self.ionex_type+str(self.years_present[i]),'w') as output:
+            with open(path+self.ionex_type+str(self.years_present()[i]),'w') as output:
                 output.write(buf)
 # ionex_files = ionex()
 # ionex_files.merge_ionex_dataset()
