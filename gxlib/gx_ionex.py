@@ -83,7 +83,7 @@ class ionex:
     def _create_lists4merge(self,ionex_files_list,years_present):
         merge_lists = _np.ndarray((len(years_present)),dtype=object)
         for i in range(len(years_present)):
-            merge_lists[i]=self._extended_list()(years_present[i],ionex_files_list)
+            merge_lists[i]=self._get_ionex_list(years_present[i],ionex_files_list)
         return merge_lists
     
     def _GIM_gen_header(self,merge_list,data_GIM_final):
