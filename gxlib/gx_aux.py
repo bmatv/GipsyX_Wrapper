@@ -33,9 +33,9 @@ def _check_stations(stations_list,tmp_dir,project_name):
     checked_stations = stations_list[station_exists==True]
     return checked_stations
 
-def _dump_write(filename,data,num_cores=24,cname='lz4'):
+def _dump_write(filename,data,num_cores=24,cname='zstd'):
     '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
-
+    _blosc.set_nthreads(num_cores) #using 24 threads for efficient compression of extracted data
     context = _pa.default_serialization_context()
     serialized_data = context.serialize(data).to_buffer()
     compressed = _blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
