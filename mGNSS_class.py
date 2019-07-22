@@ -200,28 +200,35 @@ class mGNSS_class:
         if not _os.path.exists(env_dir):
             _os.makedirs(env_dir)
 
-        gather_path =  _os.path.join(env_dir,self.project_name + '.zstd')
+        gather_path =  _os.path.join(env_dir,self.project_name)
         '''get envs. For each station do common index, create unique levels and concat'''
         
-        if not _os.path.exists(gather_path):
-            gps_envs = self.gps.envs()
-            glo_envs = self.glo.envs()
-            gps_glo_envs = self.gps_glo.envs()
+        # if not _os.path.exists(gather_path):
+        gps_envs = self.gps.envs()
+        glo_envs = self.glo.envs()
+        gps_glo_envs = self.gps_glo.envs()
 
-            gather = []
-            for i in range(len(self.stations_list)):
+        gather = []
+        for i in range(len(self.stations_list)):
+            filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i])
+            if not _os.path.exists(filename):
+
                 #get common index
                 tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_envs[i],glo = glo_envs[i], gps_glo = gps_glo_envs[i])
 
                 #update column levels
                 tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                gx_aux._dump_write(data = tmp_mGNSS,filename=filename,num_cores=self.num_cores,cname='zstd')
+                #had to go station specific files as nz dataset is too big for serialization with pa
                 gather.append(tmp_mGNSS)
+            else:
+                gather.append(gx_aux._dump_read(filename))
 
-            # default blosc.MAX_BUFFERSIZE = 2147483631 (too small for nz dataset with 54 stations)
-            gx_aux._dump_write_blocks(data = gather,filename=gather_path,num_cores=self.num_cores,cname='zstd')
-        else:
-            # print('Found mGNSS gather file', self.project_name + ".zstd" )
-            gather = gx_aux._dump_read_blocks(gather_path)
+        # default blosc.MAX_BUFFERSIZE = 2147483631 (too small for nz dataset with 54 stations)
+        # gx_aux._dump_write_blocks(data = gather,filename=gather_path,)
+        # else:
+        #     # print('Found mGNSS gather file', self.project_name + ".zstd" )
+        #     gather = gx_aux._dump_read_blocks(gather_path)
         
         return gather
 
