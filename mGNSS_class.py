@@ -196,11 +196,11 @@ class mGNSS_class:
     
    
     def gather_mGNSS(self):
-        env_dir =  _os.path.join(self.tmp_dir,'gd2e','env_gathers')
-        if not _os.path.exists(env_dir):
-            _os.makedirs(env_dir)
+        gather_path =  _os.path.join(self.tmp_dir,'gd2e','env_gathers',self.project_name)
 
-        gather_path =  _os.path.join(env_dir,self.project_name)
+        if not _os.path.exists(gather_path):
+            _os.makedirs(gather_path)
+
         '''get envs. For each station do common index, create unique levels and concat'''
         
         # if not _os.path.exists(gather_path):
@@ -210,7 +210,7 @@ class mGNSS_class:
 
         gather = []
         for i in range(len(self.stations_list)):
-            filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i])
+            filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
             if not _os.path.exists(filename):
 
                 #get common index
