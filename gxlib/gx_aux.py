@@ -48,6 +48,34 @@ def _dump_read(filename):
     deserialized = _pa.deserialize(decompressed)
     return deserialized
 
+def _dump_write_blocks(filename, data,cname='zstd',num_cores=28):
+    '''As the maximum single block size of blosc is ~2G, the serialized content is broken into 2G blocks and put into array,
+    The array is then serialized again to file'''
+    _blosc.set_nthreads(num_cores)
+    context = _pa.default_serialization_context()
+    serialized_data = context.serialize(data).to_buffer()
+    #breaking into blocks
+    block_size = 2147483631 #blosc.MAX_BUFFERSIZE
+    n_blocks = int(_np.ceil(serialized_data.size/block_size))
+    buf=[]
+    begin =0
+    end = block_size if block_size>1 else -1 # if blocks == 1, end is end of buffer (-1)
+    for i in range(n_blocks):
+        buf.append(   _blosc.compress(serialized_data[begin:end],typesize=8,clevel=9,cname=cname)) #appending blocks to list
+        begin += block_size #updating begin with block_size
+        end += block_size #updating end with block_size
+    context.serialize_to(value=buf, sink=filename) #pyarrow serialize to file
+
+def _dump_read_blocks(filename):
+    '''Reaindg block files wrote with _dump_write_blocks'''
+    with open(filename,'rb') as file:
+        blocks_list = _pa.deserialize(file.read())
+        buf=b''
+        for block in blocks_list:
+            buf+=_blosc.decompress(block) #accumulating decompressed
+    return _pa.deserialize(buf) #deserializing decompressed blocks
+
+
 def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin):
     '''pos_s and wetz_s are im mm/sqrt(s)'''
     if PPPtype=='kinematic':
