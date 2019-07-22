@@ -189,7 +189,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     products_begin[0] = (products_day[0] - _J2000origin).astype(int)
     products_end[-1] = (products_day[-1] + _np.timedelta64(24,'h') - _np.timedelta64(5,'m')- _J2000origin).astype(int)
 
-    year_str =  (_pd.Series(products_day).dt.year).astype(str).str.zfill(3)
+    year_str =  (_pd.Series(products_day).dt.year).astype(str)
     
     output_merged_dir = _os.path.abspath(GNSSproducts_dir)
     target_path = _os.path.abspath(_os.path.join(output_merged_dir,_os.pardir,_os.pardir,'init',_os.path.basename(output_merged_dir)))
@@ -197,6 +197,8 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
         _rmtree(target_path)
         
     target_dir = target_path +'/' + year_str
+    for dir in target_dir.unique(): #creating folder structure before conversion
+        _os.makedirs(dir)
     
     repository = _np.ndarray((products_day.shape),object)
     h24 = _np.ndarray((products_day.shape),bool)
