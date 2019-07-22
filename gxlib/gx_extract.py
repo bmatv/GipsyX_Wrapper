@@ -85,7 +85,6 @@ def extract_tdps(tmp_dir,project_name,station_name,num_cores,tqdm):
     # print(station_name, 'extraction finished')
 
     _blosc.set_nthreads(24) #using 24 threads for efficient compression of extracted data
-    _blosc.MAX_BUFFERSIZE = 4147483631
     # default blosc.MAX_BUFFERSIZE = 2147483631 (too small for nz dataset with 54 stations)
     solutions_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/solutions.zstd'
     residuals_file = tmp_dir + '/gd2e/' + project_name + '/' +  station_name + '/residuals.zstd'
