@@ -217,12 +217,11 @@ class mGNSS_class:
                 tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
                 gather.append(tmp_mGNSS)
 
-            
             # default blosc.MAX_BUFFERSIZE = 2147483631 (too small for nz dataset with 54 stations)
-            gx_aux._dump_write_blocks(data = gather,filename=gather_path,num_cores=24,cname='zstd')
+            gx_aux._dump_write_blocks(data = gather,filename=gather_path,num_cores=self.num_cores,cname='zstd')
         else:
             # print('Found mGNSS gather file', self.project_name + ".zstd" )
-            gather = gx_aux._dump_read(gather_path)
+            gather = gx_aux._dump_read_blocks(gather_path)
         
         return gather
 
