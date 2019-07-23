@@ -42,4 +42,4 @@ kinematic_project = mGNSS_class(project_name = 'nz_cod_ce',
                                 wetz_s = 0.1,
                                 PPPtype = 'kinematic',
                                 tqdm = False)
-kinematic_project.analyze()
+kinematic_project.get_drInfo()
