@@ -111,7 +111,7 @@ static_clk = False
 ambres = False
 cache_path = '/dev/shm'#'/scratch/bogdanm/cache' 
 tropNom_input = 'trop'
-#'/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
+# '/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
 
 
 project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin)
