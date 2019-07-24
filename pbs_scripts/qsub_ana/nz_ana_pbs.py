@@ -41,6 +41,7 @@ kinematic_project = mGNSS_class(project_name = 'nz_cod_ce',
                                 pos_s = 3.2,
                                 wetz_s = 0.1,
                                 PPPtype = 'kinematic',
-                                tqdm = False)
+                                tqdm = False,
+                                ambres = False)
 kinematic_project.rnx2dr()
 kinematic_project.get_drInfo()
