@@ -51,16 +51,26 @@ def _write_ETERNA(dataset, filename,sampling):
     block_ends = _np.append(block_ends,-1) #Adding -1 to extract the last block
     block_begin_ind = 0 #Init begin block index which is zero
     
+
+
     
     out_buf = file_begin
+    block_number = 1
     for i in range(len(block_ends)):
         block_end_ind = block_ends[i]
-        block_begin = 'CAMB               1.0000    1.0000     0.000         0    BLOCK{}\n77777777            0.000\n'.format(i+1)
+        block = data.iloc[block_begin_ind:block_end_ind]
+        # Additional check: if block len < 24 => skip block
+        if block.shape[0] >= 24:
+            
+            block_begin = 'CAMB               1.0000    1.0000     0.000         0    BLOCK{}\n77777777            0.000\n'.format(block_number)
 
-        out_buf+=(block_begin +
-                   data.iloc[block_begin_ind:block_end_ind].to_string(columns=['Date_et', 'Time_et', 'Data'], formatters={'Date_et': a, 'Time_et': b, 'Data': c},
-                                  index=False, header=False) + block_end)
-        block_begin_ind = block_end_ind
+            out_buf+=(block_begin +
+                    data.iloc[block_begin_ind:block_end_ind].to_string(columns=['Date_et', 'Time_et', 'Data'], formatters={'Date_et': a, 'Time_et': b, 'Data': c},
+                                    index=False, header=False) + block_end)
+            block_begin_ind = block_end_ind
+            block_number += 1 
+        else: block_begin_ind = block_end_ind
+            
     out_buf+=(file_end)
     
     with open(filename, 'w') as file:
