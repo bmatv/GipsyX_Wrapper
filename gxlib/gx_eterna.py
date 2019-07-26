@@ -307,7 +307,7 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
         end_line = [i for i in range(len(data_lines_part)) if "M4" in data_lines_part[i]][0] #CORRECT!!!
 
         footer = len(data_lines) - (begin_line+end_line)
-        df = _pd.read_fwf(prn_file,sep='\n',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
+        df = _pd.read_fwf(prn_file,sep='\n',na_values='*********',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
         waves_extracted = df.wave.values
         df.set_index(waves_extracted,inplace=True)
 
