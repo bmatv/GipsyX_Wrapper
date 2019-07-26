@@ -35,7 +35,7 @@ def reformat_blq(blq_string):
     The problem is with pandas.read_csv that outputs different number of spaces in the beginning and is hard to control'''
     df = _pd.read_csv(_StringIO(blq_string),header=None,delim_whitespace=True)
 
-    amplitude = df.iloc[:3].round(5).to_string(header=None,index=None) #rounding values and string conversion round(5)
+    amplitude = df.iloc[:3].round(5).to_string(header=None,index=None,float_format='%.5f') #rounding values and string conversion round(5)
     amplitude = _pd.Series(amplitude).str.split('\n',expand=True).T.squeeze().str.split(expand=True).stack().str.lstrip('0').unstack() #formatting with no zero ahead
     
     def a(inp):
