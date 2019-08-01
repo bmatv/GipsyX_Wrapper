@@ -276,6 +276,8 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
 def gather_drinfo(tmp_dir,num_cores,tqdm):
     #After all stationyear files were generated => gather them to single dr_info file. Will be rewritten on every call (dr_info unique files will get updated if new files were added)
     #should be run only once with single core
+    tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
+    rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
     drinfo_dir = _os.path.join(rnx_dir,'drinfo')
     tmp = []
     for file in sorted(_glob.glob('{}/*.zstd'.format(drinfo_dir))):
