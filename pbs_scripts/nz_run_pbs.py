@@ -96,7 +96,7 @@ stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 
 # stations_list= ['DUNT']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
-num_nodes = 20 #default is 10
+num_nodes = 1 #default is 10
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 
 #We need to generate unique staDb with all the stations
@@ -130,11 +130,11 @@ for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,
-                    command='rnx2dr();kinematic_project.get_drInfo()')
+                    command='gather_drInfo()')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
 #;kinematic_project.dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()
-#kinematic_project.dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()
+#.gather_drInfo() #single node
 #gen_tropNom can not be run rhis way as we need all the stations to be present
 
 # 'gd2e()' was executed!!! ALL OK
