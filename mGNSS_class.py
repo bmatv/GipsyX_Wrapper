@@ -156,14 +156,17 @@ class mGNSS_class:
                                     ambres = self.ambres,
                                     years_list = self.years_list,
                                     cache_path=self.cache_path)
-        
-    
+   
     def rnx2dr(self):
         selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
         gx_convert.rnx2dr(selected_df = selected_rnx, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
         
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm)
+
+    def gather_drInfo(self):
+        '''Should be run with single node'''
+        gx_aux.gather_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm)
         
     def _merge_table(self,mode):
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=mode,stations_list=self.stations_list)
@@ -203,12 +206,20 @@ class mGNSS_class:
 
         '''get envs. For each station do common index, create unique levels and concat'''
         
+        # gather_paths  = gather_path + '/' + _pd.Series(self.stations_list).str.lower()+'.zstd'
+        gather = []
+        #checking if all the files are present
+        # for i in range(gather_paths.shape[0]):
+        #     gather_paths.iloc[i]
+
+
+
         # if not _os.path.exists(gather_path):
         gps_envs = self.gps.envs()
         glo_envs = self.glo.envs()
         gps_glo_envs = self.gps_glo.envs()
 
-        gather = []
+        
         for i in range(len(self.stations_list)):
             filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
             if not _os.path.exists(filename):
@@ -450,7 +461,7 @@ import matplotlib.patches as mpatches
 
 def plot_tree(blq_df,station_name,normalize=True):
     
-#     otl_c = blq_df.index.values
+    #     otl_c = blq_df.index.values
     otl_c = ['M2', 'S2', 'N2', 'K2', 'K1', 'O1', 'P1','Q1']
     
     blq_df = blq_df.loc[otl_c].copy().astype(float) #SSA PMTH phase std: could not convert string to float: '*********'
@@ -526,7 +537,7 @@ def plot_tree(blq_df,station_name,normalize=True):
     #     ax.legend(handles, labels,loc=3,frameon=False)    
             ax.flat[j].set_xlim(-scale,scale)
             ax.flat[j].set_aspect('equal','datalim')
-#             ax[j].autoscale()
+            # ax[j].autoscale()
             ax.flat[j].set_title(otl_c[j])
             ax.flat[j].grid()
             ax.flat[j].set(xlabel="", ylabel="")
@@ -534,9 +545,9 @@ def plot_tree(blq_df,station_name,normalize=True):
     ax.flat[0].get_legend().remove()
     fig.legend(loc='lower center',ncol=6)
     fig.suptitle(station_name+' station OTL phasors', fontsize=16)
-#     fig.tight_layout(rect=(0,0.05,1,1))
+    # fig.tight_layout(rect=(0,0.05,1,1))
     plt.show()
-#     print(scale)
+    # print(scale)
 
 import matplotlib.pyplot as plt
 # plt.style.use('ggplot')
