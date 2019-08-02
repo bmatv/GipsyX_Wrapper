@@ -62,7 +62,7 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
         station_start64 = station_record['begin'].values
         station_end64 = station_record['end'].values
 
-        start_c_day=station_start64.astype('datetime64[D]')
+        start_c_day=station_start64.astype('datetime64[D]') #this values should overwrite begin, otherwise duplicates may appear as if begin YYYY-MM-DD 02:25:00 + 27 !!! 05:25:00
         start_p_hour=_np.roll(station_start64,1).astype('datetime64[h]')
         start_n_hour=_np.roll(station_start64,-1).astype('datetime64[h]')
 
@@ -109,8 +109,8 @@ def dr_merge(merge_table,num_cores,tqdm):
     num_cores = int(num_cores) #safety precaution if str value is specified
     df_class3 =  merge_table[['begin','path_prev','path','path_next']][merge_table['completeness']==3].copy()
     
-    df_class3['merge_begin'] = (df_class3['begin']  - _np.timedelta64( 3,'[h]') -J2000origin).astype('timedelta64[s]').astype(int)
-    df_class3['merge_end'] = (df_class3['begin']  + _np.timedelta64( 27,'[h]') -J2000origin).astype('timedelta64[s]').astype(int)
+    df_class3['merge_begin'] = (df_class3['begin'].astype('datetime64[D]')  - _np.timedelta64( 3,'[h]') -J2000origin).astype('timedelta64[s]').astype(int)
+    df_class3['merge_end'] = (df_class3['begin'].astype('datetime64[D]')  + _np.timedelta64( 27,'[h]') -J2000origin).astype('timedelta64[s]').astype(int)
     
     merge_table_class3 = df_class3[['merge_begin','merge_end','path_prev','path','path_next']]
 
