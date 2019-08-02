@@ -228,7 +228,7 @@ def _drinfo2df(dr_file):
     
     return df
 
-def get_drinfo(tmp_dir,num_cores,tqdm):
+def get_drinfo(tmp_dir,num_cores,tqdm,stations_list):
     '''Analysis is done over all stations in the projects tmp_dir. The problem to run analysis on all converted fies is 30 hour files
     Naming convention for 30h files was changed
     that are present in the directory so original files are difficult to extract. Need to change merging naming'''
@@ -247,7 +247,8 @@ def get_drinfo(tmp_dir,num_cores,tqdm):
     
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
     split_df = _pd.Series(dr_good).str.split('/',expand=True)
-    stations = split_df.iloc[:,-4].unique();                    stations.sort()
+    stations = stations_list #only selected stations are extracted which is needed for multinode mode
+    stations.sort()
     years = split_df.iloc[:,-3].unique();                       years.sort()
     
     for station in stations:
