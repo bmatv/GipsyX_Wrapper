@@ -96,7 +96,7 @@ stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 
 # stations_list= ['DUNT']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
-num_nodes = 20 #default is 10
+num_nodes = 10 #default is 10
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 
 #We need to generate unique staDb with all the stations
