@@ -111,7 +111,8 @@ def dr_merge(merge_table,num_cores,tqdm):
     
     df_class3['merge_begin'] = (df_class3['begin'].astype('datetime64[D]')  - _np.timedelta64( 3,'[h]') -J2000origin).astype('timedelta64[s]').astype(int)
     df_class3['merge_end'] = (df_class3['begin'].astype('datetime64[D]')  + _np.timedelta64( 27,'[h]') -J2000origin).astype('timedelta64[s]').astype(int)
-    
+    # merging to 2:55:00 df_class3['merge_end'] = (df_class3['begin'].astype('datetime64[D]')  + _np.timedelta64( 27,'[h]') - _np.timedelta64( 5,'[m]') -J2000origin).astype('timedelta64[s]').astype(int)
+
     merge_table_class3 = df_class3[['merge_begin','merge_end','path_prev','path','path_next']]
 
     
