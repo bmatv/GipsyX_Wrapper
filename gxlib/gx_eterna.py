@@ -292,12 +292,12 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
     if eterna_exists and not force:
         print('Found previous Eterna session for', station_name + '. Extracting processed as not forced.', end=' | ')
         
-    return extract_et(tmp_station_path,llh['LON'])
+    return extract_et(tmp_station_path,llh['LON'],llh['LAT'])
 
-def extract_et(tmp_station_path,lon): #In development. Should extract lon from staDb to do proper correction of the phase
+def extract_et(tmp_station_path,lon,lat): #In development. Should extract lon from staDb to do proper correction of the phase
     lon-=360 if lon>180 else 0 #as the operator is -= then else will be -=parameter !!!
     lon+=360 if lon<-180 else 0
-    print(lon)
+    print(lon,lat)
     components = ['east','north','up'] #should be in alphabetical order. Not sure why
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
@@ -324,19 +324,26 @@ def extract_et(tmp_station_path,lon): #In development. Should extract lon from s
         df_blq[components[i]]['amplitude']['value'].update(((df.theor_a * df.a_factor)/1000).round(5))
         df_blq[components[i]]['amplitude']['std'].update(((df.theor_a * df.a_stdv)/1000).round(5))
 
-        coeff = _pd.DataFrame([['Q1',1],['O1',1],['M1',1],['P1',1],['S1',1],['K1',1],['PSI1',1],['PHI1',1],['J1',1],['OO1',1],['14h',1],\
+        # 14h constituent will not get any corrections
+        coeff = _pd.DataFrame([['Q1',1],['O1',1],['M1',1],['P1',1],['S1',1],['K1',1],['PSI1',1],['PHI1',1],['J1',1],['OO1',1],['14h',0],\
                                ['MF',0],['MM',0],['SSA',0],\
                    ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['','coeff']).set_index('')
 
 
         df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) - lon*coeff['coeff'])
         df_blq[components[i]]['phase']['std'].update(df['phase_stdv'])
-        
+    
+    #The true relation between local phase of the potential and Greenwich phase is given by equation (5),
+    #  adding 180? for long-period tides for latitudes above 35.27?, and for long-period tides south of the equator.    
+    # if lat > 0:
     df_blq.update(df_blq.loc(axis=1)[['east','north'],['phase',],['value',]]+180)
         
-        
-
-    df_blq.update(df_blq.loc(axis=1)[:,['phase',],['value',]].loc[['MF','MM','SSA']] -180)
+    if lat < 0: # -180 for southern hemisphere
+        diurnal_constituents = coeff[coeff['coeff'] == 1].index.values
+        df_blq.update(df_blq.loc(axis=1)[:,['phase',],['value',]].loc[diurnal_constituents] -180)
+            
+    if _np.abs(lat) > 35.27: #this was not tested as UK and NZ datasets are well above 35.27
+        df_blq.update(df_blq.loc(axis=1)[:,['phase',],['value',]].loc[['MF','MM','SSA']] -180)
     df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] < -180] += 360
     df_blq[df_blq.loc(axis=1)[:,['phase',],['value',]] > 180] -= 360
     
