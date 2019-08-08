@@ -65,12 +65,14 @@ kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 pos_s = {pos_s},
                                 wetz_s = {wetz_s},
                                 PPPtype = '{PPPtype}',
+                                ambres = {ambres},
                                 tqdm = {tqdm})
-kinematic_project.{command}'''
+kinematic_project.{command}
+print('Done!')'''
                             
 
 def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,IGS_logs_dir,staDb_path,blq_file,VMF1_dir,pos_s, wetz_s,PPPtype, ionex_type,  cache_path,
-                tropNom_input,
+                tropNom_input, ambres,
                 IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
                 rate = 300,
                 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2', #we should use COD MGEX, ESA and GFZ later
@@ -80,7 +82,7 @@ def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,
                 tree_options = 'trees_options.rw_otl',
                 tqdm=False):
     return TEMPLATE_MGNSS.format(project_name = project_name,staDb_path = staDb_path,tmp_dir=tmp_dir,rnx_dir=rnx_dir,stations_list=stations_list,years_list=years_list,tree_options = tree_options,num_cores=num_cores,
-                            blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate, cache_path = cache_path,
+                            blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate, cache_path = cache_path, ambres=ambres,
                             gnss_products_dir = gnss_products_dir,ionex_type=ionex_type,eterna_path=eterna_path,hardisp_path = hardisp_path,pos_s = pos_s, wetz_s=wetz_s,PPPtype=PPPtype,tqdm=tqdm,command=command)
 #------------------------------------------------------------------------------------------
 '''Execution part here''' 
@@ -118,12 +120,12 @@ gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 stations_list_arrays = np.array_split(stations_list,num_nodes)
 for i in range(len(stations_list_arrays)):
-    code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input,
+    code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,
-                    command='gd2e()')
+                    command='get_drInfo()')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
 #gen_tropNom can not be run rhis way as we need all the stations to be present
-
+# kinematic_project.get_drInfo()   .gather_drInfo()
 # 'gd2e()' was executed!!! ALL OK
