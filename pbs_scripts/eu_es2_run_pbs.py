@@ -91,7 +91,7 @@ stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO',
                 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE','BRST','ZIM2']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2010,2011,2012,2013];num_cores = 28
-num_nodes = 1
+num_nodes = 10
 
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/'
@@ -123,7 +123,7 @@ for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,
-                    command='gather_drInfo()')
+                    command='dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
 #gen_tropNom can not be run rhis way as we need all the stations to be present
