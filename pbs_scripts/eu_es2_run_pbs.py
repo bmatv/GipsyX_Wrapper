@@ -27,7 +27,7 @@ num_nodes = 10
 
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/'
-rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s',
+rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s'
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/bigf_igs_logs'
 tree_options = trees_options.rw_otl
 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/FES2004_GBe.blq'
@@ -40,13 +40,13 @@ static_clk = False
 ambres = False
 cache_path = '/dev/shm'#'/scratch/bogdanm/cache' 
 tropNom_input = 'trop'
-#'/dev/shm' - Nothing happens #Permission denied: '/run/user/402464'
-IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
-rate = 300,
-eterna_path='/scratch/bogdanm/Products/otl/eterna',
-hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
-tree_options_code = 'trees_options.rw_otl',
+IONEX_products = '/scratch/bogdanm/Products/IONEX_Products'
+rate = 300
+eterna_path='/scratch/bogdanm/Products/otl/eterna'
+hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp'
+tree_options_code = 'trees_options.rw_otl'
 tqdm=False
+
 project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin)
 #generating tree files that won't be overwritten as crc32 will be the same
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',
