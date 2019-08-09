@@ -2,7 +2,7 @@ import subprocess
 import os as _os, sys as _sys
 
 TEMPLATE_SERIAL = """#!/scratch/bogdanm/miniconda3/envs/py37/bin/python
-#PBS -l walltime=48:00:00
+#PBS -l walltime={walltime}
 #PBS -l select=1:ncpus=28
 #PBS -j oe
 #PBS -N {name}
@@ -13,7 +13,7 @@ TEMPLATE_SERIAL = """#!/scratch/bogdanm/miniconda3/envs/py37/bin/python
 """
 
 
-def qsub_python_code(code,name,email,cleanup,pbs_base):
+def qsub_python_code(code,name,email,cleanup,pbs_base,walltime='48:00:00'):
     '''name should have number in it
     qsub_python_code(code,name,email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')'''
     if not _os.path.exists(pbs_base):
@@ -21,7 +21,7 @@ def qsub_python_code(code,name,email,cleanup,pbs_base):
     logfile_path = '{}/{}.log'.format(pbs_base,name)
     pbs_script_path = '{}/{}.qsub'.format(pbs_base,name)
     with open(pbs_script_path,'w') as pbs_script:
-        pbs_script.write(TEMPLATE_SERIAL.format(name=name, logfile_path = logfile_path, email=email, code=code))
+        pbs_script.write(TEMPLATE_SERIAL.format(name=name, logfile_path = logfile_path, email=email, code=code,walltime=walltime))
 
     try:
         subprocess.call('qsub {}'.format(pbs_script_path),shell=True)
