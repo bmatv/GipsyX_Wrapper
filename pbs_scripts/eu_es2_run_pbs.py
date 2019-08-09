@@ -45,7 +45,7 @@ IONEX_products = '/scratch/bogdanm/Products/IONEX_Products',
 rate = 300,
 eterna_path='/scratch/bogdanm/Products/otl/eterna',
 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp',
-tree_options = 'trees_options.rw_otl',
+tree_options_code = 'trees_options.rw_otl',
 tqdm=False
 project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin)
 #generating tree files that won't be overwritten as crc32 will be the same
@@ -59,7 +59,7 @@ for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
-                    gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options,tqdm=False,
+                    gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
                     command='dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
