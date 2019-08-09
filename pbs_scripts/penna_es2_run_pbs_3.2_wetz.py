@@ -60,6 +60,15 @@ for i in range(len(penna_wetz_list)):
                     command='gd2e();kinematic_project.gather_mGNSS()')
     qsub_python_code(code,name='{}32_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
 
+static_code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin,
+                staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,VMF1_dir = VMF1_dir,
+                
+                pos_s = pos_s,wetz_s = 0.1,PPPtype = 'static', #pos_s and wetz_s can be any values as static overrides them in gen_tree
+                ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
+                gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
+                command='gd2e();kinematic_project.gather_mGNSS()')
+qsub_python_code(static_code,name='{}sta'.format(project_name),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
+
 #gen_tropNom can not be run rhis way as we need all the stations to be present
 # kinematic_project.get_drInfo()   .gather_drInfo()
 # 'gd2e()' was executed!!! ALL OK
