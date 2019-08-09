@@ -58,7 +58,7 @@ for i in range(len(penna_wetz_list)):
                     PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
                     command='gd2e();kinematic_project.gather_mGNSS()')
-    qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
+    qsub_python_code(code,name='{}32_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
 
 #gen_tropNom can not be run rhis way as we need all the stations to be present
 # kinematic_project.get_drInfo()   .gather_drInfo()
