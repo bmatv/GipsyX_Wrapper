@@ -60,7 +60,7 @@ kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 wetz_s = {wetz_s},
                                 PPPtype = '{PPPtype}',
                                 ambres = {ambres},
-                                ElMin = {ElMin}
+                                ElMin = {ElMin},
                                 tqdm = {tqdm})
 kinematic_project.{command}
 print('Done!')'''
