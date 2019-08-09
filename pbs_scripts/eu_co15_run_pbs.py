@@ -1,4 +1,5 @@
 import numpy as np
+import sys as _sys
 GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
 if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
