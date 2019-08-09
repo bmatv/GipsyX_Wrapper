@@ -22,7 +22,7 @@ stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO',
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2010,2011,2012,2013];num_cores = 28
 num_nodes = 10
-
+if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 
 #We need to generate unique staDb with all the stations
