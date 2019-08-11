@@ -10,7 +10,7 @@ from gxlib.gx_pbs import gen_code, qsub_python_code
 
 #parameters to change-----------------------------------------------------------------------------------------------
 
-project_name = 'eu_es2_ce'
+project_name = 'eu_es2_flat_ce'
 ionex_type='esa' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2' #we should use COD MGEX, ESA and GFZ later
 
@@ -21,7 +21,7 @@ stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO',
                 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE','BRST','ZIM2']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2010,2011,2012,2013];num_cores = 28
-num_nodes = 10
+num_nodes = 11
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 
