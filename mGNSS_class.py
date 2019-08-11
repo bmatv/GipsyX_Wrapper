@@ -31,6 +31,7 @@ class mGNSS_class:
                 hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
                 num_cores = 8,
                 ElMin = 7,
+                ElDepWeight = 'SqrtSin',
                 pos_s = 0.57, # mm/sqrt(s)
                 wetz_s = 0.1, # mm/sqrt(s)
                 PPPtype = 'kinematic',
@@ -62,6 +63,7 @@ class mGNSS_class:
                                     ionex_type=self.ionex_type, #type of files
                                     num_cores=self.num_cores)
         self.ElMin=int(ElMin)
+        self.ElDepWeight = ElDepWeight
         self.rate=rate
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
@@ -129,6 +131,7 @@ class mGNSS_class:
                 hardisp_path = self.hardisp_path,
                 num_cores = self.num_cores,
                 ElMin = self.ElMin,
+                ElDepWeight = self.ElDepWeight,
                 pos_s = self.pos_s,
                 wetz_s = self.wetz_s,
                 PPPtype = self.PPPtype,
@@ -147,6 +150,7 @@ class mGNSS_class:
                                     blq_file=self.blq_file, 
                                     mode = 'GPS+GLONASS', #mGNSS tree is GPS+GLONASS by default. Should be universal
                                     ElMin=self.ElMin,
+                                    ElDepWeight=self.ElDepWeight,
                                     pos_s = self.pos_s,
                                     wetz_s = self.wetz_s,
                                     PPPtype = self.PPPtype,

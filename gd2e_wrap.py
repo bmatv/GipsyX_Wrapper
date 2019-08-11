@@ -24,6 +24,7 @@ class gd2e_class:
                  hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
                  num_cores = 8, # integer of string
                  ElMin=7,       # degrees
+                 ElDepWeight='SqrtSin', #ElDepWeighting function
                  pos_s = 0.57,  # mm/sqrt(s)
                  wetz_s = 0.1,   # mm/sqrt(s)
                  PPPtype = 'kinematic',
@@ -62,6 +63,7 @@ class gd2e_class:
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
         self.ElMin=ElMin
+        self.ElDepWeight = ElDepWeight
         self.static_clk = static_clk
         self.ambres = ambres
 
@@ -111,6 +113,7 @@ class gd2e_class:
                                     static_clk = self.static_clk,
                                     ambres = self.ambres,
                                     years_list = self.years_list,
+                                    ElDepWeight=self.ElDepWeight,
                                     cache_path = self.cache_path) if self.trees_df is None else self.trees_df
 
     def _gd2e_table(self):

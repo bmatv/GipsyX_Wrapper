@@ -13,7 +13,7 @@ if _PYGCOREPATH not in _sys.path:
     _sys.path.insert(0,_PYGCOREPATH)
 
 import gcore.treeUtils as _treeUtils
-def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMin, pos_s, wetz_s, PPPtype,VMF1_dir,project_name, cache_path, static_clk = False, ambres = True):
+def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMin, ElDepWeight, pos_s, wetz_s, PPPtype,VMF1_dir,project_name, cache_path, static_clk = False, ambres = True):
     '''Creates trees based on tree_options array and yearly IONEX merged files. Returns DataFrame with trees' details
     Options: GPS and GLO are booleans that will come from the main class and affect the specific DataLink blocks in the tree file.
     Together with this drInfo files with specific properties will be filtered
@@ -46,6 +46,10 @@ def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMi
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
+
+    ElDepWeight_modes = ['SqrtSin','Sin','Flat']
+    if ElDepWeight not in ElDepWeight_modes:
+        raise ValueError("Invalid ElDepWeight. Expected one of: %s" % ElDepWeight_modes)
 
     PPPtypes = ['static','kinematic']
     if PPPtype not in PPPtypes:
@@ -136,14 +140,19 @@ def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMi
         #Add blq file location manually. At this step will override any tree option
         input_tree.entries['GRN_STATION_CLK_WHITE:Tides:OceanLoadFile'] =  _treeUtils.treevalue(blq_file)
         
+
+        keys_series = _pd.DataFrame(input_tree.entries.keys()).squeeze() # for efficient .contains ElMin and ElDepWeight
         #ElMin parameter change, default is 7
         if ElMin != 7:
             #find all ElMin entries
-            keys_series = _pd.DataFrame(input_tree.entries.keys()).squeeze() # for efficient .contains ElMin
             ElMin_keys = keys_series[keys_series.str.contains('ElMin')].values # object ndarray of keys to update
-
             for key in ElMin_keys:
                 input_tree.entries[key] = _treeUtils.treevalue(str(ElMin)) # updating all ElMin keys with new angle value 
+        
+        ElDepWeight_keys = keys_series[keys_series.str.contains('ElDepWeight')].values
+        for key in ElDepWeight_keys:
+            input_tree.entries[key] = _treeUtils.treevalue(str(ElDepWeight)) # updating all ElMin keys with new angle value 
+
         
         #check if tree file already exists. If doesn't exist, we just write what we have
         tree_path = out_df['tree_path'][i] + 'ppp_0.tree'
