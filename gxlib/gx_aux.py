@@ -7,7 +7,7 @@ from multiprocessing import Pool as _Pool
 import pyarrow as _pa 
 import blosc as _blosc
 import binascii as _binascii
-from .gx_hardisp import blq2hardisp as _blq2hardisp
+
 if _pa.__version__ !='0.13.0':
     raise Exception('pyarrow should be version 0.13.0 only') 
 
@@ -22,6 +22,7 @@ _regex_rec = _re.compile(r"3\.\d+\s+R.+\W+\:\s(.+|)\W+Satellite System\W+\:\s(.+
 _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Number\W+:\s(\w+\s?\w+?|)\W+Antenna.+:\s(.+|)\W+Marker->ARP Up.+:\s(.+|)\W+Marker->ARP North.+:\s(.+|)\W+Marker->ARP East.+:\s(.+|)\W+Alignment from True N\W+:\s(.+|)\W+Antenna Radome Type\W+:\s(.+|)\W+Radome Serial Number\W+:\s(.+|)\W+Antenna Cable Type\W+:\s(.+|)\W+Antenna Cable Length\W+:\s(.+|)\W+Date Installed\W+:\s(.{10})T?(.{5}|)Z?\W+Date Removed\W+\:(?:\s\(?(.{10})T(.{5}|)Z?|)\W+Additional Information\W+:\s(.+|)\W+", _re.MULTILINE)
 
 J2000origin = _np.datetime64('2000-01-01 12:00:00')
+from .gx_hardisp import blq2hardisp as _blq2hardisp
 
 def _check_stations(stations_list,tmp_dir,project_name):
     '''Check presence of stations in the project and outputs corrected station list'''
