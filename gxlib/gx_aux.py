@@ -7,7 +7,7 @@ from multiprocessing import Pool as _Pool
 import pyarrow as _pa 
 import blosc as _blosc
 import binascii as _binascii
-
+from .gx_hardisp import blq2hardisp as _blq2hardisp
 if _pa.__version__ !='0.13.0':
     raise Exception('pyarrow should be version 0.13.0 only') 
 
@@ -427,3 +427,68 @@ def _CRC32_from_file(filename):
     buf = open(filename,'rb').read()
     buf = (_binascii.crc32(buf) & 0xFFFFFFFF)
     return "%08X" % buf
+
+
+
+def blq2blq_df(blq_file):
+    '''Reads blq file specified and returns blq dataframe as needed for analysis'''
+    
+    _pd.options.display.max_colwidth = 200 #By default truncates text
+    blq = _blq2hardisp(blq_file=blq_file)
+    tmp_df_gather = []
+    for blq_record in blq:
+        blq_record_df = _pd.Series(blq_record[1]).str.split(r'\n',expand=True).squeeze().str.strip().str.split(r'\s+',expand=True,).T
+        blq_record_df.index = _pd.MultiIndex.from_product([[blq_record[0]],['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']])
+        tmp_df_gather.append(blq_record_df)
+    df = _pd.concat(tmp_df_gather)
+    df.columns =  _pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],['up','east','north'],['value']])
+    df = df.swaplevel(1,2,axis=1)
+    
+    df_std = _pd.DataFrame(0,index=df.index,columns=_pd.MultiIndex.from_product([['OTL'],['up','east','north'],['amplitude','phase'],['std']]))
+    return _pd.concat([df,df_std],axis=1).astype(float)
+
+
+def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
+    '''converts blq into set of parameters needed for plotting'''
+    blq_df = blq_df.astype(float)
+    coeff95 = 1.96
+    if not custom_blq_path:pass
+    else:blq_df.update(blq2blq_df(custom_blq_path))
+        
+    amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
+    phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
+    
+    std_a = blq_df.xs(key = ('amplitude','std'),axis=1,level = (2,3),drop_level=True)*1000
+    std_p = blq_df.xs(key = ('phase','std'),axis=1,level = (2,3),drop_level=True)
+    
+    x = _np.cos(_np.deg2rad(phase)) * amplitude
+    y = _np.sin(_np.deg2rad(phase)) * amplitude
+    
+    if normalize and not gps_only:
+        x_norm = x['OTL']
+        x['OTL'] -= x_norm
+        x['GPS'] -= x_norm
+        x['GLONASS'] -= x_norm
+        x['GPS+GLONASS'] -= x_norm
+        
+        y_norm = y['OTL']
+        y['OTL'] -= y_norm
+        y['GPS'] -= y_norm
+        y['GLONASS'] -= y_norm
+        y['GPS+GLONASS'] -= y_norm
+        
+    if normalize and gps_only:
+        x_norm = x['OTL']
+        x['OTL'] -= x_norm
+        x['GPS'] -= x_norm      
+        y_norm = y['OTL']
+        y['OTL'] -= y_norm
+        y['GPS'] -= y_norm
+        
+    semiAxisA = std_a
+    semiAxisP = _np.tan(_np.deg2rad(std_p))*amplitude
+    #returns x,y width, height. angle should be computed as arccos(x/y)
+    width = semiAxisA*2*coeff95 #should be multiplied by 2 as axis and not radius
+    height = semiAxisP*2*coeff95
+    
+    return x,y,width,height,phase
