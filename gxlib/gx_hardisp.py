@@ -1,7 +1,7 @@
 import pandas as _pd
 import numpy as _np
 
-from gxlib.gx_aux import J2000origin as _J2000origin
+from .gx_aux import J2000origin as _J2000origin
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from pandas.compat import StringIO as _StringIO
 from datetime import datetime as _datetime
