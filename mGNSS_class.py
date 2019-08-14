@@ -42,6 +42,7 @@ class mGNSS_class:
                 ambres = True):
         
         self.tqdm=tqdm
+        self.ambres = ambres
         self.IGS_logs_dir = IGS_logs_dir
         self.cache_path = _os.path.abspath(cache_path)
         self.rnx_dir=rnx_dir
@@ -76,9 +77,9 @@ class mGNSS_class:
 
         self.project_name = gx_aux._project_name_construct( project_name, self.PPPtype,
                                                             self.pos_s, self.wetz_s,
-                                                            self.tropNom_input, self.ElMin) #static projects are marked as project_name_[mode]_static
+                                                            self.tropNom_input, self.ElMin, ambres = self.ambres) #static projects are marked as project_name_[mode]_static
         self.static_clk = static_clk
-        self.ambres = ambres
+        
         
         self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path #single staDb path for all modes.
         #Need to be able to fetch external StaDb for pbs
