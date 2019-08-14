@@ -87,7 +87,7 @@ def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMi
     if tropNom_input == 'trop+penna':
         project_name += '_synth'
     if ambres:
-        project_name += '_AR'
+        project_name += '_ar'
     # the last component in proj_name will be ElMin if it is not default 7 degrees
     if ElMin!=7:
         project_name += '_El{}'.format(ElMin)
