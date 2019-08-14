@@ -45,11 +45,12 @@ eterna_path='/scratch/bogdanm/Products/otl/eterna'
 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp'
 tree_options_code = 'trees_options.rw_otl'
 tqdm=False
+ElDepWeight = 'SqrtSin'
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 
 for i in range(len(penna_wetz_list)):
-    code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin,
+    code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin, ElDepWeight=ElDepWeight,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,VMF1_dir = VMF1_dir,
                     
                     pos_s = pos_s,
@@ -60,7 +61,7 @@ for i in range(len(penna_wetz_list)):
                     command='gd2e();kinematic_project.gather_mGNSS()')
     qsub_python_code(code,name='{}32_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
 
-static_code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin,
+static_code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin, ElDepWeight=ElDepWeight,
                 staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,VMF1_dir = VMF1_dir,
                 
                 pos_s = pos_s,wetz_s = 0.1,PPPtype = 'static', #pos_s and wetz_s can be any values as static overrides them in gen_tree
