@@ -39,7 +39,7 @@ class mGNSS_class:
                 static_clk = False,
                 tqdm = True,
                 staDb_path = None,
-                ambres = True):
+                ambres = False):
         
         self.tqdm=tqdm
         self.ambres = ambres
