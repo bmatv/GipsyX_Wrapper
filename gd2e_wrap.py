@@ -56,7 +56,9 @@ class gd2e_class:
         self.IONEX_products = _os.path.abspath(IONEX_products)
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
                                     ionex_type=self.ionex_type, #type of files
-                                    num_cores=self.num_cores)
+                                    num_cores=self.num_cores,
+                                    cache_path = self.cache_path,
+                                    tqdm=self.tqdm)
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
         self.mode = self._check_mode(mode)

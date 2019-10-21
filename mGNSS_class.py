@@ -62,7 +62,9 @@ class mGNSS_class:
         self.IONEX_products = IONEX_products
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
                                     ionex_type=self.ionex_type, #type of files
-                                    num_cores=self.num_cores)
+                                    num_cores=self.num_cores,
+                                    cache_path = self.cache_path,
+                                    tqdm=self.tqdm)
         self.ElMin=int(ElMin)
         self.ElDepWeight = ElDepWeight
         self.rate=rate
