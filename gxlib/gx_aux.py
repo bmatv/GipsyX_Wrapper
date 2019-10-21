@@ -24,6 +24,15 @@ _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Numb
 J2000origin = _np.datetime64('2000-01-01 12:00:00')
 from .gx_hardisp import blq2hardisp as _blq2hardisp
 
+# service functions for uncompressing
+def uncompress(file_path):
+    process = _Popen(['uncompress.real',file_path])
+    process.wait()
+    
+def uncompress_mp(filelist,num_cores=10):
+    with _Pool(processes=num_cores) as p:
+        p.map(uncompress,filelist)
+
 def _check_stations(stations_list,tmp_dir,project_name):
     '''Check presence of stations in the project and outputs corrected station list'''
     stations_list = _np.core.defchararray.upper(stations_list)
@@ -50,7 +59,8 @@ def _dump_read(filename):
     return deserialized
 
 def _dump_write_blocks(filename, data,cname='zstd',num_cores=28):
-    '''As the maximum single block size of blosc is ~2G, the serialized content is broken into 2G blocks and put into array,
+    '''NOT WORKING NOW AS HAS SAME LIMITATIONS
+    As the maximum single block size of blosc is ~2G, the serialized content is broken into 2G blocks and put into array,
     The array is then serialized again to file'''
     _blosc.set_nthreads(num_cores)
     context = _pa.default_serialization_context()
