@@ -59,11 +59,12 @@ def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
         with _Pool(processes = num_cores) as p:
             if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
             else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
+    
     # except:
-    #     print('cleaning IONEX from RAM as exiting')
-    #     #cleaning after execution            
-    #     IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
-    #     _rmtree(IONEX_cached_path)
+    print('cleaning IONEX from RAM as exiting')
+    #cleaning after execution            
+    IONEX_cached_path = _os.path.join(cache_path,'IONEX_merged')
+    _rmtree(IONEX_cached_path)
 
 def _get_tdps_pn(path_dir):
     '''A completely new version. Faster selection of data types needed. Pivot is done on filtered selection.
