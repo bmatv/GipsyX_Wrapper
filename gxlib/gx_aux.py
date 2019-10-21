@@ -26,7 +26,7 @@ from .gx_hardisp import blq2hardisp as _blq2hardisp
 
 # service functions for uncompressing
 def uncompress(file_path):
-    process = _Popen(['uncompress.real',file_path])
+    process = _Popen(['uncompress',file_path])
     process.wait()
     
 def uncompress_mp(filelist,num_cores=10):
