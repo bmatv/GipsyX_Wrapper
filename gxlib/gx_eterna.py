@@ -150,53 +150,29 @@ PRINTDEVEL=      0        #ETERNA print param. for tidal development (1=yes)
 
 #NUMFILNAME=n30m30m2.nlf   #ANALYZE low pass filter for hourly data
 PRINTOBSER=      0        #ETERNA print parameter for observations (1=yes)
-#PRINTLFOBS=      1        #ETERNA print parameter fo lowpass filtered obs.
+PRINTLFOBS=      0        #ETERNA print parameter fo lowpass filtered obs.
 RIGIDEARTH=      1        #ETERNA parameter for rigid earth model (1=yes)
 HANNWINDOW=      0        #ETERNA parameter for Hann-window (1=yes)
 QUICKLOOKA=      0        #ETERNA parameter for quick look analysis (1=yes)
 
-WAVEGROUPI=   .000146   .003426  1.000000   .000000 SA    #ETERNA wavegroup
-WAVEGROUPI=   .004709   .010952  1.000000   .000000 SSA   #ETERNA wavegroup
-WAVEGROUPI=   .025811   .031745  1.000000   .000000 MSM   #ETERNA wavegroup
-WAVEGROUPI=   .033406   .044653  1.000000   .000000 MM    #ETERNA wavegroup
-WAVEGROUPI=   .060131   .068640  1.000000   .000000 MSF   #ETERNA wavegroup
-WAVEGROUPI=   .069845   .080798  1.000000   .000000 MF    #ETERNA wavegroup
-WAVEGROUPI=   .096422   .104932  1.000000   .000000 MSTM  #ETERNA wavegroup
-WAVEGROUPI=   .106136   .115412  1.000000   .000000 MTM   #ETERNA wavegroup
-WAVEGROUPI=   .130192   .143814  1.000000   .000000 MSQM  #ETERNA wavegroup
-WAVEGROUPI=   .145166   .249952  1.000000   .000000 MQM   #ETERNA wavegroup
-WAVEGROUPI=   .721499   .833113  1.000000   .000000 SGQ1  #ETERNA wavegroup
-WAVEGROUPI=   .851181   .859691  1.000000   .000000 2Q1   #ETERNA wavegroup
-WAVEGROUPI=   .860895   .870024  1.000000   .000000 SGM1  #ETERNA wavegroup
-WAVEGROUPI=   .887326   .896130  1.000000   .000000 Q1    #ETERNA wavegroup
-WAVEGROUPI=   .897806   .906316  1.000000   .000000 RO1   #ETERNA wavegroup
-WAVEGROUPI=   .921940   .930450  1.000000   .000000 O1    #ETERNA wavegroup
-WAVEGROUPI=   .931963   .940488  1.000000   .000000 TAU1  #ETERNA wavegroup
-WAVEGROUPI=   .958085   .966757  1.000000   .000000 NO1   #ETERNA wavegroup
-WAVEGROUPI=   .968564   .974189  1.000000   .000000 CHI1  #ETERNA wavegroup
-WAVEGROUPI=   .989048   .998029  1.000000   .000000 P1    #ETERNA wavegroup
-WAVEGROUPI=   .999852  1.000148  1.000000   .000000 S1    #ETERNA wavegroup
-WAVEGROUPI=  1.001824  1.013690  1.000000   .000000 K1    #ETERNA wavegroup
-WAVEGROUPI=  1.028549  1.034468  1.000000   .000000 TET1  #ETERNA wavegroup
-WAVEGROUPI=  1.036291  1.044801  1.000000   .000000 J1    #ETERNA wavegroup
-WAVEGROUPI=  1.064840  1.071084  1.000000   .000000 SO1   #ETERNA wavegroup
-WAVEGROUPI=  1.072582  1.080945  1.000000   .000000 OO1   #ETERNA wavegroup
-WAVEGROUPI=  1.099160  1.216398  1.000000   .000000 NU1   #ETERNA wavegroup
+WAVEGROUPI=   .001379   .004107  1.000000   .000000 SA    #ETERNA wavegroup
+WAVEGROUPI=   .004108   .020884  1.000000   .000000 SSA   #ETERNA wavegroup
+WAVEGROUPI=   .020885   .054747  1.000000   .000000 MM    #ETERNA wavegroup
+WAVEGROUPI=   .054748   .091348  1.000000   .000000 MF    #ETERNA wavegroup
+WAVEGROUPI=   .501370   .911390  1.000000   .000000 Q1    #ETERNA wavegroup
+WAVEGROUPI=   .911391   .947991  1.000000   .000000 O1    #ETERNA wavegroup
+WAVEGROUPI=   .981855   .998631  1.000000   .000000 P1    #ETERNA wavegroup
+WAVEGROUPI=   .998632  1.001369  1.000000   .000000 S1    #ETERNA wavegroup
+WAVEGROUPI=  1.001370  1.004107  1.000000   .000000 K1    #ETERNA wavegroup
+WAVEGROUPI=  1.023623  1.057485  1.000000   .000000 J1    #ETERNA wavegroup
+WAVEGROUPI=  1.057486  1.470243  1.000000   .000000 OO1   #ETERNA wavegroup
 WAVEGROUPI=  1.719370  1.719390  1.000000   .000000 14h   #ANALYZE wave group
-WAVEGROUPI=  1.719390  1.837970  1.000000   .000000 EPS2  #ETERNA wavegroup
-WAVEGROUPI=  1.853919  1.862429  1.000000   .000000 2N2   #ETERNA wavegroup
-WAVEGROUPI=  1.863633  1.872143  1.000000   .000000 MU2   #ETERNA wavegroup
-WAVEGROUPI=  1.888386  1.896749  1.000000   .000000 N2    #ETERNA wavegroup
-WAVEGROUPI=  1.897953  1.906463  1.000000   .000000 NU2   #ETERNA wavegroup
-WAVEGROUPI=  1.923765  1.942754  1.000000   .000000 M2    #ETERNA wavegroup
-WAVEGROUPI=  1.958232  1.963709  1.000000   .000000 LAM2  #ETERNA wavegroup
-WAVEGROUPI=  1.965826  1.976927  1.000000   .000000 L2    #ETERNA wavegroup
-WAVEGROUPI=  1.991786  1.998288  1.000000   .000000 T2    #ETERNA wavegroup
-WAVEGROUPI=  1.999705  2.000767  1.000000   .000000 S2    #ETERNA wavegroup
-WAVEGROUPI=  2.002590  2.013690  1.000000   .000000 K2    #ETERNA wavegroup
-WAVEGROUPI=  2.031287  2.047391  1.000000   .000000 ETA2  #ETERNA wavegroup
-WAVEGROUPI=  2.067578  2.182844  1.000000   .000000 2K2   #ETERNA wavegroup
-WAVEGROUPI=  2.753243  3.081255  1.000000   .000000 M3    #ETERNA wavegroup
+WAVEGROUPI=  1.470244  1.880264  1.000000   .000000 2N2   #ETERNA wavegroup
+WAVEGROUPI=  1.880265  1.914128  1.000000   .000000 N2    #ETERNA wavegroup
+WAVEGROUPI=  1.914129  1.950419  1.000000   .000000 M2    #ETERNA wavegroup
+WAVEGROUPI=  1.950420  1.984282  1.000000   .000000 L2    #ETERNA wavegroup
+WAVEGROUPI=  1.984283  2.002736  1.000000   .000000 S2    #ETERNA wavegroup
+WAVEGROUPI=  2.002737  2.451943  1.000000   .000000 K2    #ETERNA wavegroup
 WAVEGROUPI=  3.791963  3.937898  1.000000   .000000 M4    #ETERNA wavegroup
 
 #METEOPARAM=         0      3.20airpress. hPa             #ANALYZE meteorol.
@@ -316,7 +292,7 @@ def extract_et(tmp_station_path,lon,lat): #In development. Should extract lon fr
         data_lines_part = data_lines[begin_line:]
         end_line = [i for i in range(len(data_lines_part)) if "M4" in data_lines_part[i]][0] #CORRECT!!!
 
-        footer = len(data_lines) - (begin_line+end_line)
+        footer = len(data_lines) - (begin_line+end_line+1)
         df = _pd.read_fwf(prn_file,sep='\n',na_values='*********',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
         waves_extracted = df.wave.values
         df.set_index(waves_extracted,inplace=True)
