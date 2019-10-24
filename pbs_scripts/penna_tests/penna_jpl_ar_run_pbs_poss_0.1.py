@@ -64,7 +64,7 @@ for i in range(len(penna_pos_s_list)):
 #single static run
 code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin, ElDepWeight=ElDepWeight,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,VMF1_dir = VMF1_dir,
-                    pos_s = 'N/A',
+                    pos_s = 0,
                     wetz_s = 0.05,
                     PPPtype = 'static',ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
