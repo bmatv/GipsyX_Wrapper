@@ -160,7 +160,7 @@ class gd2e_class:
     def envs(self,margin=0.1,std_coeff=3,dump=False):
         '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)'''
         env_gather_path = _os.path.join(self.tmp_dir,'gd2e/env_gathers',self.project_name_core) #saning to core where all mGNSS env_gathers are located
-
+        if not _os.path.exists(env_gather_path): _os.makedirs(env_gather_path)
         envs = _np.ndarray((len(self.stations_list)),dtype=object)
         incomplete=False
         for i in range(envs.shape[0]):
