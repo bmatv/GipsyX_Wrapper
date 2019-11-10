@@ -74,9 +74,9 @@ def gen_synth_otl(dataset,station_name,hardisp_path,blq_file,sampling):
     index=_np.arange(begin_J2000,end_J2000+1,sampling)
 
 
-    tmp[station_name + '.E'] = synth_otl['dW']*-1 #Conversion to dE. Already checked that it is a correct way (phases) as same as GipsyX does correction (no otl - otl_corrected)
-    tmp[station_name + '.N'] = synth_otl['dS']*-1 #Convertion to dN
-    tmp[station_name + '.V'] = synth_otl['dU']
+    tmp['east'] = synth_otl['dW']*-1 #Conversion to dE. Already checked that it is a correct way (phases) as same as GipsyX does correction (no otl - otl_corrected)
+    tmp['north'] = synth_otl['dS']*-1 #Convertion to dN
+    tmp['up'] = synth_otl['dU']
     synth_otl['Time']=_pd.Series(_np.arange(begin_J2000,end_J2000+1,sampling))
     hardisp = tmp.set_index(index)
     return hardisp
