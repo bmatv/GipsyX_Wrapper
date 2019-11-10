@@ -18,7 +18,7 @@ if PYGCOREPATH not in _sys.path:
 import gcore.StationDataBase as StationDataBase
 
 
-def _write_ETERNA(dataset, filename,sampling):
+def _write_ETERNA(dataset, filename,sampling,station_name):
     '''sampling is 1800 for 30 min averaged files. Sampling detection may be done automatically if needed (histogram analysis of the dataset)'''
     def a(inp):
         return '{:8d}'.format(inp)
@@ -62,7 +62,7 @@ def _write_ETERNA(dataset, filename,sampling):
         # Additional check: if block len < 24 => skip block
         if block.shape[0] >= 24:
             
-            block_begin = 'CAMB               1.0000    1.0000     0.000         0    BLOCK{}\n77777777            0.000\n'.format(block_number)
+            block_begin = '{}               1.0000    1.0000     0.000         0    BLOCK{}\n77777777            0.000\n'.format(station_name,block_number)
 
             out_buf+=(block_begin +
                     data.iloc[block_begin_ind:block_end_ind].to_string(columns=['Date_et', 'Time_et', 'Data'], formatters={'Date_et': a, 'Time_et': b, 'Data': c},
@@ -126,7 +126,6 @@ def _interp_short_gaps(dataset_avg):
 def env2eterna(dataset,remove_outliers):
     '''Expects env dataset. Removes outliers via detrend
     remove_outliers is bool (detrend and filter on 3*std)'''
-
     if remove_outliers: filt1 = _remove_outliers(dataset) #Turning off and on the detrending
     else: filt1 = dataset.value
 
@@ -200,12 +199,11 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force,otl_env=False):
+def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force,mode,otl_env=False):
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)
     otl_env switch means creating tmp_otl_et directory and not standard tmp_et'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
     commdat_path = _os.path.join(eterna_path,'commdat')
-    comp_path_list = []
 
     tmp_station_path = _os.path.join(tmp_dir,'gd2e',project_name,station_name,'tmp_otl_et' if otl_env else 'tmp_et')
     
@@ -227,7 +225,7 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
 
 
     if not eterna_exists:
-        print('Processing', station_name,'with Eterna...',end=' | ')
+        print('Processing', station_name,mode,'with Eterna...',end=' | ')
 
         _os.makedirs(tmp_station_path)
         for i in range(len(components)):
@@ -236,7 +234,8 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
             #create a symlink to commdat folder as needed for eterna
             _os.symlink(commdat_path,_os.path.join(comp_path,'commdat'))   
             #Writing Eterna dat file for specific component and station
-            _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800)
+            # return env_et.iloc[:,[i,]]
+            _write_ETERNA(dataset=env_et.iloc[:,[i,]],filename=_os.path.join(comp_path,components[i]+'.dat'),sampling=1800, station_name=station_name)
 
             #Writing ini file for specific component and station
             ini_path = _os.path.join(comp_path,components[i]+'.ini')
@@ -256,13 +255,8 @@ def analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,r
             with open(project_path,'w') as project_file:
                 project_file.write(components[i])
 
-            # Executing ETERNA
-            # run_eterna(eterna_exec,comp_path)
-            comp_path_list.append([eterna_exec,comp_path])
-
-        # Running Eterna analysis of 3 components in parallel
-        with Pool(3) as p:
-            p.map(run_eterna, comp_path_list)
+            # Executing ETERNA. For each component in sequence (expects list of arguments)
+            run_eterna([eterna_exec,comp_path])
 
     if eterna_exists and not force:
         print('Found previous Eterna session for', station_name + '. Extracting processed as not forced.', end=' | ')
@@ -324,31 +318,44 @@ def extract_et(tmp_station_path,lon,lat): #In development. Should extract lon fr
     
     return df_blq[['up','east','north']]
 
-def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force):
-    blq_array = _np.ndarray((len(stations_list)),dtype=object)
+def analyze_env_single_thread(set):
+    # function that executes with single thread. Expects list of parameters to run with mp.
+    # Expects env - an element of envs
+    env_mode,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,mode,otl_env = set
+    env = env_mode[mode]
+    station_name = env.columns.levels[0][0]
 
-    if not restore_otl:
-        for i in range(blq_array.shape[0]):
-            # runing eterna analyse on each env
-            env_et = env2eterna(envs[i],remove_outliers)
-            blq_array[i] = analyse_et(env_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers, force)
+    env_et = env2eterna(env[station_name],remove_outliers)
+
+
+    if otl_env:
+        synth_otl = gen_synth_otl(dataset = env_et,station_name = station_name,hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+        blq_array = _pd.concat([analyse_et(synth_otl,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
+    elif restore_otl:
+        synth_otl = gen_synth_otl(dataset = env_et,station_name = station_name,hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+        restored_et = env_et + synth_otl
+        blq_array = _pd.concat([analyse_et(restored_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     else:
-        for i in range(blq_array.shape[0]):
-            # If restore otl -> ge synthetic otl and add back to the env signal and run analyse on each component
-            env_et = env2eterna(envs[i],remove_outliers)
-            synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i],hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
-            restored_et = env_et + synth_otl
-            blq_array[i] = analyse_et(restored_et,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force)
-
+        blq_array = _pd.concat([analyse_et(restored_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     return blq_array
 
-def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path,force):
-    '''This is a test method that should return same parameters as input blq file'''
-    blq_array = _np.ndarray((len(stations_list)),dtype=object)
-    for i in range(blq_array.shape[0]):
-        env_et = env2eterna(envs[i],remove_outliers)
-        synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i]+'/tmp_synth_otl',hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,num_cores,mode,otl_env):
+    # blq_array = _np.ndarray((len(stations_list)),dtype=object)
+    sets = []
+    for i in range(len(envs)):
+        sets.append([envs[i],eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,mode,otl_env])
 
-        blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force)
+    with Pool(num_cores) as p:
+        blq_array = p.map(analyze_env_single_thread, sets)
+    return _pd.concat(blq_array,axis=0)
 
-    return blq_array
+# def test_analyze(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,blq_file,sampling,hardisp_path,force):
+#     '''This is a test method that should return same parameters as input blq file'''
+#     blq_array = _np.ndarray((len(stations_list)),dtype=object)
+#     for i in range(blq_array.shape[0]):
+#         env_et = env2eterna(envs[i],remove_outliers)
+#         synth_otl = gen_synth_otl(dataset = env_et,station_name = stations_list[i]+'/tmp_synth_otl',hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
+
+#         blq_array[i] = analyse_et(synth_otl,eterna_path,stations_list[i],project_name,tmp_dir,staDb_path,remove_outliers,force,mode,otl_env)
+
+#     return blq_array
