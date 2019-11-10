@@ -33,6 +33,14 @@ def uncompress_mp(filelist,num_cores=10):
     with _Pool(processes=num_cores) as p:
         p.map(uncompress,filelist)
 
+def _update_mindex(dataframe, lvl_name):
+    '''Inserts a top level named as lvl_name into dataframe_in'''
+    mindex_df = dataframe.columns.to_frame(index=False)
+    mindex_df.insert(loc = 0,column = 'add',value = lvl_name)
+
+    dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
+    return dataframe
+
 def _check_stations(stations_list,tmp_dir,project_name):
     '''Check presence of stations in the project and outputs corrected station list'''
     stations_list = _np.core.defchararray.upper(stations_list)
@@ -57,35 +65,6 @@ def _dump_read(filename):
         decompressed = _blosc.decompress(f.read())
     deserialized = _pa.deserialize(decompressed)
     return deserialized
-
-def _dump_write_blocks(filename, data,cname='zstd',num_cores=28):
-    '''NOT WORKING NOW AS HAS SAME LIMITATIONS
-    As the maximum single block size of blosc is ~2G, the serialized content is broken into 2G blocks and put into array,
-    The array is then serialized again to file'''
-    _blosc.set_nthreads(num_cores)
-    context = _pa.default_serialization_context()
-    serialized_data = context.serialize(data).to_buffer()
-    #breaking into blocks
-    block_size = 2147483631 #blosc.MAX_BUFFERSIZE
-    n_blocks = int(_np.ceil(serialized_data.size/block_size))
-    buf=[]
-    begin =0
-    end = block_size if block_size>1 else -1 # if blocks == 1, end is end of buffer (-1)
-    for i in range(n_blocks):
-        buf.append(   _blosc.compress(serialized_data[begin:end],typesize=8,clevel=9,cname=cname)) #appending blocks to list
-        begin += block_size #updating begin with block_size
-        end += block_size #updating end with block_size
-    context.serialize_to(value=buf, sink=filename) #pyarrow serialize to file
-
-def _dump_read_blocks(filename):
-    '''Reaindg block files wrote with _dump_write_blocks'''
-    with open(filename,'rb') as file:
-        blocks_list = _pa.deserialize(file.read())
-        buf=b''
-        for block in blocks_list:
-            buf+=_blosc.decompress(block) #accumulating decompressed
-    return _pa.deserialize(buf) #deserializing decompressed blocks
-
 
 def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres):
     '''pos_s and wetz_s are im mm/sqrt(s)'''
@@ -299,46 +278,53 @@ def gather_drinfo(tmp_dir,num_cores,tqdm):
     print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drinfo.zstd')
     _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drinfo.zstd'.format(rnx_dir),cname='zstd',num_cores=num_cores)
     
-
+def mode2label(mode):
+    mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
+    '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
+    return mode_table[mode_table['mode']==mode]['label'].values[0]
 
 '''section of solution to ENV conversion'''
-def _xyz2env(dataset,stations_list,reference_df):
+def _xyz2env(dataset,reference_df,mode,dump=None):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
     tdp2EnvDiff outputs in cm. We need in mm.
     Outputs a MultiIndex DataFrame with value and nomvalue subsections to control tdp_in procedure
+    mode is used bu mGNSS_class to process synchronized series with multiple constellations. Prevents collecting envs
+    In case encounters dump option -> dumps each gather as a {station}_{mode}.zstd
     '''
+        #     if dump: gx_aux._dump_write(filename, data, num_cores=24, cname='zstd')
     envs = _np.ndarray((len(dataset)),dtype=object)
 
     for i in range(len(dataset)):
         # Creating MultiIndex:
-        arrays_value=[['value','value','value'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
-        arrays_nomvalue=[['nomvalue','nomvalue','nomvalue'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
-        arrays_sigma=[['sigma','sigma','sigma'],[stations_list[i]+'.E', stations_list[i]+'.N', stations_list[i]+'.V']]
-        
-        m_index_value = _pd.MultiIndex.from_arrays(arrays=arrays_value)
-        m_index_nomvalue = _pd.MultiIndex.from_arrays(arrays=arrays_nomvalue)
-        m_index_sigma = _pd.MultiIndex.from_arrays(arrays=arrays_sigma)
-        
-        xyz_value = dataset[i]['value'].iloc[:,[1,2,3]]
-        xyz_nomvalue = dataset[i]['nomvalue'].iloc[:,[1,2,3]]
-        xyz_sigma = dataset[i]['sigma'].iloc[:,[1,2,3]]
+        station_name = dataset[i].columns.levels[1].str.split('.',expand=True).levels[2][0].upper() #get station name from .Station.XXXX.blabla
+        env_path = _os.path.join(dump,'{}{}.zstd'.format(station_name.lower(),mode2label(mode)))
+        if _os.path.exists(env_path):
+            envs[i] = _dump_read(env_path)
+        else:
+            m_index= _pd.MultiIndex.from_product([[station_name],['value','nomvalue','sigma'],['east','north','up']])
+            frame = _pd.DataFrame(columns = m_index)
 
-        refxyz = get_xyz_site(reference_df,stations_list[i]) #stadb values. Median also possible. Another option is first 10-30% of data
-        # refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
-        # refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
-        rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
+            XYZ_columns = '.Station.{}.State.Pos.'.format(station_name)+ _pd.Series(['X','Y','Z'])
+            xyz_value = dataset[i]['value'][XYZ_columns]
+            xyz_nomvalue = dataset[i]['nomvalue'][XYZ_columns]
+            xyz_sigma = dataset[i]['sigma'][XYZ_columns]
+        
+            refxyz = get_xyz_site(reference_df,station_name) #stadb values. Median also possible. Another option is first 10-30% of data
+            # refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
+            # refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
+            rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
 
-        diff_value = xyz_value - refxyz #XYZ
-        diff_nomvalue = xyz_nomvalue - refxyz #XYZ
-        
-        diff_env_value = rot.dot(diff_value.T)*1000
-        diff_env_nomvalue = rot.dot(diff_nomvalue.T)*1000
-        env_sigma = rot.dot(xyz_sigma.T)*1000
-        
-        frame_value = _pd.DataFrame(diff_env_value, index=m_index_value).T
-        frame_nomvalue = _pd.DataFrame(diff_env_nomvalue, index=m_index_nomvalue).T
-        frame_sigma = _pd.DataFrame(env_sigma, index=m_index_sigma).T
-        envs[i] = _pd.concat((frame_value,frame_nomvalue,frame_sigma),axis=1).set_index(dataset[i].index)
+            diff_value = xyz_value - refxyz #XYZ
+            diff_nomvalue = xyz_nomvalue - refxyz #XYZ
+            
+            diff_env_value = rot.dot(diff_value.T).T*1000
+            diff_env_nomvalue = rot.dot(diff_nomvalue.T).T*1000
+            env_sigma = rot.dot(xyz_sigma.T).T*1000
+
+            frame = _pd.DataFrame(_np.column_stack([diff_env_value,diff_env_nomvalue,env_sigma]),columns = m_index).set_index(dataset[i].index)
+            envs[i] = _pd.concat([frame],keys=[mode],axis=1)
+            if dump is not None:
+                _dump_write(filename = env_path, data=envs[i], num_cores=24, cname='zstd')
     return envs
 
 def get_xyz_site(staDb_ref_xyz,site_name):
