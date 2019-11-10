@@ -15,8 +15,8 @@ from gxlib.gx_pbs import gen_code, qsub_python_code
 
 project_name = 'nz_jpl_cm'
 ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
-gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final'
-
+# gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
+gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
 '''Execution part here''' 
 stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
