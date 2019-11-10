@@ -3,6 +3,7 @@ from gxlib import gx_hardisp
 import trees_options
 import pandas as _pd
 import os as _os
+from gxlib.gx_aux import _update_mindex
 
 class mGNSS_class:
     '''
@@ -70,7 +71,6 @@ class mGNSS_class:
         self.rate=rate
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
-        self.mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
         self.PPPtype = self._check_PPPtype(PPPtype)     
         
           
@@ -113,7 +113,7 @@ class mGNSS_class:
         
     def init_gd2e(self, mode):
         '''Initialize gd2e instance wth above parameters but unique mode and updates the poroject_name regarding the mode selected'''
-        return gd2e_class(project_name = self.project_name + self.mode2label(mode),
+        return gd2e_class(project_name = self.project_name,
                 stations_list = self.stations_list,
                 years_list = self.years_list,
                 tree_options = self.tree_options,
@@ -191,9 +191,6 @@ class mGNSS_class:
         '''First, run gen_tropNom. This script will create files based on original tropNoms'''
         gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir, staDb_path = self.gps.staDb_path, tqdm=self.tqdm, period=13.9585147, num_cores = self.num_cores, A_East=2, A_North=4, A_Vertical=6)
         
-    def mode2label(self,mode):
-        '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
-        return self.mode_table[self.mode_table['mode']==mode]['label'].values[0]
     
     def _get_common_index(self, gps, glo, gps_glo):
         '''returns common index for 3 mGNSS timeseries of the same station'''
@@ -205,28 +202,28 @@ class mGNSS_class:
         return gps.loc[common_index],glo.loc[common_index],gps_glo.loc[common_index]
     
    
-    def gather_mGNSS(self):
+    def gather_mGNSS(self,force=False):
+        '''get envs. For each station do common index, create unique levels and concat'''
         gather_path =  _os.path.join(self.tmp_dir,'gd2e','env_gathers',self.project_name)
 
         if not _os.path.exists(gather_path):
             _os.makedirs(gather_path)
 
-        '''get envs. For each station do common index, create unique levels and concat'''
-        
-        # gather_paths  = gather_path + '/' + _pd.Series(self.stations_list).str.lower()+'.zstd'
         gather = []
-        #checking if all the files are present
-        # for i in range(gather_paths.shape[0]):
-        #     gather_paths.iloc[i]
+        #perform a quick check of available files
+        for i in range(len(self.stations_list)):
+            filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
+            if force:
+                _os.remove(filename)
+            if not _os.path.exists(filename):
+                gps_envs = self.gps.envs()
+                glo_envs = self.glo.envs()
+                gps_glo_envs = self.gps_glo.envs()
+                break
+            else:
+                gather.append(gx_aux._dump_read(filename))
 
-
-
-        # if not _os.path.exists(gather_path):
-        gps_envs = self.gps.envs()
-        glo_envs = self.glo.envs()
-        gps_glo_envs = self.gps_glo.envs()
-
-        
+        # if at least one station is missing:
         for i in range(len(self.stations_list)):
             filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
             if not _os.path.exists(filename):
@@ -235,19 +232,10 @@ class mGNSS_class:
                 tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_envs[i],glo = glo_envs[i], gps_glo = gps_glo_envs[i])
 
                 #update column levels
-                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([tmp_gps,tmp_glo,tmp_gps_glo],axis=1)
                 gx_aux._dump_write(data = tmp_mGNSS,filename=filename,num_cores=self.num_cores,cname='zstd')
                 #had to go station specific files as nz dataset is too big for serialization with pa
-                gather.append(tmp_mGNSS)
-            else:
-                gather.append(gx_aux._dump_read(filename))
-
-        # default blosc.MAX_BUFFERSIZE = 2147483631 (too small for nz dataset with 54 stations)
-        # gx_aux._dump_write_blocks(data = gather,filename=gather_path,)
-        # else:
-        #     # print('Found mGNSS gather file', self.project_name + ".zstd" )
-        #     gather = gx_aux._dump_read_blocks(gather_path)
-        
+                gather.append(tmp_mGNSS) 
         return gather
 
     def gather_wetz(self):
@@ -269,7 +257,7 @@ class mGNSS_class:
                 tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_wetz[i],glo = glo_wetz[i], gps_glo = gps_glo_wetz[i])
 
                 #update column levels
-                tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
+                tmp_mGNSS = _pd.concat([tmp_gps,tmp_glo,tmp_gps_glo],keys=['GPS','GLONASS','GPS+GLONASS'],axis=1)
                 gather.append(tmp_mGNSS)
             gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
         else:
@@ -285,8 +273,8 @@ class mGNSS_class:
         eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
         if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
 
-        if restore_otl: gather_path = _os.path.join(eterna_gathers_dir,self.project_name + '_et_otl.zstd') #files with OTL siganl restored
-        else: gather_path = _os.path.join(eterna_gathers_dir,self.project_name + '_et_nootl.zstd') #raw files with only residual OTL
+        suffix = '_et_otl.zstd' if restore_otl else '_et_nootl.zstd'
+        gather_path = _os.path.join(eterna_gathers_dir,self.project_name + suffix)
 
         if force: #if force - remove gather file!
             if _os.path.exists(gather_path): _os.remove(gather_path)
@@ -294,43 +282,19 @@ class mGNSS_class:
         if not _os.path.exists(gather_path):
             '''If force == True -> reruns Eterna even if Eterna files exist'''
             gather = self.gather_mGNSS()
-            tmp_blq=[]
-            if not restore_otl:
-                for i in range(len(gather)): #looping through stations
-                    gps_et = gx_eterna.env2eterna(gather[i]['GPS'],remove_outliers)
-                    glo_et = gx_eterna.env2eterna(gather[i]['GLONASS'],remove_outliers)
-                    gps_glo_et = gx_eterna.env2eterna(gather[i]['GPS+GLONASS'],remove_outliers)
-                    
-                    tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
-                    tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers,force)
-                    tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers,force)
-                    
-                    tmp_mGNSS = _pd.concat([_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
-                    tmp_blq.append(tmp_mGNSS)
-                    
-            else:
-                for i in range(len(gather)): #looping through stations
-                    gps_et = gx_eterna.env2eterna(gather[i]['GPS'],remove_outliers)
-                    glo_et = gx_eterna.env2eterna(gather[i]['GLONASS'],remove_outliers)
-                    gps_glo_et = gx_eterna.env2eterna(gather[i]['GPS+GLONASS'],remove_outliers)
-                    #timeframe is the same so we can take any of three. gps_et in this case
-                    synth_otl = gx_hardisp.gen_synth_otl(dataset = gps_et,station_name = self.stations_list[i],hardisp_path=self.hardisp_path,blq_file=self.blq_file,sampling=sampling)
-                    
-                    gps_et+=synth_otl
-                    glo_et+=synth_otl
-                    gps_glo_et+=synth_otl
-                    
-                    #snth analysis to double check. Analysis is done in gps project for now
-                    tmp_synth = gx_eterna.analyse_et(synth_otl,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force,otl_env=True)
-                    
-                    tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
-                    tmp_glo = gx_eterna.analyse_et(glo_et,self.eterna_path,self.stations_list[i],self.glo.project_name,self.glo.tmp_dir,self.glo.staDb_path,remove_outliers,force)
-                    tmp_gps_glo = gx_eterna.analyse_et(gps_glo_et,self.eterna_path,self.stations_list[i],self.gps_glo.project_name,self.gps_glo.tmp_dir,self.gps_glo.staDb_path,remove_outliers,force)
-                    
-                    tmp_mGNSS = _pd.concat([_update_mindex(tmp_synth,'OTL'),_update_mindex(tmp_gps,'GPS'),_update_mindex(tmp_glo,'GLONASS'),_update_mindex(tmp_gps_glo,'GPS+GLONASS')],axis=1)
-                    tmp_blq.append(tmp_mGNSS)
 
-            tmp_blq_concat = _pd.concat(tmp_blq,keys=self.stations_list,axis=0)
+            if not restore_otl: #no synth otl analysis is needed
+                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl)
+                tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl)
+                tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl)
+                tmp_blq_concat = _pd.concat([tmp_gps,tmp_glo,tmp_gps_glo],keys=['GPS','GLONASS','GPS+GLONASS'],axis=1)
+            else:
+                tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True)
+                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl)
+                tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl)
+                tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl)
+                tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps,tmp_glo,tmp_gps_glo],keys=['OTL','GPS','GLONASS','GPS+GLONASS'],axis=1)
+
             gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
             
 
@@ -342,49 +306,21 @@ class mGNSS_class:
         #Useful for canalysis of gps only products (e.g. JPL)
         eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
         if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
-
-        if restore_otl: gather_path = _os.path.join(eterna_gathers_dir,self.project_name + '_et_otl_gps.zstd') #files with OTL siganl restored
-        else: gather_path = _os.path.join(eterna_gathers_dir,self.project_name + '_et_nootl_gps.zstd') #raw files with only residual OTL
+        suffix = '_et_otl_gps.zstd' if restore_otl else '_et_nootl_gps.zstd'
+        gather_path = _os.path.join(eterna_gathers_dir,self.project_name + suffix)
 
         if force: #if force - remove gather file!
             if _os.path.exists(gather_path): _os.remove(gather_path)
 
         if not _os.path.exists(gather_path):
             '''If force == True -> reruns Eterna even if Eterna files exist'''
-            gather = self.gps.envs()
-            tmp_blq=[]
-            if not restore_otl:
-                for i in range(len(gather)): #looping through stations
-                    gps_et = gx_eterna.env2eterna(gather[i],remove_outliers)
-                   
-                    tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
-                   
-                    tmp_mGNSS = _update_mindex(tmp_gps,'GPS')
-                    tmp_blq.append(tmp_mGNSS)
-                    
-            else:
-                for i in range(len(gather)): #looping through stations
-                    gps_et = gx_eterna.env2eterna(gather[i],remove_outliers)
-                    #timeframe is the same so we can take any of three. gps_et in this case
-                    synth_otl = gx_hardisp.gen_synth_otl(dataset = gps_et,station_name = self.stations_list[i],hardisp_path=self.hardisp_path,blq_file=self.blq_file,sampling=sampling)
-                    
-                    gps_et+=synth_otl
-                    
-                    #snth analysis to double check. Analysis is done in gps project for now
-                    tmp_synth = gx_eterna.analyse_et(synth_otl,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force,otl_env=True)
-                    
-                    tmp_gps = gx_eterna.analyse_et(gps_et,self.eterna_path,self.stations_list[i],self.gps.project_name,self.gps.tmp_dir,self.gps.staDb_path,remove_outliers,force)
-                    
-                    tmp_mGNSS = _pd.concat([_update_mindex(tmp_synth,'OTL'),_update_mindex(tmp_gps,'GPS')],axis=1)
-                    tmp_blq.append(tmp_mGNSS)
-
-            tmp_blq_concat = _pd.concat(tmp_blq,keys=self.stations_list,axis=0)
-            gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
-            
-
+            tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=False)                   
+            gx_aux._dump_write(data = tmp_gps,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
         else:
-            tmp_blq_concat = gx_aux._dump_read(gather_path)          
-        return tmp_blq_concat    
+            tmp_gps = gx_aux._dump_read(gather_path)  
+
+        return tmp_gps
+
     def spectra(self,restore_otl = True,remove_outliers=True,sampling=1800):
         gather = self.gather_mGNSS()
         tmp=[]
@@ -573,10 +509,3 @@ def plot_specta(mGNSSspectra_df):
     fig.tight_layout(rect=(0,0.05,1,1))
     plt.show()
     
-def _update_mindex(dataframe, lvl_name):
-    '''Inserts a top level named as lvl_name into dataframe_in'''
-    mindex_df = dataframe.columns.to_frame(index=False)
-    mindex_df.insert(loc = 0,column = 'add',value = lvl_name)
-
-    dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
-    return dataframe
