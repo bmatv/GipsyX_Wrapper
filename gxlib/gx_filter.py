@@ -4,6 +4,7 @@ with 0.1 derivative margin for X Y Z and 3*std margin for sigma X Y Z'''
 import numpy as _np
 import pandas as _pd
 from .gx_aux import J2000origin
+import warnings
 
 def _filter_derivative(dataset, margin=0.1):
     value_dataset = dataset['value'].iloc[:,[0,1,2]].values
@@ -76,6 +77,7 @@ def _stretch(dataset,sampling=300):
     return stretched_dataset
 
 def _avg_30(dataset):
+
     '''Expects stretched dataset'''
     dataset_reshaped = dataset.values.reshape((int(dataset.shape[0]/6), 6 ,dataset.shape[1]))
     first_elements_rolled = _np.roll(dataset_reshaped[:,0,:],shift=-1,axis=0) #rolling up. So first element becomes last element of previous timeframe
@@ -84,7 +86,10 @@ def _avg_30(dataset):
     
     time_margins = dataset.index[[0,-1]]
     corrected_time_series = _np.arange(time_margins[0],time_margins[1],1800)
-    return _pd.DataFrame(_np.nanmean(dataset_reshaped_centered,axis=1), index=corrected_time_series, columns=dataset.columns)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        avg_30 = _pd.DataFrame(_np.nanmean(dataset_reshaped_centered,axis=1), index=corrected_time_series, columns=dataset.columns)
+    return avg_30
 
 def average(solutions):
     averaged_solutions = _np.ndarray((solutions.shape),dtype=object)
