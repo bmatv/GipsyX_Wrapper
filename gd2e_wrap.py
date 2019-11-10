@@ -1,5 +1,7 @@
 from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex, gx_eterna
 import os as _os
+import numpy as _np
+
 
 class gd2e_class:
     def __init__(self,
@@ -11,7 +13,7 @@ class gd2e_class:
                  cddis=False,
                  cache_path = '/run/user/1017',
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
-                 tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX',
+                 tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX/bigf_tmpX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
                  VMF1_dir = '/mnt/Data/bogdanm/Products/VMF1_Products',
                  tropNom_type = '30h_tropNominalOut_VMF1.tdp',
@@ -37,7 +39,9 @@ class gd2e_class:
         self.tqdm = tqdm
         self.cache_path = _os.path.abspath(cache_path)
         self.PPPtype = self._check_PPPtype(PPPtype)
-        self.project_name = project_name 
+        self.mode = self._check_mode(mode)
+        self.project_name_core = project_name # original project name (core or family name)
+        self.project_name = project_name  + gx_aux.mode2label(mode=self.mode) #UPDATING PROJECT NAME DEPENDING ON THE MODE
         self.IGS_logs_dir = _os.path.abspath(IGS_logs_dir)
         self.rnx_dir=_os.path.abspath(rnx_dir)
         self.tmp_dir=_os.path.abspath(tmp_dir)
@@ -61,14 +65,13 @@ class gd2e_class:
                                     tqdm=self.tqdm)
         self.rate=rate
         self.refence_xyz_df = gx_aux.get_ref_xyz_sites(staDb_path=self.staDb_path)
-        self.mode = self._check_mode(mode)
         self.eterna_path=eterna_path
         self.hardisp_path = hardisp_path
         self.ElMin=ElMin
         self.ElDepWeight = ElDepWeight
         self.static_clk = static_clk
         self.ambres = ambres
-
+        
         self.pos_s = pos_s if self.PPPtype=='kinematic' else 'N/A' # no pos_s for static
         self.wetz_s = wetz_s if self.PPPtype=='kinematic' else 0.05 # penna's value for static
         self.trees_df = trees_df
@@ -154,11 +157,23 @@ class gd2e_class:
     def filtered_solutions(self,margin=0.1,std_coeff=3):
         return gx_filter.filter_tdps(margin=margin,std_coeff=std_coeff,tdps=self.solutions())
     
-    def envs(self,margin=0.1,std_coeff=3):
-        return gx_aux._xyz2env(dataset=self.filtered_solutions(margin=margin,
-                                                               std_coeff=std_coeff),
-                                                               reference_df=self.refence_xyz_df,
-                                                               stations_list=self.stations_list)
+    def envs(self,margin=0.1,std_coeff=3,dump=False):
+        '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)'''
+        env_gather_path = _os.path.join(self.tmp_dir,'gd2e/env_gathers',self.project_name_core) #saning to core where all mGNSS env_gathers are located
+
+        envs = _np.ndarray((len(self.stations_list)),dtype=object)
+        incomplete=False
+        for i in range(envs.shape[0]):
+            env_path = env_path = _os.path.join(env_gather_path,'{}{}.zstd'.format(self.stations_list[i].lower(),gx_aux.mode2label(self.mode)))
+            if _os.path.exists(env_path):
+                envs[i] = gx_aux._dump_read(env_path)
+            else: 
+                incomplete=True
+                break
+        if incomplete:
+            envs = gx_aux._xyz2env(dataset=self.filtered_solutions(margin=margin,std_coeff=std_coeff), #filtered_solutions takes most of the time
+                        reference_df=self.refence_xyz_df,mode=self.mode,dump = env_gather_path)
+        return envs
     def gen_tdps_penna(self,period=13.9585147,A_East=2, A_North=4, A_Vertical=6):
         gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir,
                               staDb_path = self.staDb_path,
@@ -179,9 +194,11 @@ class gd2e_class:
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
 
-    def analyze_env(self,remove_outliers=True,restore_otl=True,sampling=1800,force=False):
+    def analyze_env(self,envs=None,mode=None,remove_outliers=True,restore_otl=True,sampling=1800,force=False,otl_env=False):
+        if envs == None: envs = self.envs()
+        if mode == None: mode = self.mode
         return gx_eterna.analyze_env(
-                                    self.envs(),
+                                    envs,
                                     self.stations_list,
                                     self.eterna_path,
                                     self.tmp_dir,
@@ -192,24 +209,27 @@ class gd2e_class:
                                     blq_file = self.blq_file,
                                     sampling = sampling,
                                     hardisp_path = self.hardisp_path,
-                                    force=force
+                                    force=force,
+                                    num_cores = self.num_cores,
+                                    mode=mode,
+                                    otl_env=otl_env
                                     )
 
-    def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
-        '''remove_outliers has no sense here. This is just to get begin and end of the timeline'''
-        return gx_eterna.test_analyze(
-                                    self.envs(),
-                                    self.stations_list,
-                                    self.eterna_path,
-                                    self.tmp_dir,
-                                    self.staDb_path,
-                                    self.project_name,
-                                    remove_outliers,
-                                    blq_file = self.blq_file,
-                                    sampling = sampling,
-                                    hardisp_path = self.hardisp_path,
-                                    force = force
-                                    )
+    # def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
+    #     '''remove_outliers has no sense here. This is just to get begin and end of the timeline'''
+    #     return gx_eterna.test_analyze(
+    #                                 self.envs(),
+    #                                 self.stations_list,
+    #                                 self.eterna_path,
+    #                                 self.tmp_dir,
+    #                                 self.staDb_path,
+    #                                 self.project_name,
+    #                                 remove_outliers,
+    #                                 blq_file = self.blq_file,
+    #                                 sampling = sampling,
+    #                                 hardisp_path = self.hardisp_path,
+    #                                 force = force
+    #                                 )
     def wetz(self):
         '''Returns WetZ values dataframe'''
         return gx_aux.wetz(self.filtered_solutions())        
