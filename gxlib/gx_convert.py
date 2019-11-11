@@ -5,6 +5,7 @@ import os as _os
 import tqdm as _tqdm
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
+from shutil import rmtree as _rmtree, copy as _copy
 
 def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
@@ -44,27 +45,34 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     #{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
     # preparing dir structure
     for year in extracted_df['year'].unique():
-        _os.path.makedirs(tmp_dir +'/rnx_dr/' + year.astype(str))
+        path_year = tmp_dir +'/rnx_dr/' + year.astype(str)
+        if not _os.path.exists(path_year):
+            _os.makedirs(path_year)
     return extracted_df
 
 def _2dr(rnx2dr_path):
     '''Opens process rxEditGde.py to convert specified rnx to dr file for GipsyX. The subprocess is used in order to run multiple instances at once.
     If converted file is already present, nothing happens
     We might want to dump and kill service tree files and stats'''
+    in_file_path = rnx2dr_path[0]
+    out_file_path = rnx2dr_path[1]
     cache_path = rnx2dr_path[2]
     out_dir = _os.path.dirname(rnx2dr_path[1])
 
-    if not _os.path.exists(out_dir):
-        _os.makedirs(out_dir)
-    process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
+    cache_dir = _os.path.join(cache_path,_os.path.basename(out_file_path)) #smth like /cache/anau2350.10d.dr.gz/
+    if not _os.path.exists(cache_dir):
+        _os.makedirs(cache_dir)
+    _copy(src = in_file_path, dst = cache_dir) #copy 
+    in_file_cache_path = _os.path.join(cache_dir,_os.path.basename(in_file_path))
+    out_file_cache_path = _os.path.join(cache_dir,_os.path.basename(out_file_path))
+
+    process = _Popen(['rnxEditGde.py', '-dataFile', in_file_cache_path, '-o', out_file_cache_path],cwd = cache_dir)
     process.wait()
-    #here goes section on cleaning service info
-    stats_file = _glob.glob(out_dir+'/*stats')
-    tree_files = _glob.glob(out_dir+'/*tree')
-    files2rm = stats_file + tree_files
-    for file in files2rm:
-        if _os.path.isfile(file):
-            _os.remove(file)
+    _copy(src = out_file_cache_path, dst = out_dir) #copy result to destination
+    #clear folder in ram
+    _rmtree(cache_dir)
+
+
 
 def rnx2dr(selected_df,num_cores,tqdm,cache_path,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
