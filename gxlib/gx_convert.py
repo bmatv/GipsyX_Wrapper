@@ -40,8 +40,8 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     extracted_df['rnx_path'] = paths_series
     extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['year'].astype(str)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
-    +extracted_df['year'].astype(str).str.slice(2)+extension+'.dr.gz')
-    '''{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz'''
+    +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
+    '''{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)'''
     return extracted_df
 
 def _2dr(rnx2dr_path):
