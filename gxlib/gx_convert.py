@@ -37,8 +37,9 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False,hatanaka=Tru
     
     extracted_df['rnx_path'] = paths_series
     extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['station_name'].astype(str) 
-                               + '/' + extracted_df['year'].astype(str) +'/' + extracted_df['doy'].astype(str).str.zfill(3) 
-                               + '/' + extracted_df['filename'] +'.dr.gz')
+                               + '/' + extracted_df['year'].astype(str)
+    +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
+    +extracted_df['year'].astype(str).str.slice(2)+extension+'.dr.gz')
     
     return extracted_df
 
