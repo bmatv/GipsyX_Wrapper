@@ -6,21 +6,23 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 
-def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False):
+def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False,hatanaka=True):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
     It is a single array of paths to raw RNX files with all properties needed for the file
-    Outputs df wi columns: year (int) | station_name (caps) | doy (int) | rnx_path (object) | dr_path (object)'''
+    Outputs df wi columns: year (int) | station_name (caps) | doy (int) | rnx_path (object) | dr_path (object)
+    If hatanaka => select d.Z files, else: o.gz'''
     
     rnx_dir = _os.path.abspath(rnx_dir)+'/'
     tmp_dir = _os.path.abspath(tmp_dir)
     
+    extension = 'd.Z' if hatanaka else 'o.gz'
     station_files = []
     for i in range(len(stations_list)):
         for j in range(0, len(years_list)):
             if cddis:
-                j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z')
+                j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+extension)
             else:    
-                j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+'d.Z')
+                j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+extension)
             
             
             if len(j_year_files) > 0:
