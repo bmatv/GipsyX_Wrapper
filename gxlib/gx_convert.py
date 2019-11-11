@@ -7,6 +7,16 @@ from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 from shutil import rmtree as _rmtree, copy as _copy
 
+def prepare_dir_struct(begin_year, end_year,tmp_dir):
+    timeline = _pd.Series(_np.arange(_np.datetime64(str(begin_year)),_np.datetime64(str(end_year+1)),_np.timedelta64(1,'D')))
+    dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
+    year = timeline.dt.year.astype(str)
+    dirs = tmp_dir +'/rnx_dr/' + year +'/'+ dayofyear
+
+    for path in dirs:
+        if not _os.path.exists(path):
+            _os.makedirs(path)
+
 def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
     It is a single array of paths to raw RNX files with all properties needed for the file
@@ -44,14 +54,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
     #{tmp_dir}/rnx_dr/2010/doy/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
     # preparing dir structure
-    timeline = _pd.Series(_np.arange(_np.datetime64(str(extracted_df['year'].min())),_np.datetime64(str(extracted_df['year'].max()+1)),_np.timedelta64(1,'D')))
-    dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
-    year = timeline.dt.year.astype(str)
-    dirs = tmp_dir +'/rnx_dr/' + year +'/'+ dayofyear
-
-    for path in dirs:
-        if not _os.path.exists(path):
-            _os.makedirs(path)
+    prepare_dir_struct(begin_year=extracted_df['year'].min(), end_year=extracted_df['year'].max(),tmp_dir=tmp_dir)
     return extracted_df
 
 def _2dr(rnx2dr_path):

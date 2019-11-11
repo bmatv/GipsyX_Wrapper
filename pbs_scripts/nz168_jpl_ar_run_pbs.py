@@ -1,5 +1,5 @@
 import subprocess
-import numpy as np
+import numpy as _np
 import sys as _sys
 GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
 if GIPSY_WRAP_PATH not in _sys.path:
@@ -8,7 +8,7 @@ import trees_options
 from gxlib.gx_aux import gen_staDb, _project_name_construct
 from gxlib.gx_trees import gen_trees
 from gxlib.gx_pbs import gen_code, qsub_python_code
-
+from gxlib.gx_convert import prepare_dir_struct
                            
 
 #parameters to change-----------------------------------------------------------------------------------------------
@@ -42,7 +42,6 @@ years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
-
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/'
 rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz_ogz'
@@ -67,7 +66,7 @@ tree_options_code = 'trees_options.rw_otl'
 tqdm=False
 ElDepWeight = 'SqrtSin'
 
-
+prepare_dir_struct(begin_year=_np.min(years_list), end_year = _np.max(years_list),tmp_dir=tmp_dir) #prepare dir struct for dr files
 project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres)
 #generating tree files that won't be overwritten as crc32 will be the same
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',ElDepWeight=ElDepWeight,
@@ -75,7 +74,7 @@ gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_
             VMF1_dir = VMF1_dir,project_name = project_name_construct,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
-stations_list_arrays = np.array_split(stations_list,num_nodes)
+stations_list_arrays = _np.array_split(stations_list,num_nodes)
 for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin,ElDepWeight=ElDepWeight,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
