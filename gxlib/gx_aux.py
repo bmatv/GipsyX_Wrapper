@@ -231,7 +231,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm,stations_list):
     if not _os.path.exists(drinfo_dir):
         _os.makedirs(drinfo_dir)
     #find all dr.gx files in rnx_dr folder
-    dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
+    dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*/*.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
 
     dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
     # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)

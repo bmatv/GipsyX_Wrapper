@@ -39,15 +39,19 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list(),inplace=True)
     
     extracted_df['rnx_path'] = paths_series
-    extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['year'].astype(str)
+    extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['year'].astype(str) +'/'+extracted_df['doy'].astype(str).str.zfill(3)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
     +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
-    #{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
+    #{tmp_dir}/rnx_dr/2010/doy/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
     # preparing dir structure
-    for year in extracted_df['year'].unique():
-        path_year = tmp_dir +'/rnx_dr/' + year.astype(str)
-        if not _os.path.exists(path_year):
-            _os.makedirs(path_year)
+    timeline = _pd.Series(_np.arange(_np.datetime64(str(extracted_df['year'].min())),_np.datetime64(str(extracted_df['year'].max()+1)),_np.timedelta64(1,'D')))
+    dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
+    year = timeline.dt.year.astype(str)
+    dirs = tmp_dir +'/rnx_dr/' + year +'/'+ dayofyear
+
+    for path in dirs:
+        if not _os.path.exists(path):
+            _os.makedirs(path)
     return extracted_df
 
 def _2dr(rnx2dr_path):
