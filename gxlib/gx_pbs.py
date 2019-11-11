@@ -42,6 +42,7 @@ kinematic_project = mGNSS_class(project_name = '{project_name}',
                                 tmp_dir = '{tmp_dir}',
                                 cache_path = '{cache_path}',
                                 rnx_dir = '{rnx_dir}',
+                                hatanaka = {hatanaka},
                                 stations_list = {stations_list},
                                 years_list = {years_list},
                                 tree_options = {tree_options},
@@ -68,8 +69,8 @@ print('Done!')'''
                             
 
 def gen_code(   stations_list,years_list,num_cores,command,project_name,tmp_dir,IGS_logs_dir,staDb_path,blq_file,VMF1_dir,pos_s, wetz_s,PPPtype, ionex_type,  cache_path,
-                tropNom_input, ambres,IONEX_products,rate,gnss_products_dir, #we should use COD MGEX, ESA and GFZ later
+                tropNom_input, ambres,IONEX_products,rate,gnss_products_dir,hatanaka, #we should use COD MGEX, ESA and GFZ later
                 eterna_path,hardisp_path,rnx_dir,tree_options,ElMin,ElDepWeight,tqdm=False):
     return TEMPLATE_MGNSS.format(project_name = project_name,staDb_path = staDb_path,tmp_dir=tmp_dir,rnx_dir=rnx_dir,stations_list=stations_list,years_list=years_list,tree_options = tree_options,num_cores=num_cores,
-                            blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate, cache_path = cache_path,ambres = ambres,
+                            blq_file = blq_file,VMF1_dir = VMF1_dir,tropNom_input = tropNom_input,IGS_logs_dir = IGS_logs_dir,IONEX_products = IONEX_products,rate = rate, cache_path = cache_path,ambres = ambres,hatanaka = hatanaka,
                             gnss_products_dir = gnss_products_dir,ionex_type=ionex_type,eterna_path=eterna_path,hardisp_path = hardisp_path,pos_s = pos_s, wetz_s=wetz_s, ElMin=ElMin, ElDepWeight=ElDepWeight,PPPtype=PPPtype,tqdm=tqdm,command=command)

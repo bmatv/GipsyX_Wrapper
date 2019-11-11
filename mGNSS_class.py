@@ -18,6 +18,7 @@ class mGNSS_class:
                 years_list,
                 tree_options,
                 tmp_dir,
+                hatanaka,
                 cache_path = '/run/user/1017',
                 rnx_dir='/array/bogdanm/GNSS_data/BIGF_data/daily30s',
                 blq_file = '/array/bogdanm/Products/otl/ocnld_coeff/bigf_complete.blq',
@@ -54,6 +55,7 @@ class mGNSS_class:
         self.num_cores = num_cores
         self.blq_file = blq_file
         self.VMF1_dir = VMF1_dir
+        self.hatanaka = hatanaka
         self.tropNom_input = self._check_tropNom_input(tropNom_input) # trop or trop+penna
         self.tropNom_type = self._get_tropNom_type(self.tropNom_input) # return file type based on input trop value
         self.tree_options = tree_options
@@ -118,6 +120,7 @@ class mGNSS_class:
                 years_list = self.years_list,
                 tree_options = self.tree_options,
                 mode = mode,
+                hatanaka = self.hatanaka,
                 cache_path=self.cache_path,
                 rnx_dir=self.rnx_dir,
                 cddis=self.cddis,

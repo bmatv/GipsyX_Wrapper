@@ -10,6 +10,7 @@ class gd2e_class:
                  years_list,
                  tree_options,
                  mode,
+                 hatanaka,
                  cddis=False,
                  cache_path = '/run/user/1017',
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
@@ -37,6 +38,7 @@ class gd2e_class:
                  trees_df = None
                  ): 
         self.tqdm = tqdm
+        self.hatanaka=hatanaka,
         self.cache_path = _os.path.abspath(cache_path)
         self.PPPtype = self._check_PPPtype(PPPtype)
         self.mode = self._check_mode(mode)
@@ -87,7 +89,7 @@ class gd2e_class:
         else: return PPPtype
     
     def rnx2dr(self):
-        selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
+        selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis,hatanaka=self.hatanaka)
         gx_convert.rnx2dr(selected_df = selected_rnx, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
 
     def get_drInfo(self):
