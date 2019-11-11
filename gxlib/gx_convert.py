@@ -41,14 +41,19 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['year'].astype(str)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
     +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
-    '''{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)'''
+    #{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
+    # preparing dir structure
+    for year in extracted_df['year'].unique():
+        _os.path.makedirs(tmp_dir +'/rnx_dr/' + year.astype(str))
     return extracted_df
 
 def _2dr(rnx2dr_path):
     '''Opens process rxEditGde.py to convert specified rnx to dr file for GipsyX. The subprocess is used in order to run multiple instances at once.
     If converted file is already present, nothing happens
     We might want to dump and kill service tree files and stats'''
+    cache_path = rnx2dr_path[2]
     out_dir = _os.path.dirname(rnx2dr_path[1])
+
     if not _os.path.exists(out_dir):
         _os.makedirs(out_dir)
     process = _Popen(['rnxEditGde.py', '-dataFile', rnx2dr_path[0], '-o', _os.path.basename(rnx2dr_path[1])],cwd = out_dir)
@@ -61,15 +66,19 @@ def _2dr(rnx2dr_path):
         if _os.path.isfile(file):
             _os.remove(file)
 
-def rnx2dr(selected_df,num_cores,tqdm,cddis=False):
+def rnx2dr(selected_df,num_cores,tqdm,cache_path,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
     #Checking files that are already in place so not to overwrite
     if_exists_array = _np.ndarray((selected_df.shape[0]),dtype=bool)
     for i in range(if_exists_array.shape[0]):
         if_exists_array[i] = not _os.path.exists(selected_df['dr_path'][i])
+    selected_df = selected_df[if_exists_array]
 
-    selected_df2convert = selected_df[['rnx_path','dr_path']].values[if_exists_array]
 
+    selected_df2convert = selected_df[['rnx_path','dr_path']].copy()
+    selected_df2convert['cache_path'] = cache_path #populating df with cache path value
+    selected_df2convert = selected_df2convert.values
+     
     if selected_df2convert.shape[0] > 0:
         num_cores = num_cores if selected_df2convert.shape[0] > num_cores else selected_df2convert.shape[0]
         print ('Number of files to process:', selected_df2convert.shape[0],'| Adj. num_cores:', num_cores,end=' ')
