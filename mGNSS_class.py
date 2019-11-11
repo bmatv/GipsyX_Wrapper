@@ -167,9 +167,11 @@ class mGNSS_class:
                                     years_list = self.years_list,
                                     cache_path=self.cache_path)
    
+    def select_rnx(self):
+        return gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,hatanaka=self.hatanaka,cddis=self.cddis)
+
     def rnx2dr(self):
-        selected_rnx = gx_convert.select_rnx(tmp_dir=self.tmp_dir,rnx_dir=self.rnx_dir,stations_list=self.stations_list,years_list=self.years_list,cddis=self.cddis)
-        gx_convert.rnx2dr(selected_df = selected_rnx, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
+        gx_convert.rnx2dr(selected_df = self.select_rnx, num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm)
         
     def get_drInfo(self):
         gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm,stations_list = self.stations_list)

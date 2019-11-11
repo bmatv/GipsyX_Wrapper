@@ -6,7 +6,7 @@ import tqdm as _tqdm
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 
-def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False,hatanaka=True):
+def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
     It is a single array of paths to raw RNX files with all properties needed for the file
     Outputs df wi columns: year (int) | station_name (caps) | doy (int) | rnx_path (object) | dr_path (object)
@@ -36,11 +36,10 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False,hatanaka=Tru
     extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list(),inplace=True)
     
     extracted_df['rnx_path'] = paths_series
-    extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['station_name'].astype(str) 
-                               + '/' + extracted_df['year'].astype(str)
+    extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['year'].astype(str)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
     +extracted_df['year'].astype(str).str.slice(2)+extension+'.dr.gz')
-    
+    '''{tmp_dir}/rnx_dr/2010/xxxxddd0.ext.dr.gz'''
     return extracted_df
 
 def _2dr(rnx2dr_path):
