@@ -93,7 +93,7 @@ class gd2e_class:
         gx_convert.rnx2dr(selected_df = self.select_rnx(), num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm, cache_path=self.cache_path)
 
     def get_drInfo(self):
-        gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm,selected_rnx= self.select_rnx())
+        gx_aux.get_drInfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm,selected_rnx= self.select_rnx())
     
     def _merge_table(self,mode):
         merge_table = gx_merge.get_merge_table(tmp_dir=self.tmp_dir, mode=mode,stations_list=self.stations_list)

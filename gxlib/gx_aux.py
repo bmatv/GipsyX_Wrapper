@@ -193,7 +193,7 @@ def _dr_size(dr_files):
     return size_array
 
 
-def _drinfo2df(dr_file):
+def _drInfo2df(dr_file):
     '''Calls a dataRecordInfo script on already converted to dr format RNX file with rnxEditGde.py.
     dr_file is an absolute path but if switching machines/dr_location we need to rerun'''
     drInfo_process = _Popen(args=['dataRecordInfo', '-file', _os.path.basename(dr_file)],
@@ -216,7 +216,7 @@ def _drinfo2df(dr_file):
     
     return df
 
-def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
+def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     '''Analysis is done over all stations in the projects tmp_dir. The problem to run analysis on all converted fies is 30 hour files
     Naming convention for 30h files was changed
     that are present in the directory so original files are difficult to extract. Need to change merging naming'''
@@ -239,10 +239,10 @@ def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
                 num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
         
                 with _Pool(processes = num_cores) as p:
-                    if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
+                    if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drInfo2df, dr_good_station_year),
                                                                             total=dr_good_station_year.shape[0],
                                                                             desc='{}{}'.format(station.lower(),year.astype(str)[2:]))),axis=0,ignore_index=True)
-                    else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good_station_year),axis=0,ignore_index=True)
+                    else: drinfo_df = _pd.concat(p.map(_drInfo2df, dr_good_station_year),axis=0,ignore_index=True)
                 drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
                 drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
                 #Saving extracted data for furthe processing
@@ -250,17 +250,18 @@ def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
                 #gather should be separate, otherwise conflict and corrupted files
             else: pass
 
-def gather_drinfo(tmp_dir,num_cores,tqdm):
+def gather_drInfo(tmp_dir,num_cores,tqdm):
     #After all stationyear files were generated => gather them to single dr_info file. Will be rewritten on every call (dr_info unique files will get updated if new files were added)
     #should be run only once with single core
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
     rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
     drinfo_dir = _os.path.join(rnx_dir,'drinfo')
     tmp = []
-    for file in sorted(_glob.glob('{}/*.zstd'.format(drinfo_dir))):
-        tmp.append(_dump_read(file))
+    drInfo_files = sorted(_glob.glob('{}/*/*.zstd'.format(drinfo_dir)))
+    for drInfo_file in drInfo_files:
+        tmp.append(_dump_read(drInfo_file))
     print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drinfo.zstd')
-    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drinfo.zstd'.format(rnx_dir),cname='zstd',num_cores=num_cores)
+    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drInfo.zstd'.format(rnx_dir),cname='zstd',num_cores=num_cores)
     
 def mode2label(mode):
     mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])

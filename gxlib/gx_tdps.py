@@ -42,7 +42,7 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     staDb.read(staDb_path) #reading staDb into staDb object
     stns = staDb.getStationList() #creating array with available station names
     
-    drinfo_file = _dump_read(filename=tmp_dir+'/rnx_dr/drinfo.zstd')
+    drinfo_file = _dump_read(filename=tmp_dir+'/rnx_dr/drInfo.zstd')
     drinfo_years_list = drinfo_file.begin.dt.year.unique()
 
     #creating folder and file structure taking into account leap year.
