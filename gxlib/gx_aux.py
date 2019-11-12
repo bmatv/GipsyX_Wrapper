@@ -190,11 +190,7 @@ def _dr_size(dr_files):
 
     for i in range(dr_files.shape[0]):
         size_array[i] = _os.path.getsize(dr_files[i]) #index of 1 means dr file path
-
-    bad_files = dr_files[size_array==20]
-    good_files = dr_files[size_array>20]
-
-    return size_array,bad_files,good_files         
+    return size_array
 
 
 def _drinfo2df(dr_file):
@@ -220,42 +216,35 @@ def _drinfo2df(dr_file):
     
     return df
 
-def get_drinfo(tmp_dir,num_cores,tqdm,stations_list):
+def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
     '''Analysis is done over all stations in the projects tmp_dir. The problem to run analysis on all converted fies is 30 hour files
     Naming convention for 30h files was changed
     that are present in the directory so original files are difficult to extract. Need to change merging naming'''
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
     rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
     drinfo_dir = _os.path.join(rnx_dir,'drinfo')
-
-    dr_files_lists = []
-    for station in stations_list:
-        dr_files_lists.append(_glob.glob('{}/rnx_dr/*/*/{}*.dr.gz'.format(tmp_dir,station.lower())))
-    dr_files = _np.concatenate(dr_files_lists)
-
     if not _os.path.exists(drinfo_dir): _os.makedirs(drinfo_dir)
+    dr_files = selected_rnx['dr_path']
+    
     #find all dr.gx files in rnx_dr folder
      #after change of 30h naming this will select only original files
 
-    dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
-    # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
-    print ('dr files found:', dr_good.shape[0])
+    dr_good_mask = _dr_size(dr_files)>20 
+    selected_rnx = selected_rnx[dr_good_mask].copy()
     
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
-    split_df = _pd.Series(dr_good).str.split('/',expand=True)
-    stations = stations_list #only selected stations are extracted which is needed for multinode mode
-    stations.sort()
-    years = split_df.iloc[:,-3].unique();                       years.sort()
-    
+    stations = selected_rnx['station_name'].unique().sort_values()
+    years = selected_rnx['year'].unique();years.sort()
+
+    print(years)
     for station in stations:
         for year in years:
             filename = '{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station,year=year)
             if not _os.path.exists(filename):
-                dr_good_station_year = dr_good[(split_df.iloc[:,-4] == station) & (split_df.iloc[:,-3] == year)]
+                dr_good_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
         
                 num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
         
-
                 with _Pool(processes = num_cores) as p:
                     if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
                                                                             total=dr_good_station_year.shape[0],
@@ -267,6 +256,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm,stations_list):
                 #Saving extracted data for furthe processing
                 _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
                 #gather should be separate, otherwise conflict and corrupted files
+            else: pass
 
 
 

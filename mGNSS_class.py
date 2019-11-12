@@ -174,7 +174,7 @@ class mGNSS_class:
         gx_convert.rnx2dr(selected_df = self.select_rnx(), num_cores=self.num_cores,cddis=self.cddis, tqdm=self.tqdm,cache_path=self.cache_path)
         
     def get_drInfo(self):
-        gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm,stations_list = self.stations_list)
+        gx_aux.get_drinfo(num_cores=self.num_cores,tmp_dir=self.tmp_dir,tqdm=self.tqdm,selected_rnx = self.select_rnx())
 
     def gather_drInfo(self):
         '''Should be run with single node'''
