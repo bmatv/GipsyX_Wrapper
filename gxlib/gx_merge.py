@@ -4,7 +4,7 @@ import os as _os
 from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
 import tqdm as _tqdm
-from .gx_aux import J2000origin, _dump_read
+from .gx_aux import J2000origin, _dump_read, drInfo_lbl, rnx_dr_lbl
 
 def get_merge_table(tmp_dir,stations_list,mode=None):
     '''
@@ -14,7 +14,8 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
 
     tmp_dir = _os.path.abspath(tmp_dir)
-    drinfo = _dump_read(filename=tmp_dir+'/rnx_dr/drinfo.zstd') 
+    rnx_dir = _os.path.join(tmp_dir,rnx_dr_lbl)
+    drinfo = _dump_read(filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl))  
     modes = [None, 'GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
