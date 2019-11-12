@@ -228,10 +228,14 @@ def get_drinfo(tmp_dir,num_cores,tqdm,stations_list):
     rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
     drinfo_dir = _os.path.join(rnx_dir,'drinfo')
 
-    if not _os.path.exists(drinfo_dir):
-        _os.makedirs(drinfo_dir)
+    dr_files_lists = []
+    for station in stations_list:
+        dr_files_lists.append(_glob.glob('{}/rnx_dr/*/*/{}*.dr.gz'.format(tmp_dir,station.lower())))
+    dr_files = _np.concatenate(dr_files_lists)
+
+    if not _os.path.exists(drinfo_dir): _os.makedirs(drinfo_dir)
     #find all dr.gx files in rnx_dr folder
-    dr_files = _np.asarray(_glob.glob('{}/rnx_dr/*/*/*.dr.gz'.format(tmp_dir))) #after change of 30h naming this will select only original files
+     #after change of 30h naming this will select only original files
 
     dr_good = _dr_size(dr_files)[2] #Only good files will be analysed and processed. Bad ignored. Size array may be used for additional dr analysis
     # dr_size_array, dr_empty, dr_good = _dr_size(rnx_files)
