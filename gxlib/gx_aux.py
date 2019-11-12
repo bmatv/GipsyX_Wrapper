@@ -225,21 +225,14 @@ def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
     drinfo_dir = _os.path.join(rnx_dir,'drinfo')
     if not _os.path.exists(drinfo_dir): _os.makedirs(drinfo_dir)
     dr_files = selected_rnx['dr_path']
-    
-    #find all dr.gx files in rnx_dr folder
-     #after change of 30h naming this will select only original files
-
     dr_good_mask = _dr_size(dr_files)>20 
     selected_rnx = selected_rnx[dr_good_mask].copy()
-    
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
     stations = selected_rnx['station_name'].unique().sort_values()
     years = selected_rnx['year'].unique();years.sort()
-
-    print(years)
     for station in stations:
         for year in years:
-            filename = '{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station,year=year)
+            filename = '{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station.lower(),year=year.astype(str)[2:])
             if not _os.path.exists(filename):
                 dr_good_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
         
@@ -248,17 +241,14 @@ def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
                 with _Pool(processes = num_cores) as p:
                     if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drinfo2df, dr_good_station_year),
                                                                             total=dr_good_station_year.shape[0],
-                                                                            desc='{} {}'.format(station,year))),axis=0,ignore_index=True)
+                                                                            desc='{}{}'.format(station.lower(),year.astype(str)[2:]))),axis=0,ignore_index=True)
                     else: drinfo_df = _pd.concat(p.map(_drinfo2df, dr_good_station_year),axis=0,ignore_index=True)
-
                 drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
                 drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
                 #Saving extracted data for furthe processing
                 _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
                 #gather should be separate, otherwise conflict and corrupted files
             else: pass
-
-
 
 def gather_drinfo(tmp_dir,num_cores,tqdm):
     #After all stationyear files were generated => gather them to single dr_info file. Will be rewritten on every call (dr_info unique files will get updated if new files were added)
