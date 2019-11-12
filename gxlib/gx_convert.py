@@ -1,22 +1,27 @@
-import numpy as _np
-import pandas as _pd
 import glob as _glob
 import os as _os
-import tqdm as _tqdm
-from subprocess import Popen as _Popen
 from multiprocessing import Pool as _Pool
-from shutil import rmtree as _rmtree, copy as _copy
+from shutil import copy as _copy
+from shutil import rmtree as _rmtree
+from subprocess import Popen as _Popen
+
+import numpy as _np
+import pandas as _pd
+import tqdm as _tqdm
+
+from .gx_aux import drInfo_lbl, rnx_dr_lbl
+
 
 def prepare_dir_struct(begin_year, end_year,tmp_dir):
     timeline = _pd.Series(_np.arange(_np.datetime64(str(begin_year)),_np.datetime64(str(end_year+1)),_np.timedelta64(1,'D')))
     dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
     year = timeline.dt.year.astype(str)
-    dirs = tmp_dir +'/rnx_dr/' + year +'/'+ dayofyear
+    dirs = tmp_dir + '/{}/'.format(rnx_dr_lbl) + year +'/'+ dayofyear
     for path in dirs:
         if not _os.path.exists(path):
             _os.makedirs(path)
 
-    drinfo_dirs = tmp_dir +'/rnx_dr/drinfo/' + year
+    drinfo_dirs = tmp_dir +'/{}/{}/'.format(rnx_dr_lbl,drInfo_lbl) + year
     for drinfo_path in drinfo_dirs:
         if not _os.path.exists(drinfo_path):
             _os.makedirs(drinfo_path)
@@ -53,7 +58,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list(),inplace=True)
     
     extracted_df['rnx_path'] = paths_series
-    extracted_df['dr_path'] = (tmp_dir +'/rnx_dr/' + extracted_df['year'].astype(str) +'/'+extracted_df['doy'].astype(str).str.zfill(3)
+    extracted_df['dr_path'] = (tmp_dir +'/{}/'.format(rnx_dr_lbl) + extracted_df['year'].astype(str) +'/'+extracted_df['doy'].astype(str).str.zfill(3)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
     +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
     #{tmp_dir}/rnx_dr/2010/doy/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)

@@ -1,20 +1,24 @@
+import calendar as _calendar
+import glob as _glob
+import os as _os
+import sys as _sys
+from multiprocessing import Pool as _Pool
+
 import numpy as _np
 import pandas as _pd
-import sys as _sys
-import os as _os
-import calendar as _calendar
 import tqdm as _tqdm
-import glob as _glob
-from multiprocessing import Pool as _Pool
+
+import gcore.EarthCoordTrans as _eo
+import gcore.StationDataBase as _StationDataBase
+import gipsyx.tropNom as _tropNom
+
+from .gx_aux import J2000origin, _dump_read, drInfo_lbl, rnx_dr_lbl
+
 PYGCOREPATH="{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0,PYGCOREPATH)
 
-import gipsyx.tropNom as _tropNom
-import gcore.StationDataBase as _StationDataBase
-import gcore.EarthCoordTrans as _eo
 
-from .gx_aux import J2000origin, _dump_read
 
 def _gen_VMF1_tropNom(tropnom_param):
     '''Reads the staDb, gets list of station in the staDb, reads input arguments'''
@@ -42,7 +46,7 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     staDb.read(staDb_path) #reading staDb into staDb object
     stns = staDb.getStationList() #creating array with available station names
     
-    drinfo_file = _dump_read(filename=tmp_dir+'/rnx_dr/drInfo.zstd')
+    drinfo_file = _dump_read(filename='{}/{}/{}.zstd'.format(tmp_dir,rnx_dr_lbl,drInfo_lbl))
     drinfo_years_list = drinfo_file.begin.dt.year.unique()
 
     #creating folder and file structure taking into account leap year.

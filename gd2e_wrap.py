@@ -1,6 +1,9 @@
-from gxlib import gx_aux, gx_compute, gx_convert, gx_extract, gx_filter, gx_merge, gx_trees, gx_tdps, gx_ionex, gx_eterna
 import os as _os
+
 import numpy as _np
+
+from gxlib import (gx_aux, gx_compute, gx_convert, gx_eterna, gx_extract,
+                   gx_filter, gx_ionex, gx_merge, gx_tdps, gx_trees)
 
 
 class gd2e_class:
@@ -235,4 +238,3 @@ class gd2e_class:
     def wetz(self):
         '''Returns WetZ values dataframe'''
         return gx_aux.wetz(self.filtered_solutions())        
-        

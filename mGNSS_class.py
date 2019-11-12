@@ -1,9 +1,18 @@
-from gd2e_wrap import gd2e_class, gx_convert, gx_aux, gx_ionex, gx_eterna, gx_merge, gx_tdps, gx_trees
-from gxlib import gx_hardisp
-import trees_options
-import pandas as _pd
 import os as _os
+
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as _np
+import pandas as _pd
+#PARZEN window function
+from scipy import signal
+
+import trees_options
+from gd2e_wrap import (gd2e_class, gx_aux, gx_convert, gx_eterna, gx_ionex,
+                       gx_merge, gx_tdps, gx_trees)
+from gxlib import gx_hardisp
 from gxlib.gx_aux import _update_mindex
+
 
 class mGNSS_class:
     '''
@@ -373,9 +382,6 @@ class mGNSS_class:
 
 
 
-#PARZEN window function
-from scipy import signal
-import numpy as _np
 
 
 def gen_parzen(samples,fraction):
@@ -403,8 +409,6 @@ def get_spectra(data,window_size = 14016):
     return constellation_spectra_df
 
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 
 def plot_tree(blq_df,station_name,normalize=True):
@@ -497,7 +501,6 @@ def plot_tree(blq_df,station_name,normalize=True):
     plt.show()
     # print(scale)
 
-import matplotlib.pyplot as plt
 # plt.style.use('ggplot')
 plt.style.use('default')
 def plot_specta(mGNSSspectra_df):
@@ -513,4 +516,3 @@ def plot_specta(mGNSSspectra_df):
         if i ==0:fig.legend(loc='lower center',markerscale=10/ms,ncol=3,)
     fig.tight_layout(rect=(0,0.05,1,1))
     plt.show()
-    

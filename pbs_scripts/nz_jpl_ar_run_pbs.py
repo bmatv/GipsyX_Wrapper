@@ -1,15 +1,16 @@
 import subprocess
-import numpy as np
 import sys as _sys
+
+import numpy as np
+
 GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
 if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
-import trees_options
-from gxlib.gx_aux import gen_staDb, _project_name_construct
-from gxlib.gx_trees import gen_trees
-from gxlib.gx_pbs import gen_code, qsub_python_code
 
-                           
+import trees_options
+from gxlib.gx_aux import _project_name_construct, gen_staDb
+from gxlib.gx_pbs import gen_code, qsub_python_code
+from gxlib.gx_trees import gen_trees
 
 #parameters to change-----------------------------------------------------------------------------------------------
 

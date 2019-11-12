@@ -1,28 +1,40 @@
-import os as _os, re as _re, glob as _glob, sys as _sys
+import binascii as _binascii
+import glob as _glob
+import os as _os
+import re as _re
+import sys as _sys
+from multiprocessing import Pool as _Pool
+from subprocess import PIPE as _PIPE
+from subprocess import STDOUT as _STDOUT
+from subprocess import Popen as _Popen
+
+import blosc as _blosc
 import numpy as _np
 import pandas as _pd
+import pyarrow as _pa
 import tqdm as _tqdm
-from subprocess import Popen as _Popen, PIPE as _PIPE, STDOUT as _STDOUT
-from multiprocessing import Pool as _Pool
-import pyarrow as _pa 
-import blosc as _blosc
-import binascii as _binascii
-
-if _pa.__version__ !='0.13.0':
-    raise Exception('pyarrow should be version 0.13.0 only') 
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0, PYGCOREPATH)
+    
 import gcore.EarthCoordTrans as _eo
 import gcore.StationDataBase as StationDataBase
+
+from .gx_hardisp import blq2hardisp as _blq2hardisp
+
+if _pa.__version__ !='0.13.0':
+    raise Exception('pyarrow should be version 0.13.0 only') 
+
+
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
 _regex_loc = _re.compile(r"2\.\W+S.+\W+City or Town\W+\:\s(.+|)\W+State or Province\W+\:\s(.+|)\W+Country\W+\:\s(.+|)\W+Tectonic Plate\W+\:\s(.+|)\W+.+\W+X.+\:\s(.+|)\W+Y..+\:\s(.+|)\W+Z.+\:\s(.+|)\W*Latitude.+\:\s(.+|)\W*Longitude.+\:\s(.+|)\W*Elevation.+\:\s(.+|)", _re.MULTILINE)
 _regex_rec = _re.compile(r"3\.\d+\s+R.+\W+\:\s(.+|)\W+Satellite System\W+\:\s(.+|)\W+Serial Number\W+\:\s(.+|)\W+Firmware Version\W+\:\s(.+|)\W+Elevation Cutoff Setting\W+\:\s(.+|)\W+Date Installed\W+\:\s(.{10}|)(.{1}|)(.{5}|)", _re.MULTILINE)
 _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Number\W+:\s(\w+\s?\w+?|)\W+Antenna.+:\s(.+|)\W+Marker->ARP Up.+:\s(.+|)\W+Marker->ARP North.+:\s(.+|)\W+Marker->ARP East.+:\s(.+|)\W+Alignment from True N\W+:\s(.+|)\W+Antenna Radome Type\W+:\s(.+|)\W+Radome Serial Number\W+:\s(.+|)\W+Antenna Cable Type\W+:\s(.+|)\W+Antenna Cable Length\W+:\s(.+|)\W+Date Installed\W+:\s(.{10})T?(.{5}|)Z?\W+Date Removed\W+\:(?:\s\(?(.{10})T(.{5}|)Z?|)\W+Additional Information\W+:\s(.+|)\W+", _re.MULTILINE)
 
 J2000origin = _np.datetime64('2000-01-01 12:00:00')
-from .gx_hardisp import blq2hardisp as _blq2hardisp
+drInfo_lbl = 'drInfo'
+rnx_dr_lbl = 'rnx_dr'
 
 # service functions for uncompressing
 def uncompress(file_path):
@@ -221,8 +233,8 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     Naming convention for 30h files was changed
     that are present in the directory so original files are difficult to extract. Need to change merging naming'''
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
-    rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
-    drinfo_dir = _os.path.join(rnx_dir,'drinfo')
+    rnx_dir = _os.path.join(tmp_dir,rnx_dr_lbl)
+    drinfo_dir = _os.path.join(rnx_dir,drInfo_lbl)
     if not _os.path.exists(drinfo_dir): _os.makedirs(drinfo_dir)
     dr_files = selected_rnx['dr_path']
     dr_good_mask = _dr_size(dr_files)>20 
@@ -254,14 +266,14 @@ def gather_drInfo(tmp_dir,num_cores,tqdm):
     #After all stationyear files were generated => gather them to single dr_info file. Will be rewritten on every call (dr_info unique files will get updated if new files were added)
     #should be run only once with single core
     tmp_dir = _os.path.abspath(tmp_dir); num_cores = int(num_cores) #safety precaution if str value is specified
-    rnx_dir = _os.path.join(tmp_dir,'rnx_dr')
-    drinfo_dir = _os.path.join(rnx_dir,'drinfo')
+    rnx_dir = _os.path.join(tmp_dir,rnx_dr_lbl)
+    drinfo_dir = _os.path.join(rnx_dir,drInfo_lbl)
     tmp = []
     drInfo_files = sorted(_glob.glob('{}/*/*.zstd'.format(drinfo_dir)))
     for drInfo_file in drInfo_files:
         tmp.append(_dump_read(drInfo_file))
-    print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drinfo.zstd')
-    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/drInfo.zstd'.format(rnx_dir),cname='zstd',num_cores=num_cores)
+    print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drInfo.zstd')
+    _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl),cname='zstd',num_cores=num_cores)
     
 def mode2label(mode):
     mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])

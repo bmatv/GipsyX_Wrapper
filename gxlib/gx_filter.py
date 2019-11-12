@@ -1,10 +1,13 @@
 '''New filter module
 Takes the output gather of .solutions() method and does preliminary filtering
 with 0.1 derivative margin for X Y Z and 3*std margin for sigma X Y Z'''
+import warnings
+
 import numpy as _np
 import pandas as _pd
+
 from .gx_aux import J2000origin
-import warnings
+
 
 def _filter_derivative(dataset, margin=0.1):
     value_dataset = dataset['value'].iloc[:,[0,1,2]].values
@@ -96,5 +99,3 @@ def average(solutions):
     for i in range(averaged_solutions.shape[0]):
         averaged_solutions[i] = _avg_30(_stretch(solutions[i]))
     return averaged_solutions
-
-
