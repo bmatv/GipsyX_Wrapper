@@ -232,7 +232,7 @@ def get_drinfo(tmp_dir,num_cores,tqdm,selected_rnx):
     years = selected_rnx['year'].unique();years.sort()
     for station in stations:
         for year in years:
-            filename = '{drinfo_dir}/{station}{year}.zstd'.format(drinfo_dir=drinfo_dir,station=station.lower(),year=year.astype(str)[2:])
+            filename = '{drinfo_dir}/{yyyy}/{station}{yy}.zstd'.format(drinfo_dir=drinfo_dir,yyyy=year.astype(str),station=station.lower(),yy=year.astype(str)[2:])
             if not _os.path.exists(filename):
                 dr_good_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
         
