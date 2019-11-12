@@ -16,6 +16,8 @@ def prepare_dir_struct(begin_year, end_year,tmp_dir):
     for path in dirs:
         if not _os.path.exists(path):
             _os.makedirs(path)
+    drinfo_path = tmp_dir +'/rnx_dr/drinfo' 
+    if not _os.path.exists(drinfo_path):_os.makedirs(drinfo_path)
 
 def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
