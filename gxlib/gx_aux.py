@@ -254,7 +254,10 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
                     if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drInfo2df, dr_good_station_year),
                                                                             total=dr_good_station_year.shape[0],
                                                                             desc='{}{}'.format(station.lower(),year.astype(str)[2:]))),axis=0,ignore_index=True)
-                    else: drinfo_df = _pd.concat(p.map(_drInfo2df, dr_good_station_year),axis=0,ignore_index=True)
+                    else:
+                        print('Running get_drInfo for {station}{yy}.zstd'.format(station=station.lower(),yy=year.astype(str)[2:]))
+                        drinfo_df = _pd.concat(p.map(_drInfo2df, dr_good_station_year),axis=0,ignore_index=True)
+                        
                 drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
                 drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
                 #Saving extracted data for furthe processing
