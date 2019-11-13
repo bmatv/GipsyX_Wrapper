@@ -236,34 +236,35 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     rnx_dir = _os.path.join(tmp_dir,rnx_dr_lbl)
     drinfo_dir = _os.path.join(rnx_dir,drInfo_lbl)
     if not _os.path.exists(drinfo_dir): _os.makedirs(drinfo_dir)
-    dr_files = selected_rnx['dr_path']
-    dr_good_mask = _dr_size(dr_files)>20 
-    selected_rnx = selected_rnx[dr_good_mask].copy()
+
+    selected_rnx['good'] = _dr_size(selected_rnx['dr_path'])>20 
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
-    stations = selected_rnx['station_name'].unique().sort_values(); print('stations selected: {}'.format(stations))
-    years = selected_rnx['year'].unique();years.sort();             print('years selected   : {}'.format(years))
+    stations = selected_rnx[selected_rnx['good']]['station_name'].unique().sort_values(); print('stations selected: {}'.format(stations.values))
+    years = selected_rnx[selected_rnx['good']]['year'].unique();years.sort();             print('years selected   : {}'.format(years))
     for station in stations:
         for year in years:
             filename = '{drinfo_dir}/{yyyy}/{station}{yy}.zstd'.format(drinfo_dir=drinfo_dir,yyyy=year.astype(str),station=station.lower(),yy=year.astype(str)[2:])
             if not _os.path.exists(filename):
-                dr_good_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
-                print('{} good files found for {}{}'.format(dr_good_station_year.shape[0],station,year))
-                num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
-        
-                with _Pool(processes = num_cores) as p:
-                    if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drInfo2df, dr_good_station_year),
-                                                                            total=dr_good_station_year.shape[0],
-                                                                            desc='{}{}'.format(station.lower(),year.astype(str)[2:]))),axis=0,ignore_index=True)
-                    else:
-                        print('Running get_drInfo for {station}{yy}.zstd'.format(station=station.lower(),yy=year.astype(str)[2:]))
-                        drinfo_df = _pd.concat(p.map(_drInfo2df, dr_good_station_year),axis=0,ignore_index=True)
-                        
-                drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
-                drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
-                #Saving extracted data for furthe processing
-                _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
+                dr_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
+                dr_good_station_year = dr_station_year[dr_station_year['good']]
+                if dr_good_station_year.shape[0]>0:
+                    print('{} good files found for {}{} out of {}. Running get_drInfo...'.format(dr_good_station_year.shape[0],station,year,dr_station_year.shape[0]))
+                    num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
+                    with _Pool(processes = num_cores) as p:
+                        if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drInfo2df, dr_good_station_year),
+                                                                                total=dr_good_station_year.shape[0],
+                                                                                desc='{}{}'.format(station.lower(),year.astype(str)[2:]))),axis=0,ignore_index=True)
+                        else:
+                            print('Running get_drInfo for {station}{yy}.zstd'.format(station=station.lower(),yy=year.astype(str)[2:]))
+                            drinfo_df = _pd.concat(p.map(_drInfo2df, dr_good_station_year),axis=0,ignore_index=True)
+                    drinfo_df['station_name'] = drinfo_df['station_name'].astype('category')
+                    drinfo_df['length'] = (drinfo_df['end'] - drinfo_df['begin']).astype('timedelta64[h]').astype(int)
+                    #Saving extracted data for furthe processing
+                    _dump_write(data = drinfo_df,filename=filename,cname='zstd',num_cores=num_cores)
                 #gather should be separate, otherwise conflict and corrupted files
-            else: pass
+                else:
+                    print('{} good files found for {}{} out of {}. Skipping.'.format(dr_good_station_year.shape[0],station,year,dr_station_year.shape[0]))
+            else: print('{} exists'.format(filename))
 
 def gather_drInfo(tmp_dir,num_cores,tqdm):
     #After all stationyear files were generated => gather them to single dr_info file. Will be rewritten on every call (dr_info unique files will get updated if new files were added)

@@ -48,7 +48,6 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
             
             
             if len(j_year_files) > 0:
-                
                 station_files.append(_np.sort(_np.asarray(j_year_files)))
             else:
                 print('gx_convert.select_rnx: No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
