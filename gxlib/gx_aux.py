@@ -245,8 +245,8 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
         for year in years:
             filename = '{drinfo_dir}/{yyyy}/{station}{yy}.zstd'.format(drinfo_dir=drinfo_dir,yyyy=year.astype(str),station=station.lower(),yy=year.astype(str)[2:])
             if not _os.path.exists(filename):
-                dr_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
-                dr_good_station_year = dr_station_year[dr_station_year['good']]
+                dr_station_year = selected_rnx[(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
+                dr_good_station_year = dr_station_year['dr_path'][dr_station_year['good']]
                 if dr_good_station_year.shape[0]>0:
                     print('{} good files found for {}{} out of {}. Running get_drInfo...'.format(dr_good_station_year.shape[0],station,year,dr_station_year.shape[0]))
                     num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
