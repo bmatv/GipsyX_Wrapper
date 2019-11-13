@@ -239,7 +239,7 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
 
     selected_rnx['good'] = _dr_size(selected_rnx['dr_path'])>20 
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
-    stations = selected_rnx[selected_rnx['good']]['station_name'].unique().sort_values(); print('stations selected: {}'.format(stations.values))
+    stations = selected_rnx[selected_rnx['good']]['station_name'].unique().sort_values(); print('stations selected: {}'.format(stations.get_values()))
     years = selected_rnx[selected_rnx['good']]['year'].unique();years.sort();             print('years selected   : {}'.format(years))
     for station in stations:
         for year in years:
