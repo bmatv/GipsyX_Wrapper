@@ -276,8 +276,9 @@ def gather_drInfo(tmp_dir,num_cores,tqdm):
     drInfo_files = sorted(_glob.glob('{}/*/*.zstd'.format(drinfo_dir)))
     for drInfo_file in drInfo_files:
         tmp.append(_dump_read(drInfo_file))
-    print('Concatenating partial drinfo files to proj_tmp/rnx_dr/drInfo.zstd')
+    print('gather_drInfo: Concatenating partial drinfo files to proj_tmp/rnx_dr/drInfo.zstd')
     _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl),cname='zstd',num_cores=num_cores)
+    print('gather_drInfo: Done')
     
 def mode2label(mode):
     mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
