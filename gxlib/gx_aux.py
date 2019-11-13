@@ -240,14 +240,14 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     dr_good_mask = _dr_size(dr_files)>20 
     selected_rnx = selected_rnx[dr_good_mask].copy()
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
-    stations = selected_rnx['station_name'].unique().sort_values()
-    years = selected_rnx['year'].unique();years.sort()
+    stations = selected_rnx['station_name'].unique().sort_values(); print('stations selected: {}'.format(stations))
+    years = selected_rnx['year'].unique();years.sort();             print('years selected   : {}'.format(years))
     for station in stations:
         for year in years:
             filename = '{drinfo_dir}/{yyyy}/{station}{yy}.zstd'.format(drinfo_dir=drinfo_dir,yyyy=year.astype(str),station=station.lower(),yy=year.astype(str)[2:])
             if not _os.path.exists(filename):
                 dr_good_station_year = selected_rnx['dr_path'][(selected_rnx['station_name'] == station) & (selected_rnx['year'] == year)]
-        
+                print('{} good files found for {}{}'.format(dr_good_station_year.shape[0],station,year))
                 num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
         
                 with _Pool(processes = num_cores) as p:
