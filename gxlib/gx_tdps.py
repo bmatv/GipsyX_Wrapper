@@ -53,17 +53,30 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     #resulting paths look as follows: year/doy/30h_tropNominal.vmf1
     #data on next day needed to create current day tropnominal
     days_in_year=_np.ndarray((len(drinfo_years_list)),dtype=int)
-
+    current_year = _np.datetime64('today').astype('datetime64[Y]').astype(str).astype(int)
 
     for i in range(len(drinfo_years_list)):
-        
-        days_in_year[i] = int(365 + (1*_calendar.isleap(drinfo_years_list[i])))
-        date = (_np.datetime64(str(drinfo_years_list[i])) + (_np.arange(days_in_year[i]).astype('timedelta64[D]'))) - J2000origin
-        #Now all works correctly. The bug with wrong timevalues was corrected.
-        begin = (date - _np.timedelta64(3,'[h]')).astype(int) 
-        end = (date + _np.timedelta64(27,'[h]')).astype(int) 
+        # vmf1 data is missing at current year (if it is not a prediction),
+        # so an additional chech of files present is needed
+        if int(drinfo_years_list[i]) != current_year:         
+            days_in_year[i] = int(365 + (1*_calendar.isleap(drinfo_years_list[i])))
+            date = (_np.datetime64(str(drinfo_years_list[i])) + (_np.arange(days_in_year[i]).astype('timedelta64[D]')))
+            #Now all works correctly. The bug with wrong timevalues was corrected.
 
-        tropNom_out = (tmp_dir +'/tropNom/'+ str(drinfo_years_list[i])+'/'+_pd.Series(_np.arange(1,days_in_year[i]+1)).astype(str).str.zfill(3)+'/30h_tropNominalOut_VMF1.tdp').values
+        else: 
+            current_year_VMF1_dir_ah = _os.path.join(VMF1_dir, str(current_year),'ah')
+            last_ah_file_path = sorted(_glob.glob(current_year_VMF1_dir_ah+'/*'))[-1]
+            # e.g ah19315.h18.gz
+            
+            last_ah_filename = _os.path.basename(last_ah_file_path)
+            last_day_used = int(last_ah_filename[4:7]) - 1 #we do -1 as to create a 30h tropnominal
+            date = _np.datetime64(str(current_year)) + (_np.arange(last_day_used).astype('timedelta64[D]'))
+            print('Last day in {} is {}. Generating up to {}'.format(str(current_year),last_ah_filename[4:7],str(last_day_used)))
+
+        begin = ((date - J2000origin) - _np.timedelta64(3,'[h]')).astype(int) 
+        end = ((date - J2000origin) + _np.timedelta64(27,'[h]')).astype(int) 
+
+        tropNom_out = (tmp_dir +'/tropNom/'+ str(drinfo_years_list[i])+'/'+_pd.Series(date).dt.dayofyear.astype(str).str.zfill(3)+'/30h_tropNominalOut_VMF1.tdp').values
 
         staDb_nd    = _np.ndarray((tropNom_out.shape),dtype=object)
         rate_nd     = _np.ndarray((tropNom_out.shape),dtype=object)
