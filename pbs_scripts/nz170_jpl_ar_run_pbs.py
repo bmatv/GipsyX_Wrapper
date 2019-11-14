@@ -16,7 +16,7 @@ from gxlib.gx_trees import gen_trees
 #parameters to change-----------------------------------------------------------------------------------------------
 
 project_name = 'nz170_jpl_cm'
-ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
+ionex_type='jpl_native' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
