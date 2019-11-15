@@ -9,22 +9,8 @@ import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
 
-from .gx_aux import drInfo_lbl, rnx_dr_lbl
+from .gx_aux import drInfo_lbl, rnx_dr_lbl, prepare_dir_struct_dr
 
-
-def prepare_dir_struct(begin_year, end_year,tmp_dir):
-    timeline = _pd.Series(_np.arange(_np.datetime64(str(begin_year)),_np.datetime64(str(end_year+1)),_np.timedelta64(1,'D')))
-    dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
-    year = timeline.dt.year.astype(str)
-    dirs = tmp_dir + '/{}/'.format(rnx_dr_lbl) + year +'/'+ dayofyear
-    for path in dirs:
-        if not _os.path.exists(path):
-            _os.makedirs(path)
-
-    drinfo_dirs = tmp_dir +'/{}/{}/'.format(rnx_dr_lbl,drInfo_lbl) + year
-    for drinfo_path in drinfo_dirs:
-        if not _os.path.exists(drinfo_path):
-            _os.makedirs(drinfo_path)
 
 def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
@@ -62,7 +48,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
     #{tmp_dir}/rnx_dr/2010/doy/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
     # preparing dir structure
-    prepare_dir_struct(begin_year=extracted_df['year'].min(), end_year=extracted_df['year'].max(),tmp_dir=tmp_dir)
+    prepare_dir_struct_dr(begin_year=extracted_df['year'].min(), end_year=extracted_df['year'].max(),tmp_dir=tmp_dir)
     return extracted_df
 
 def _2dr(rnx2dr_path):

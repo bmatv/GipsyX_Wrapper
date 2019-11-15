@@ -36,6 +36,28 @@ _regex_ant = _re.compile(r"4\.\d\s+A.+\W+:\s(\w+\.?\w+?|)\s+(\w+|)\W+Serial Numb
 drInfo_lbl = 'drInfo'
 rnx_dr_lbl = 'rnx_dr'
 
+def prepare_dir_struct_dr(begin_year, end_year,tmp_dir):
+    timeline = _pd.Series(_np.arange(_np.datetime64(str(begin_year)),_np.datetime64(str(end_year+1)),_np.timedelta64(1,'D')))
+    dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
+    year = timeline.dt.year.astype(str)
+    dirs = tmp_dir + '/{}/'.format(rnx_dr_lbl) + year +'/'+ dayofyear
+    for path in dirs:
+        if not _os.path.exists(path):
+            _os.makedirs(path)
+
+    drinfo_dirs = tmp_dir +'/{}/{}/'.format(rnx_dr_lbl,drInfo_lbl) + year
+    for drinfo_path in drinfo_dirs:
+        if not _os.path.exists(drinfo_path):
+            _os.makedirs(drinfo_path)
+
+def prepare_dir_struct_gathers(tmp_dir,project_name):
+    env_gathers_dir = _os.path.join(tmp_dir,'gd2e/env_gathers',project_name)
+    # solutions_dir = _os.path.join(tmp_dir,'gd2e/solutions',project_name)
+    # residuals_dir = _os.path.join(tmp_dir,'gd2e/residuals',project_name)
+    # for path in [env_gathers_dir,solutions_dir,residuals_dir]:
+    if not _os.path.exists(env_gathers_dir):
+        _os.makedirs(env_gathers_dir)
+
 # service functions for uncompressing
 def uncompress(file_path):
     process = _Popen(['uncompress',file_path])
@@ -171,7 +193,7 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
         print('Writing new staDb file')
         with open(staDb_path,'w') as output: output.write(buf)
 
-#     return staDb_path,crc_ex, crc
+    #     return staDb_path,crc_ex, crc
     return staDb_path
 
 def get_chalmers(staDb_path):
