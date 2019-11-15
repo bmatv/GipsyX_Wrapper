@@ -134,6 +134,15 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
     '''
+    #IF current year -> get last day of products and filter files to process based on this day.
+    # if last day != number of days => write a message and filter files
+    current_year = _pd.Timestamp('today').year
+    if (merge_table['begin'].dt.year == current_year).sum() > 0: #sum of True > 0 means cur year is present
+        #check present files
+        current_year_last_product = sorted(_glob.glob(_os.path.join(gnss_products_dir,current_year,'*')))[-1]
+        last_products_date = _pd.Timestamp(_os.path.basename(current_year_last_product)[:10]) #we suppose that products are 30h always
+        merge_table = merge_table[merge_table['begin']<=last_products_date]
+
     cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list)
     re_df = _pd.Series(index = ['GPS','GLONASS','GPS+GLONASS'],data=['^GPS\d{2}$','^R\d{3}$','^(GPS\d{2})|(R\d{3})$'])
 
