@@ -8,8 +8,7 @@ if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 
 import trees_options
-from gxlib.gx_aux import _project_name_construct, gen_staDb
-from gxlib.gx_convert import prepare_dir_struct
+from gxlib.gx_aux import _project_name_construct, gen_staDb, prepare_dir_struct_dr, prepare_dir_struct_gathers
 from gxlib.gx_pbs import gen_code, qsub_python_code
 from gxlib.gx_trees import gen_trees
 
@@ -68,8 +67,10 @@ tree_options_code = 'trees_options.rw_otl'
 tqdm=False
 ElDepWeight = 'SqrtSin'
 
-prepare_dir_struct(begin_year=_np.min(years_list), end_year = _np.max(years_list),tmp_dir=tmp_dir) #prepare dir struct for dr files
-project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres)
+prepare_dir_struct_dr(begin_year=_np.min(years_list), end_year = _np.max(years_list),tmp_dir=tmp_dir) #prepare dir struct for dr files
+project_name_construct = _project_name_construct(project_name=project_name,PPPtype=PPPtype,pos_s=pos_s,wetz_s=wetz_s,tropNom_input=tropNom_input,ElMin=ElMin,ambres=ambres)
+prepare_dir_struct_gathers(tmp_dir=tmp_dir,project_name=project_name_construct)
+
 #generating tree files that won't be overwritten as crc32 will be the same
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',ElDepWeight=ElDepWeight,
             ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,years_list=years_list,cache_path = cache_path,
