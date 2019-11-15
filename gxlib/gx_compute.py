@@ -139,7 +139,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     current_year = _pd.Timestamp('today').year
     if (merge_table['begin'].dt.year == current_year).sum() > 0: #sum of True > 0 means cur year is present
         #check present files
-        current_year_last_product = sorted(_glob.glob(_os.path.join(gnss_products_dir,current_year,'*')))[-1]
+        current_year_last_product = sorted(_glob.glob(_os.path.join(gnss_products_dir,str(current_year),'*')))[-1]
         last_products_date = _pd.Timestamp(_os.path.basename(current_year_last_product)[:10]) #we suppose that products are 30h always
         merge_table = merge_table[merge_table['begin'].dt.date<=last_products_date.date()]
 
