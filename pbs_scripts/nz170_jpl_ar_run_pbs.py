@@ -84,7 +84,7 @@ for i in range(len(stations_list_arrays)):
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
                     command='gps.envs(dump=True)')
-    qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
+    qsub_python_code(code,name='{}{}'.format(project_name+'AR',str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
 #'gps.gd2e();kinematic_project.gps.envs(dump=True)'
 #;kinematic_project.dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()
