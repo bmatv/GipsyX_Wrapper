@@ -294,9 +294,9 @@ def extract_et(tmp_station_path,lon,lat): #In development. Should extract lon fr
         df_blq[components[i]]['amplitude']['std'].update(((df.theor_a * df.a_stdv)/1000).round(5))
 
         # 14h constituent will not get any corrections
-        coeff = _pd.DataFrame([['Q1',1],['O1',1],['M1',1],['P1',1],['S1',1],['K1',1],['PSI1',1],['PHI1',1],['J1',1],['OO1',1],['14h',0],\
-                               ['MF',0],['MM',0],['SSA',0],\
-                   ['2N2',2],['N2',2],['M2',2],['L2',2],['S2',2],['K2',2],['M3',3],['M4',2]],columns=['','coeff']).set_index('')
+        coeff = _pd.DataFrame([ ['M2',2],['S2',2],['N2',2],['K2',2],\
+                                ['K1',1],['O1',1],['P1',1],['Q1',1],\
+                                ['MF',0],['MM',0],['SSA',0],['14h',0]],columns=['','coeff']).set_index('')
 
 
         df_blq[components[i]]['phase']['value'].update((df['phase'] * -1) - lon*coeff['coeff'])
@@ -336,6 +336,7 @@ def analyze_env_single_thread(set):
         restored_et = env_et + synth_otl
         blq_array = _pd.concat([analyse_et(restored_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     else:
+        #restore_otl is incorrect, should be env_et
         blq_array = _pd.concat([analyse_et(restored_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     return blq_array
 
