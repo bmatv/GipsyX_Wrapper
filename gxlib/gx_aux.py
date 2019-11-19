@@ -477,7 +477,6 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
     coeff95 = 1.96
     if not custom_blq_path:pass
     else:blq_df.update(blq2blq_df(custom_blq_path))
-        
     amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
     phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
     
@@ -486,25 +485,25 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
     
     x = _np.cos(_np.deg2rad(phase)) * amplitude
     y = _np.sin(_np.deg2rad(phase)) * amplitude
-    
+#     return x,y
     if normalize and not gps_only:
-        x_norm = x['OTL']
+        x_norm = x['OTL'].copy()
         x['OTL'] -= x_norm
         x['GPS'] -= x_norm
         x['GLONASS'] -= x_norm
         x['GPS+GLONASS'] -= x_norm
         
-        y_norm = y['OTL']
+        y_norm = y['OTL'].copy()
         y['OTL'] -= y_norm
         y['GPS'] -= y_norm
         y['GLONASS'] -= y_norm
         y['GPS+GLONASS'] -= y_norm
         
     if normalize and gps_only:
-        x_norm = x['OTL']
+        x_norm = x['OTL'].copy()
         x['OTL'] -= x_norm
         x['GPS'] -= x_norm      
-        y_norm = y['OTL']
+        y_norm = y['OTL'].copy()
         y['OTL'] -= y_norm
         y['GPS'] -= y_norm
         

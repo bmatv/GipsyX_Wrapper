@@ -336,8 +336,7 @@ def analyze_env_single_thread(set):
         restored_et = env_et + synth_otl
         blq_array = _pd.concat([analyse_et(restored_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     else:
-        #restore_otl is incorrect, should be env_et
-        blq_array = _pd.concat([analyse_et(restored_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
+        blq_array = _pd.concat([analyse_et(env_et,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     return blq_array
 
 def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,num_cores,mode,otl_env):
