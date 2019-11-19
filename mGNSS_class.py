@@ -38,8 +38,8 @@ class mGNSS_class:
                 rate = 300,
                 gnss_products_dir = '/array/bogdanm/Products/IGS_GNSS_Products/init/es2_30h_init/',
                 ionex_type='igs', #No ionex dir required as ionex merged products will be put into tmp directory by ionex class
-                eterna_path='/home/bogdanm/Desktop/otl/eterna',
-                hardisp_path = '/home/bogdanm/Desktop/otl/hardisp/hardisp',
+                eterna_path='/array/bogdanm/Products/otl/eterna',
+                hardisp_path = '/array/bogdanm/Products/otl/hardisp/hardisp',
                 num_cores = 8,
                 ElMin = 7,
                 ElDepWeight = 'SqrtSin',
@@ -327,13 +327,19 @@ class mGNSS_class:
             if _os.path.exists(gather_path): _os.remove(gather_path)
 
         if not _os.path.exists(gather_path):
-            '''If force == True -> reruns Eterna even if Eterna files exist'''
-            tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=False)                   
-            gx_aux._dump_write(data = tmp_gps,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+            if restore_otl:
+                tmp_synth = self.gps.analyze_env(force=force,mode = 'GPS',otl_env=True)
+                tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=restore_otl)      
+                tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps],keys=['OTL','GPS'],axis=1)             
+                gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+            else:
+                tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=restore_otl)      
+                tmp_blq_concat = _pd.concat([tmp_gps],keys=['GPS'],axis=1)             
+                gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
         else:
-            tmp_gps = gx_aux._dump_read(gather_path)  
+            tmp_blq_concat = gx_aux._dump_read(gather_path)  
 
-        return tmp_gps
+        return tmp_blq_concat
 
     def spectra(self,restore_otl = True,remove_outliers=True,sampling=1800):
         gather = self.gather_mGNSS()
