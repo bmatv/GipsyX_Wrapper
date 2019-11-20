@@ -514,3 +514,27 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
     height = semiAxisP*2*coeff95
     
     return x,y,width,height,phase
+
+
+def check_date_margins(begin,end,years_list):
+    begin_data = _pd.Timestamp(_np.asarray(years_list).min().astype(str))
+    end_data = _pd.Timestamp((_np.asarray(years_list).max()+1).astype(str))
+    if begin is not None:
+        begin = _pd.Timestamp(begin)
+        if begin < begin_data:
+            print('{} is before the data. Changing to data begin at {}'.format(begin,begin_data))
+            begin = begin_data
+    else: begin = begin_data
+    if end is not None:
+        end = _pd.Timestamp(end)
+        if end > end_data:
+            print('{} is after the data. Changing to data end at {}'.format(end,end_data))
+            end = end_data
+    else: end = end_data
+    return begin.to_datetime64(), end.to_datetime64()
+
+def date2yyyydoy(date):
+    date = _pd.Timestamp(date)
+    doy = str((date.dayofyear -1)).zfill(3)
+    yyyy = str(date.year)
+    return '{}.{}'.format(yyyy,doy)
