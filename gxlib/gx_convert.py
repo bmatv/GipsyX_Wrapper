@@ -38,7 +38,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
             else:
                 print('gx_convert.select_rnx: No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
     paths_series = _pd.Series(_np.sort(_np.concatenate(station_files)))
-    extracted_df = paths_series.str.extract(r'\/(\d{4})\/\d{3}(?:\/\d{2}d|)\/((\w{4})(\d{3}).+)').astype({0:int,1:object,2:'category',3:int})
+    extracted_df = paths_series.str.extract(r'\/(\d{4})\/(?:\d{2}|)\d{3}(?:\/\d{2}d|)\/((\w{4})(\d{3}).+)').astype({0:int,1:object,2:'category',3:int})
     extracted_df.columns = ['year','filename','station_name','doy']
     extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list(),inplace=True)
     
