@@ -162,14 +162,17 @@ class gd2e_class:
     def filtered_solutions(self,margin=0.1,std_coeff=3):
         return gx_filter.filter_tdps(margin=margin,std_coeff=std_coeff,tdps=self.solutions())
     
-    def envs(self,margin=0.1,std_coeff=3,dump=False):
+    def envs(self,margin=0.1,std_coeff=3,dump=False,force=False):
         '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)'''
+        dump = False if dump is None else dump
         env_gather_path = _os.path.join(self.tmp_dir,'gd2e/env_gathers',self.project_name_core) #saning to core where all mGNSS env_gathers are located
         if not _os.path.exists(env_gather_path): _os.makedirs(env_gather_path)
         envs = _np.ndarray((len(self.stations_list)),dtype=object)
         incomplete=False
         for i in range(envs.shape[0]):
             env_path = env_path = _os.path.join(env_gather_path,'{}{}.zstd'.format(self.stations_list[i].lower(),gx_aux.mode2label(self.mode)))
+            if force:
+                if _os.path.exists(env_path): _os.remove(env_path)
             if _os.path.exists(env_path):
                 envs[i] = gx_aux._dump_read(env_path)
             else: 
@@ -177,7 +180,7 @@ class gd2e_class:
                 break
         if incomplete:
             envs = gx_aux._xyz2env(dataset=self.filtered_solutions(margin=margin,std_coeff=std_coeff), #filtered_solutions takes most of the time
-                        reference_df=self.refence_xyz_df,mode=self.mode,dump = env_gather_path)
+                        reference_df=self.refence_xyz_df,mode=self.mode,dump = env_gather_path if dump else None)
         return envs
     def gen_tdps_penna(self,period=13.9585147,A_East=2, A_North=4, A_Vertical=6):
         gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir,
@@ -200,8 +203,8 @@ class gd2e_class:
         return gx_aux.get_chalmers(self.staDb_path)
 
     def analyze_env(self,envs=None,mode=None,remove_outliers=True,restore_otl=True,sampling=1800,force=False,otl_env=False,begin=None,end=None):
-        if envs == None: envs = self.envs()
-        if mode == None: mode = self.mode
+        envs = self.envs() if envs is None else envs
+        mode = self.mode if mode is None else mode
         return gx_eterna.analyze_env(
                                     envs,
                                     self.stations_list,

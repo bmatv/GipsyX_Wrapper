@@ -228,11 +228,11 @@ class mGNSS_class:
         for i in range(len(self.stations_list)):
             filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
             if force:
-                _os.remove(filename)
+                if _os.path.exists(filename): _os.remove(filename)
             if not _os.path.exists(filename):
-                gps_envs = self.gps.envs()
-                glo_envs = self.glo.envs()
-                gps_glo_envs = self.gps_glo.envs()
+                gps_envs = self.gps.envs(force=force)
+                glo_envs = self.glo.envs(force=force)
+                gps_glo_envs = self.gps_glo.envs(force=force)
                 break
             else:
                 gather.append(gx_aux._dump_read(filename))
@@ -283,12 +283,14 @@ class mGNSS_class:
     def gather_residuals_mGNSS(self):
         return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
     
-    def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False):
+    def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
+        begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
         eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
         if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
 
-        suffix = '_et_otl.zstd' if restore_otl else '_et_nootl.zstd'
-        gather_path = _os.path.join(eterna_gathers_dir,self.project_name + suffix)
+        suffix = '.zstd' if restore_otl else 'nootl.zstd'
+        filename = '{}_{}_{}_{}'.format(self.project_name, date2yyyydoy(begin_date), date2yyyydoy(end_date), suffix)
+        gather_path = _os.path.join(eterna_gathers_dir, filename)
 
         if force: #if force - remove gather file!
             if _os.path.exists(gather_path): _os.remove(gather_path)
@@ -298,15 +300,15 @@ class mGNSS_class:
             gather = self.gather_mGNSS()
 
             if not restore_otl: #no synth otl analysis is needed
-                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl)
-                tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl)
-                tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl)
+                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
                 tmp_blq_concat = _pd.concat([tmp_gps,tmp_glo,tmp_gps_glo],keys=['GPS','GLONASS','GPS+GLONASS'],axis=1)
             else:
-                tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True)
-                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl)
-                tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl)
-                tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl)
+                tmp_synth = self.gps.analyze_env(envs = gather.copy(),force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
+                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
                 tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps,tmp_glo,tmp_gps_glo],keys=['OTL','GPS','GLONASS','GPS+GLONASS'],axis=1)
 
             gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
@@ -318,8 +320,7 @@ class mGNSS_class:
     
     def analyze_gps(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
         #Useful for canalysis of gps only products (e.g. JPL)
-        begin_date, end_date = check_date_margins(
-            begin=begin, end=end, years_list=self.years_list)
+        begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
 
         eterna_gathers_dir = _os.path.join(self.tmp_dir, 'gd2e', 'eterna_gathers')
         if not _os.path.exists(eterna_gathers_dir):
@@ -332,15 +333,15 @@ class mGNSS_class:
         if force: #if force - remove gather file!
             if _os.path.exists(gather_path): _os.remove(gather_path)
 
-        
+        gather = self.gps.envs(dump=True,)
         if not _os.path.exists(gather_path):
             if restore_otl:
-                tmp_synth = self.gps.analyze_env(force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
-                tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
+                tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
+                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
                 tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps],keys=['OTL','GPS'],axis=1)             
                 gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
             else:
-                tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
+                tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
                 tmp_blq_concat = _pd.concat([tmp_gps],keys=['GPS'],axis=1)             
                 gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
         else:

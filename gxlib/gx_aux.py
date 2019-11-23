@@ -321,8 +321,9 @@ def _xyz2env(dataset,reference_df,mode,dump=None):
     for i in range(len(dataset)):
         # Creating MultiIndex:
         station_name = dataset[i].columns.levels[1].str.split('.',expand=True).levels[2][0].upper() #get station name from .Station.XXXX.blabla
-        env_path = _os.path.join(dump,'{}{}.zstd'.format(station_name.lower(),mode2label(mode)))
-        if _os.path.exists(env_path):
+        env_path = _os.path.join(dump,'{}{}.zstd'.format(station_name.lower(),mode2label(mode))) if dump is not None else None
+
+        if dump is not None and _os.path.exists(env_path):
             envs[i] = _dump_read(env_path)
         else:
             m_index= _pd.MultiIndex.from_product([[station_name],['value','nomvalue','sigma'],['east','north','up']])
