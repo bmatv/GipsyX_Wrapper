@@ -20,7 +20,6 @@ project_name = 'nz_cod_ce'
 ionex_type='cod' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com' #we should use COD MGEX, ESA and GFZ later
 
-
 '''Execution part here''' 
 stations_list= ['2406', 'ANAU', 'AUCK', 'BLUF', 'BTHL', 'CAST', 'CHTI', 'CMBL',
                 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN', 'GISB', 'GLDB', 'HAAS',
@@ -76,7 +75,7 @@ for i in range(len(stations_list_arrays)):
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
-                    command='gd2e()')
+                    command='rnx2dr();kinematic_project.get_drInfo()')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 #'dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()'
 #;kinematic_project.dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()
