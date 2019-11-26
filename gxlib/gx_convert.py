@@ -18,7 +18,8 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     Outputs df wi columns: year (int) | station_name (caps) | doy (int) | rnx_path (object) | dr_path (object)
     If hatanaka => select d.Z files, else: o.gz
     /scratch/bogdanm/GNSS_data/geonet_nz_ogz/2014/001/anau0010.14o.gz
-    /scratch/bogdanm/GNSS_data/geonet_nz/2014/001/anau0010.14d.Z'''
+    /scratch/bogdanm/GNSS_data/geonet_nz/2014/001/anau0010.14d.Z
+    /scratch/bogdanm/GNSS_data/geonet_nz/2014/14001/anau0010.14d.Z'''
     
     rnx_dir = _os.path.abspath(rnx_dir)+'/'
     tmp_dir = _os.path.abspath(tmp_dir)
