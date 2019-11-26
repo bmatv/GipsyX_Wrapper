@@ -125,8 +125,23 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
         clk_path = products_dir + '/' + years+ '/'+ 'COD' + igs_days +'.CLK.Z'
     elif products_type == 'com':
         #We expect the clk files to be corrected for the message
-        sp3_path = products_dir + '/' + years+ '/' + products_type.upper()  +igs_days +'.EPH.Z'
-        clk_path = products_dir + '/' + years+ '/'+ products_type.upper() + igs_days +'.CLK.Z'
+        #Use REPRO2015 parts of data before 2014-01-01
+        products_type = products_type.upper()
+        igs_days_num = igs_days.astype(int)
+        boudary_date = 17733 # 2014-01-01
+        reprocessed_bool = igs_days_num<boudary_date      # 
+        non_reprocessed_bool =  igs_days_num>=boudary_date  #
+        
+        sp3_path_non_repro = products_dir + '/' + years[non_reprocessed_bool] + '/' + products_type + igs_days[non_reprocessed_bool] +'.EPH.Z'
+        clk_path_non_repro = products_dir + '/' + years[non_reprocessed_bool] + '/' + products_type + igs_days[non_reprocessed_bool] +'.CLK.Z'
+
+        products_dir_repro = _os.path.abspath(_os.path.join(products_dir,_os.path.pardir))
+        sp3_path_repro = products_dir_repro + '/REPRO_2015/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.EPH.Z'
+        clk_path_repro = products_dir_repro + '/REPRO_2015/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.CLK.Z'
+        
+        sp3_path = _np.concatenate([sp3_path_repro,sp3_path_non_repro])
+        clk_path = _np.concatenate([clk_path_repro,clk_path_non_repro])
+
     else:
         raise Exception('Product type not understood. Please check.')
         
