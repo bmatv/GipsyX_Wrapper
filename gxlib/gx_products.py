@@ -57,9 +57,36 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
 
     years = date_array.astype('datetime64[Y]').astype(_np.str).astype(object)
 #     return igs_days+years+'cod'
-    if (products_type == 'esa')or(products_type == 'gfz')or(products_type == 'grg'):
+    if (products_type == 'gfz')or(products_type == 'grg'):
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
+    elif (products_type == 'esa'):
+        igs_days_num = igs_days.astype(int)
+        boudary_date = 17696 # according to docu it should be 17726 : according to CNES recommendations to use rouutine grg after 28/12/2013
+        reprocessed_bool = igs_days_num<=boudary_date      # 
+        non_reprocessed_bool =  igs_days_num>boudary_date  #
+        
+        sp3_path_non_repro = products_dir + '/' + gps_week[non_reprocessed_bool]+ '/' + products_type +igs_days[non_reprocessed_bool] +'.sp3.Z'
+        clk_path_non_repro = products_dir + '/' + gps_week[non_reprocessed_bool]+ '/' + products_type +igs_days[non_reprocessed_bool] +'.clk.Z'
+
+        sp3_path_repro = products_dir + '/' + gps_week[reprocessed_bool]+ '/repro2/' + '{}2'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.sp3.Z'
+        clk_path_repro = products_dir + '/' + gps_week[reprocessed_bool]+ '/repro2/' + '{}2'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.clk.Z'
+        
+        sp3_path = _np.concatenate([sp3_path_repro,sp3_path_non_repro])
+        clk_path = _np.concatenate([clk_path_repro,clk_path_non_repro])
+
+        # if (igs_days[reprocessed_bool].shape[0]>0)&(igs_days[non_reprocessed_bool].shape[0]>0):
+        #     sp3_path = _np.concatenate([sp3_path_repro,sp3_path_non_repro])
+        #     clk_path = _np.concatenate([clk_path_repro,clk_path_non_repro])
+        # elif (igs_days[reprocessed_bool].shape[0]>0)&(igs_days[non_reprocessed_bool].shape[0]==0):
+        #     sp3_path = sp3_path_repro
+        #     clk_path = clk_path_repro
+        # elif (igs_days[reprocessed_bool].shape[0]==0)&(igs_days[non_reprocessed_bool].shape[0]>0):
+        #     sp3_path = sp3_path_non_repro
+        #     clk_path = clk_path_non_repro
+        # else:
+        #     raise Exception('Something wrong. No files selected for conversion')
+
     elif (products_type == 'cod')or(products_type == 'cof'):
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.eph.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
@@ -117,11 +144,16 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
     print('sp3: found {}%. missing {}%'.format(sp3_avail*100,sp3_unavail*100))
     print('clk: found {}%. missing {}%'.format(clk_avail*100,clk_unavail*100))
     if (sp3_path[~sp3_path_avail_mask].shape[0] != 0):
+        
         return( sp3_path[~sp3_path_avail_mask],clk_path[~clk_path_avail_mask])
+
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower()))
+        if (products_type == 'com') or (products_type == 'co2015'):
+            out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower()))
+        else:
+            out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx',products_type.lower()))
         #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/'
 
         out_array = _np.ndarray((date_array.shape),dtype=object)
@@ -147,7 +179,7 @@ def _sp3ToPosTdp(np_set):
     if not _os.path.isdir(tmp_dir): _os.makedirs(tmp_dir)
     _os.chdir(tmp_dir)
     
-    
+    # print(np_set['sp3'],np_set['out'])
     frame = _IgsGcoreConversions.sp3ToPosTdp(np_set['sp3'], 
                                     _os.path.join(np_set['out'], str(np_set['date'])+'.pos.gz'), 
                                     _DEFAULT_COEFF,igsCm=True, workDir=tmp_dir, 
