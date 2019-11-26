@@ -35,9 +35,11 @@ def rm_residuals_gathers(tmp_dir,project_name):
     for gather in gathers: _os.remove(gather)
 
 
-def gather_residuals(tmp_dir,project_name,stations_list,num_cores,tqdm):
+def gather_residuals(tmp_dir,project_name,stations_list,num_cores,tqdm,single_station=False):
+    '''added support to select single station and output residuals. single_station is False by default but can be char4 name'''
     stations_list = _np.core.defchararray.upper(stations_list)
-
+    if single_station:
+        stations_list = _np.core.defchararray.upper([single_station])
     #check if station from input is in the folder
     gd2e_stations_list = _os.listdir(tmp_dir + '/gd2e/'+project_name)
     station_exists = _np.isin(stations_list,gd2e_stations_list)

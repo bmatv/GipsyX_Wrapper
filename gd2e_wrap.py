@@ -153,12 +153,13 @@ class gd2e_class:
                                             stations_list=self.stations_list,
                                             tmp_dir=self.tmp_dir,
                                             tqdm=self.tqdm)
-    def residuals(self):
+    def residuals(self,single_station=False):
         return gx_extract.gather_residuals(num_cores=self.num_cores,
                                             project_name=self.project_name,
                                             stations_list=self.stations_list,
                                             tmp_dir=self.tmp_dir,
-                                            tqdm=self.tqdm)
+                                            tqdm=self.tqdm,
+                                            single_station=single_station)
     def filtered_solutions(self,margin=0.1,std_coeff=3):
         return gx_filter.filter_tdps(margin=margin,std_coeff=std_coeff,tdps=self.solutions())
     
