@@ -208,8 +208,9 @@ class mGNSS_class:
     
     def _get_common_index(self, gps, glo, gps_glo):
         '''returns common index for 3 mGNSS timeseries of the same station'''
-        common_index = gps.index & glo.index & gps_glo.index
-        return common_index.values
+        glo_in_gps_glo = glo.index.values[_np.isin(glo.index.values,gps_glo.index.values)]
+        common_index = gps.index.values[_np.isin(gps.index.values,glo_in_gps_glo)]
+        return common_index
 
     def _select_common(self, gps, glo, gps_glo):
         common_index = self._get_common_index(gps,glo,gps_glo)
