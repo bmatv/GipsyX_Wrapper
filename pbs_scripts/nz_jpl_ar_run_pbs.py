@@ -20,12 +20,16 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
 '''Execution part here''' 
-stations_list= ['ANAU', 'AUCK', 'BLUF', 'CHTI', 'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN',
-                'GISB', 'GLDB', 'HAAS', 'HAMT', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA',
-                'LEXA', 'LEYL', 'LKTA', 'MAHO', 'MAKO', 'MAVL', 'METH', 'MKNO', 'MNHR',
-                'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OROA', 'PKNO', 'RAHI', 'RAKW',
-                'RAUM', 'RGHL', 'RGKW', 'RGMT', 'TAUP', 'TAUW', 'TGRI', 'TRNG', 'TRWH',
-                'VGMT', 'WAIM', 'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG', 'WITH']
+stations_list= ['2406', 'ANAU', 'AUCK', 'BLUF', 'BTHL', 'CAST', 'CHTI', 'CMBL',
+                'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN', 'GISB', 'GLDB', 'HAAS',
+                'HAMT', 'HANA', 'HAST', 'HIKB', 'HOKI', 'KAIK', 'KTIA', 'LDRZ',
+                'LEXA', 'LEYL', 'LKTA', 'LYTT', 'MAHO', 'MAKO', 'MAVL', 'METH',
+                'MKNO', 'MNHR', 'MQZG', 'MTJO', 'NLSN', 'NPLY', 'NRSW', 'OKOH',
+                'OROA', 'PAEK', 'PAKI', 'PKNO', 'PYGR', 'QUAR', 'RAHI', 'RAKW',
+                'RAUL', 'RAUM', 'RGHL', 'RGKW', 'RGLI', 'RGMT', 'RGRE', 'RGRR',
+                'RGWI', 'TAUP', 'TAUW', 'TGRI', 'TRNG', 'TRWH', 'TURI', 'VGMT',
+                'VGTM', 'VGWT', 'WAIM', 'WAKA', 'WANG', 'WARK', 'WEST', 'WGTN',
+                'WHKT', 'WHNG', 'WHVR', 'WITH', 'WMAT']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
