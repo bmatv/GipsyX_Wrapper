@@ -214,7 +214,7 @@ class mGNSS_class:
 
     def _select_common(self, gps, glo, gps_glo):
         common_index = self._get_common_index(gps,glo,gps_glo)
-        return gps.loc[common_index],glo.loc[common_index],gps_glo.loc[common_index]
+        return gps.loc[common_index].copy(),glo.loc[common_index].copy(),gps_glo.loc[common_index].copy()
     
    
     def gather_mGNSS(self,force=False):
