@@ -361,7 +361,7 @@ def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,r
     sets = []
     for i in range(len(envs)):
         sets.append([envs[i],eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,mode,otl_env,begin,end])
-
+    num_cores = len(stations_list) if len(stations_list) < num_cores else num_cores
     with Pool(num_cores) as p:
         blq_array = p.map(analyze_env_single_thread, sets)
     return _pd.concat(blq_array,axis=0)
