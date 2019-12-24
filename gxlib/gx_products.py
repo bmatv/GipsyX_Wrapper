@@ -6,7 +6,7 @@ import glob as _glob
 import multiprocessing as _mp
 from subprocess import Popen as _Popen, PIPE as _PIPE
 from multiprocessing import Pool as _Pool
-from shutil import rmtree as _rmtree, move as _move
+from shutil import rmtree as _rmtree, move as _move, copy as _copy
 
 from .gx_aux import J2000origin as _J2000origin
 
@@ -316,3 +316,76 @@ def _gen_orbclk(input_set):
         _move(src=files_renamed[i]+'.gz',dst=targetDir)
     _rmtree(run_dir)
     return out,err
+
+
+
+# Do correction for satellite not present in the pcm files
+# NOW we need to convert from CE frame to CM frame
+# To do this we use orbitCmCorrection -s -i 2010-01-01.pos.gz -o 2010-01-01.cm.pos.gz
+# -s is needed to remove CMC correction and convert from fixed to near-instantaneous frame (CE -> CM)
+# if no -s flag is present: CM -> CE
+# need to copy the init directory and to smth like init_cm and modify the pos files
+# 1. copy the pos file into the RAM
+# 2. modify having the output to cm_*pos.gz
+# 3. copy output renaming it to the original
+
+def ce2cm(init_ce_path,num_cores = 10,tqdm=True):
+    cache='/run/user/1017/'
+    cache_path = _os.path.join(cache,'ce2cm_cache')
+    if not _os.path.exists(cache_path): _os.makedirs(cache_path)
+    
+    init_ce_path = _os.path.abspath(init_ce_path) 
+    cm_dirname = _os.path.basename(init_ce_path)+'_cm'
+    init_cm_path = _os.path.join(_os.path.dirname(init_ce_path),cm_dirname)
+    if _os.path.exists(init_cm_path):
+        print('CM folder exists. Removing.')
+        _rmtree(init_cm_path)
+    print('Copying {} to {}'.format(_os.path.basename(init_ce_path),cm_dirname))
+    
+    print('Finished copying to {}'.format(init_cm_path))
+#     pos_files = _glob.glob(init_cm_path+'/*/*pos.gz')
+#     print('Found {} pos files. Running'.format(len(pos_files)))
+    
+    #files to make symlinks
+    symlink_files = _glob.glob(init_ce_path+'/*/*[!pos].gz')
+    # files to copy (.pos)
+    pos_files = _glob.glob(init_ce_path+'/*/*pos.gz')
+    
+    basedir = _os.path.abspath(_os.path.join(symlink_files[0],_os.pardir,_os.pardir,_os.pardir))
+    files_symlinks = _pd.Series(symlink_files).str.split('/',expand=True).iloc[:,-3:]
+    symlink_src = (basedir + '/' + files_symlinks.iloc[:,0]+'/'+files_symlinks.iloc[:,1]+'/'+files_symlinks.iloc[:,2])
+    symlink_dst = (basedir + '/' + files_symlinks.iloc[:,0]+'_cm/'+files_symlinks.iloc[:,1]+'/'+files_symlinks.iloc[:,2])
+
+    year_dirs = basedir + '/' + files_symlinks.iloc[:,0][0]+'_cm/' + files_symlinks.iloc[:,1].unique()
+    for dir_path in year_dirs:
+        if not _os.path.exists(dir_path): _os.makedirs(dir_path)
+    print('creating symlinks for products files (except for *.pos.gz)')
+    for i in range(len(symlink_src)):
+        _os.symlink(src=symlink_src[i],dst=symlink_dst[i])
+    
+    files_pos = _pd.Series(pos_files).str.split('/',expand=True).iloc[:,-3:]
+    pos_src = (basedir + '/' + files_pos.iloc[:,0]+'/'+files_pos.iloc[:,1]+'/'+files_pos.iloc[:,2])
+    pos_dst = (basedir + '/' + files_pos.iloc[:,0]+'_cm/'+files_pos.iloc[:,1]+'/'+files_pos.iloc[:,2])
+    cache_path_series = _np.ndarray(pos_src.shape,dtype=object)
+    cache_path_series.fill(cache_path)
+    pos_path_series = _pd.concat([pos_src,pos_dst,_pd.Series(cache_path_series)],axis=1).values
+#     return pos_path_series
+    with _Pool(processes = num_cores) as p:
+        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_ce2cm_single_thread, pos_path_series), total=len(pos_path_series)))
+        else: p.map(_ce2cm_single_thread, pos_path_series)
+    _rmtree(path=cache_path)
+    
+
+def _ce2cm_single_thread(pos_path_series):
+    pos_src,pos_dst,cache_path = pos_path_series
+    # fuction will rewrite the input pos file by cm corrected version
+#     pos_src = _os.path.abspath(pos_src)
+    
+    #copy to cache. create single test folder
+    _copy(src=pos_src,dst=cache_path)
+    
+    input_path = _os.path.join(cache_path,_os.path.basename(pos_src))
+
+    process = _Popen(['orbitCmCorrection','-s','-i',input_path,'-o',pos_dst])
+    process.wait()
+    _os.remove(input_path)
