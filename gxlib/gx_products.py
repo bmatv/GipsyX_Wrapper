@@ -166,7 +166,7 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
         if (products_type == 'com') or (products_type == 'co2015'):
-            out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower()))
+            out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower()))
         else:
             out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,'igs2gipsyx',products_type.lower()))
         #'/mnt/data/bogdanm/Products/CODE/igs2gipsyx/com/'
