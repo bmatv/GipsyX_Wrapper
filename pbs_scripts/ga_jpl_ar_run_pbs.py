@@ -20,7 +20,7 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
 '''Execution part here
-GPS continuous stations 2013-2019 (NOW) (170 stations)''' 
+GA GPS continuous stations 2013-2019 (NOW) (24 stations)''' 
 stations_list= ['GABO', 'TURO', 'PTKL', 'UNSW', 'NWCS',
                 'TARE', 'BEGA', 'ULLA', 'NWRA', 'WYNG',
                 'PMAC', 'MACK', 'COFF', 'BALN', 'ROBI',
