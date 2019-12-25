@@ -24,7 +24,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     rnx_dir = _os.path.abspath(rnx_dir)+'/'
     tmp_dir = _os.path.abspath(tmp_dir)
     
-    extension = 'd.Z' if hatanaka else 'o.gz'
+    extension = 'd.*' if hatanaka else 'o.*' # no difference if .Z or .gz hatanaka etc
     station_files = []
     for i in range(len(stations_list)):
         for j in range(0, len(years_list)):
