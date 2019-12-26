@@ -20,11 +20,15 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
 '''Execution part here
-GA GPS continuous stations 2013-2019 (NOW) (24 stations)''' 
-stations_list= ['GABO', 'TURO', 'PTKL', 'UNSW', 'NWCS',
+GA GPS continuous stations 2013-2019 (NOW) (24 stations)
+'UNSW' removed as got decomissioned in 2017
+'ROBI' removed as multiple files missing
+''' 
+stations_list= ['MOBS', 'TOW2', 'TID1', 'STR2', 'PARK', 'HOB2', #IGS stations
+                'GABO', 'TURO', 'PTKL', 'NWCS',
                 'TARE', 'BEGA', 'ULLA', 'NWRA', 'WYNG',
-                'PMAC', 'MACK', 'COFF', 'BALN', 'ROBI',
-                'BEE2', 'CLEV', 'CBLT', 'BNDY', 'HOB2',
+                'PMAC', 'MACK', 'COFF', 'BALN',
+                'BEE2', 'CLEV', 'CBLT', 'BNDY', 
                 'SPBY', 'LIAW', 'RHPT', 'BUR2']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
