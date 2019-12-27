@@ -342,14 +342,18 @@ def ce2cm(init_ce_path,num_cores = 10,tqdm=True):
         _rmtree(init_cm_path)
     print('Copying {} to {}'.format(_os.path.basename(init_ce_path),cm_dirname))
     
+    
+#     dst = _copytree(src=init_ce_path,dst=init_cm_path)
     print('Finished copying to {}'.format(init_cm_path))
 #     pos_files = _glob.glob(init_cm_path+'/*/*pos.gz')
 #     print('Found {} pos files. Running'.format(len(pos_files)))
     
     #files to make symlinks
-    symlink_files = _glob.glob(init_ce_path+'/*/*[!pos].gz')
+    product_files = _pd.Series(_glob.glob(init_ce_path+'/*/*.gz'))
+    product_file_names_df = product_files.str.split('/',expand=True).iloc[:,-1].str.split('.',expand=True)
+    symlink_files = product_files[product_file_names_df[1] != 'pos'].to_list()
     # files to copy (.pos)
-    pos_files = _glob.glob(init_ce_path+'/*/*pos.gz')
+    pos_files = product_files[product_file_names_df[1] == 'pos'].to_list()
     
     basedir = _os.path.abspath(_os.path.join(symlink_files[0],_os.pardir,_os.pardir,_os.pardir))
     files_symlinks = _pd.Series(symlink_files).str.split('/',expand=True).iloc[:,-3:]
@@ -361,7 +365,7 @@ def ce2cm(init_ce_path,num_cores = 10,tqdm=True):
         if not _os.path.exists(dir_path): _os.makedirs(dir_path)
     print('creating symlinks for products files (except for *.pos.gz)')
     for i in range(len(symlink_src)):
-        _os.symlink(src=symlink_src[i],dst=symlink_dst[i])
+        _os.symlink(src=_os.path.relpath(path=symlink_src[i],start=_os.path.dirname(symlink_dst[i])),dst=symlink_dst[i])
     
     files_pos = _pd.Series(pos_files).str.split('/',expand=True).iloc[:,-3:]
     pos_src = (basedir + '/' + files_pos.iloc[:,0]+'/'+files_pos.iloc[:,1]+'/'+files_pos.iloc[:,2])
