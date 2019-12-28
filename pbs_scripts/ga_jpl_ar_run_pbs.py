@@ -59,6 +59,7 @@ tree_options_code = 'trees_options.rw_otl'
 tqdm=False
 ElDepWeight = 'SqrtSin'
 
+
 prepare_dir_struct_dr(begin_year=_np.min(years_list), end_year = _np.max(years_list),tmp_dir=tmp_dir) #prepare dir struct for dr files
 project_name_construct = _project_name_construct(project_name=project_name,PPPtype=PPPtype,pos_s=pos_s,wetz_s=wetz_s,tropNom_input=tropNom_input,ElMin=ElMin,ambres=ambres)
 prepare_dir_struct_gathers(tmp_dir=tmp_dir,project_name=project_name_construct)
@@ -75,7 +76,7 @@ for i in range(len(stations_list_arrays)):
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
-                    command='rnx2dr();kinematic_project.get_drInfo()')
+                    command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
     qsub_python_code(code,name='{}{}'.format(project_name+'AR',str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs')
 
 #'gps.gd2e();kinematic_project.gps.envs(dump=True)'
