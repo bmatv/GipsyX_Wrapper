@@ -202,8 +202,8 @@ def get_chalmers(staDb_path):
     //sala                        11.9264         57.3958         0.0000
     //ruler.................b................<...............<...............
     // Records starting with // are treated as comments'''
-    staDb = StationDataBase.StationDataBase()  # creating staDb object
-    staDb.read(staDb_path)  # reading staDb into staDb object
+    staDb = StationDataBase.StationDataBase(dataBase=staDb_path)  # creating staDb object + read as after GipsyX 1.3
+
     
     max_t = 3.0e8  # maximum time value for the dataset on which available sites will be added to OTL computation with SPOTL
     names_stdb = _np.asarray(staDb.getStationList(), dtype=object)
