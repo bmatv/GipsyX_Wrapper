@@ -25,12 +25,12 @@ GA GPS continuous stations 2013-2019 (NOW) (24 stations)
 'ROBI' removed as multiple files missing
 ''' 
 stations_list= ['MOBS', 'TOW2', 'TID1', 'STR2', 'PARK', 'HOB2', #IGS stations
-                'GABO', 'TURO', 'PTKL', 'NWCS',
+                'GABO', 'NWCS', # 'TURO', 'PTKL' were excluded as have bad files 2013.001 - ~008 with records from 2013.$day
                 'TARE', 'BEGA', 'ULLA', 'NWRA', 'WYNG',
                 'PMAC', 'MACK', 'COFF', 'BALN',
                 'BEE2', 'CLEV', 'CBLT', 'BNDY', 
                 'SPBY', 'LIAW', 'RHPT', 'BUR2']
-#'SCTB' station removed as it is in Anatarctica and almost no OTL
+#'SCTB' station removed as it is in Anatarctica and almost no OTL. To add PBOT, GONG and COMA
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
