@@ -181,10 +181,10 @@ WAVEGROUPI=  3.791963  3.937898  1.000000   .000000 M4    #ETERNA wavegroup
 def get_staDb_llh(staDb_path):
     '''Returns dataframe with staDb stations and llh that can be used for eterna ini file or nloadf'''
     max_t = 3.0e8
-    staDb = StationDataBase.StationDataBase()  # creating staDb object
+    staDb = StationDataBase.StationDataBase(dataBase = staDb_path)  # creating staDb object
 
     
-    staDb.read(staDb_path)# reading staDb into staDb object
+    # staDb.read(staDb_path)# reading staDb into staDb object
     stns = staDb.getStationList()  # creating array with available station names
     llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
                                                  stationList=stns))
