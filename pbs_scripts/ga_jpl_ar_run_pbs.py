@@ -31,7 +31,7 @@ stations_list= ['MOBS', 'TOW2', 'TID1', 'STR2', 'PARK', 'HOB2', #IGS stations
                 'PMAC', 'MACK', 'COFF', 'BALN',
                 'BEE2', 'CLEV', 'CBLT', 'BNDY', 
                 'SPBY', 'LIAW', 'RHPT', 'BUR2']
-
+stations_list= ['PBOT','GONG','COMA']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL. To add PBOT, GONG and COMA
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
