@@ -54,7 +54,7 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     #data on next day needed to create current day tropnominal
     days_in_year=_np.ndarray((len(drinfo_years_list)),dtype=int)
     current_year = _np.datetime64('today').astype('datetime64[Y]').astype(str).astype(int)
-
+    current_year = 2019 #temporary hack for some weeks
     for i in range(len(drinfo_years_list)):
         # vmf1 data is missing at current year (if it is not a prediction),
         # so an additional chech of files present is needed
