@@ -81,4 +81,6 @@ for i in range(len(stations_list_arrays)):
                     command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base)
 #dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
+# kinematic_project.gen_tropNom()
+# kinematic_project.gather_drInfo()
 #rnx2dr();kinematic_project.get_drInfo()
