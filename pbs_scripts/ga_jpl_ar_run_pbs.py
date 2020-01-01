@@ -24,15 +24,13 @@ GA GPS continuous stations 2013-2019 (NOW) (24 stations)
 'UNSW' removed as got decomissioned in 2017
 'ROBI' removed as multiple files missing
 ''' 
-# stations_list= ['MOBS', 'TOW2', 'TID1', 'STR2', 'PARK', 'HOB2', #IGS stations
-#                 'GABO', 'NWCS', # 'TURO', 'PTKL' were excluded as have bad files 2013.001 - ~008 with records from 2013.$day
-#                 'PBOT','GONG','COMA',
-#                 'TARE', 'BEGA', 'ULLA', 'NWRA', 'WYNG',
-#                 'PMAC', 'MACK', 'COFF', 'BALN',
-#                 'BEE2', 'CLEV', 'CBLT', 'BNDY', 
-#                 'SPBY', 'LIAW', 'RHPT', 'BUR2']
-
-stations_list= ['PBOT','GONG','COMA']
+stations_list= ['MOBS', 'TOW2', 'TID1', 'STR2', 'PARK', 'HOB2', #IGS stations
+                'GABO', 'NWCS', # 'TURO', 'PTKL' were excluded as have bad files 2013.001 - ~008 with records from 2013.$day
+                'PBOT','GONG','COMA',
+                'TARE', 'BEGA', 'ULLA', 'NWRA', 'WYNG',
+                'PMAC', 'MACK', 'COFF', 'BALN',
+                'BEE2', 'CLEV', 'CBLT', 'BNDY', 
+                'SPBY', 'LIAW', 'RHPT', 'BUR2']
 
 #'SCTB' station removed as it is in Anatarctica and almost no OTL. To add PBOT, GONG and COMA
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
@@ -80,7 +78,7 @@ for i in range(len(stations_list_arrays)):
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
-                    command='rnx2dr();kinematic_project.get_drInfo()')
+                    command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base)
 #dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
 #rnx2dr();kinematic_project.get_drInfo()
