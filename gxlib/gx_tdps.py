@@ -42,8 +42,7 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     num_cores = int(num_cores)
 
     #Creates a staDb object
-    staDb=_StationDataBase.StationDataBase() #creating staDb object
-    staDb.read(staDb_path) #reading staDb into staDb object
+    staDb=_StationDataBase.StationDataBase(dataBase = staDb_path) #creating staDb object
     stns = staDb.getStationList() #creating array with available station names
     
     drinfo_file = _dump_read(filename='{}/{}/{}.zstd'.format(tmp_dir,rnx_dr_lbl,drInfo_lbl))
