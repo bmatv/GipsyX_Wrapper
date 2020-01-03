@@ -18,7 +18,8 @@ def _gd2e(gd2e_set):
     if not _os.path.exists(gd2e_set['cache']):_os.makedirs(gd2e_set['cache']) #creatign cache dir
     runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
         gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
-    print(runAgain)
+    if not gd2e_set['tqdm']:print(runAgain)
+    # print(runAgain)
     # try:
     process = _Popen([  'gd2e.py',
                         '-drEditedFile', gd2e_set['filename'],
@@ -129,7 +130,7 @@ def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
     for ionex_file in ionex_files:
         _copy(src = ionex_file, dst = IONEX_cached_path)
 
-def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,IONEX_products_dir,ionex_type): 
+def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss_products_dir,staDb_path,years_list,mode,cache_path,IONEX_products_dir,ionex_type,tqdm): 
     '''Generates an np recarray that is used as sets for _gd2e
     station is the member of station_list
     gd2e(trees_df,stations_list,merge_tables,tmp_dir,tropNom_type,project_name,years_list,num_cores,gnss_products_dir,staDb_path)
@@ -175,6 +176,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     if _os.path.exists(cache_path + '/tmp/'): _rmtree(cache_path + '/tmp/')
     tmp['cache'] = cache_path + '/tmp/'+merge_table['station_name'].astype(str)+tmp['year']+tmp['dayofyear'] #creating a cache path for executable directory
     tmp['gnss_products_dir'] = gnss_products_dir
+    tmp['tqdm'] = tqdm
     # tmp['orbClk_path'] = gnss_products_dir + '/' + tmp['year']+ '/' + tmp['dayofyear'] + '/'
     tmp['staDb_path'] = staDb_path
   

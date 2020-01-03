@@ -138,7 +138,8 @@ class gd2e_class:
                                             mode=self.mode,
                                             cache_path = self.cache_path,
                                             IONEX_products_dir=self.IONEX_products,
-                                            ionex_type = self.ionex_type)
+                                            ionex_type = self.ionex_type,
+                                            tqdm=self.tqdm)
 
     def gd2e(self):
         gx_compute.gd2e(gd2e_table = self._gd2e_table(),
