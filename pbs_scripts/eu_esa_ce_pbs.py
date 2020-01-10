@@ -20,7 +20,7 @@ gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/esa' #we s
 
 
 '''Execution part here''' 
-stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX','HERT']
+stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2014,2015,2016,2017,2018];num_cores = 28
 num_nodes = 10
