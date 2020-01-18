@@ -14,7 +14,7 @@ from gxlib.gx_trees import gen_trees
 
 #parameters to change-----------------------------------------------------------------------------------------------
 
-project_name = 'ga_cddis_jpl_cm'
+project_name = 'au_cddis_jpl_cm'
 ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
@@ -26,9 +26,8 @@ GA GPS continuous stations 2013-2019 (NOW) (24 stations)
 ''' 
 stations_list= ['HOB2','MOBS','TID1','STR1','UNX2','PARK','TOW2']
 
-#'SCTB' station removed as it is in Anatarctica and almost no OTL. To add PBOT, GONG and COMA
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
-num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
+num_nodes = 7 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
