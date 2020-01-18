@@ -32,7 +32,7 @@ if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staio
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/au_cddis_tmpX/'
-rnx_dir='/scratch/bogdanm/GNSS_data/geoscience_australia'
+rnx_dir='/scratch/bogdanm/GNSS_data/CDDIS/daily/'
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/au_logs'
 hatanaka=True
 tree_options = trees_options.rw_otl
