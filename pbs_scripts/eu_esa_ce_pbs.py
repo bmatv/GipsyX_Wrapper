@@ -32,7 +32,10 @@ if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staio
 
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/'
-rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s'
+# rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s'
+
+rnx_dir='/scratch/bogdanm/GNSS_data/CDDIS/daily'
+
 cddis=True
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/bigf_igs_logs'
 hatanaka=True
