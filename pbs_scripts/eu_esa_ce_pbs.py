@@ -22,7 +22,8 @@ gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/esa' #we s
 '''Execution part here''' 
 # stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX']
 
-stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE'] #,'BRST','ZIM2'
+# stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE'] #,'BRST','ZIM2'
+stations_list=['BRST','ZIM2']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2010,2011,2012,2013,2014,2015,2016,2017,2018];num_cores = 28
 num_nodes = 10
@@ -32,6 +33,7 @@ if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staio
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/bigf_tmpX/'
 rnx_dir='/scratch/bogdanm/GNSS_data/BIGF_data/daily30s'
+cddis=True
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/bigf_igs_logs'
 hatanaka=True
 tree_options = trees_options.rw_otl
@@ -68,7 +70,7 @@ stations_list_arrays = _np.array_split(stations_list,num_nodes)
 for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin,ElDepWeight=ElDepWeight,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
-                    VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
+                    VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,cddis=cddis,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
                     command='rnx2dr();kinematic_project.get_drInfo()')
     qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base,walltime='06:00:00')
