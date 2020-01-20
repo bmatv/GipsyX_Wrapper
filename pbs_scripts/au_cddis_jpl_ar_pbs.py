@@ -24,7 +24,7 @@ GA GPS continuous stations 2013-2019 (NOW) (24 stations)
 'UNSW' removed as got decomissioned in 2017
 'ROBI' removed as multiple files missing
 ''' 
-stations_list= ['HOB2','MOBS','TID1','STR1','UNX2','PARK','TOW2']
+stations_list= ['HOB2','MOBS','TID1','STR1','PARK','TOW2'] #no data for'UNX2'
 
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
 num_nodes = 7 #default is 10 . nz gd2e shows full load of 20 nodes
@@ -73,7 +73,7 @@ for i in range(len(stations_list_arrays)):
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,cddis=cddis,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
                     command='rnx2dr();kinematic_project.get_drInfo()')
-    qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base)
+    qsub_python_code(code,name='{}{}'.format(project_name[:13],str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base)
 #dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
 # kinematic_project.gen_tropNom()
 # kinematic_project.gather_drInfo()
