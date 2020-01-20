@@ -14,7 +14,7 @@ from gxlib.gx_pbs import gen_code, qsub_python_code
 
 project_name = 'eu_es2_cm'
 ionex_type='esa' #igs ionex map igsg2260.15i is missing data
-gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2_cm' #we should use COD MGEX, ESA and GFZ later
+gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/es2_cm_fes04' #we should use COD MGEX, ESA and GFZ later
 
 
 '''Execution part here''' 
