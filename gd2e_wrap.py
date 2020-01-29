@@ -204,9 +204,11 @@ class gd2e_class:
     def get_chalmers(self):
         return gx_aux.get_chalmers(self.staDb_path)
 
-    def analyze_env(self,envs=None,mode=None,remove_outliers=True,restore_otl=True,sampling=1800,force=False,otl_env=False,begin=None,end=None):
+    def analyze_env(self,envs=None,mode=None,remove_outliers=True,restore_otl=True,sampling=1800,force=False,otl_env=False,begin=None,end=None,return_sets=False):
         envs = self.envs() if envs is None else envs
         mode = self.mode if mode is None else mode
+        if begin is None: 
+            begin, end = gx_aux.check_date_margins(begin=begin, end=end, years_list=self.years_list)
         return gx_eterna.analyze_env(
                                     envs,
                                     self.stations_list,
@@ -224,7 +226,8 @@ class gd2e_class:
                                     mode=mode,
                                     otl_env=otl_env,
                                     begin = begin,
-                                    end = end
+                                    end = end,
+                                    return_sets = return_sets
                                     )
 
     # def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
