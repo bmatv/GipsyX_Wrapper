@@ -357,11 +357,14 @@ def analyze_env_single_thread(values_set):
                                             remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
     return blq_array
 
-def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,num_cores,mode,otl_env,begin,end):
+def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,num_cores,mode,otl_env,begin,end,return_sets=False):
     sets = []
     for i in range(len(envs)):
         sets.append([envs[i],eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,restore_otl,blq_file,sampling,hardisp_path,force,mode,otl_env,begin,end])
     num_cores = len(stations_list) if len(stations_list) < num_cores else num_cores
-    with Pool(num_cores) as p:
-        blq_array = p.map(analyze_env_single_thread, sets)
-    return _pd.concat(blq_array,axis=0)
+    if return_sets:
+        return sets
+    else:
+        with Pool(num_cores) as p:
+            blq_array = p.map(analyze_env_single_thread, sets)
+        return _pd.concat(blq_array,axis=0)
