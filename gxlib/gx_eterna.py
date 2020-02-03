@@ -226,7 +226,7 @@ def analyse_et(env_et,begin_date, end_date,eterna_path,station_name,project_name
 
 
     if not eterna_exists:
-        print('Processing', station_name,mode,'with Eterna...',end=' | ')
+        print(('Processing {} {} with Eterna {}-{} | {}').format(station_name,mode,begin_date,end_date,dir_name),end=' | ')
 
         _os.makedirs(tmp_station_path)
         for i in range(len(components)):
