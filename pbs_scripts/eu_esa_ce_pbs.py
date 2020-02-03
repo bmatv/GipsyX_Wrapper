@@ -14,20 +14,17 @@ from gxlib.gx_trees import gen_trees
 
 #parameters to change-----------------------------------------------------------------------------------------------
 
-project_name = 'eu_es2_ce' #second part of bigf dataset (not all stations)
+project_name = 'eu_es2_ce'
 ionex_type='esa' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/esa' #we should use COD MGEX, ESA and GFZ later
 
 
 '''Execution part here''' 
-# stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX']
-
-stations_list=['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO', 'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS', 'ANLX','HERT','LOFT','WEAR','CAMO','BRAE','BRST','ZIM2']
-
+stations_list= ['LERI','PADT', 'PMTH', 'PRAE', 'APPL', 'EXMO',
+                'TAUT', 'PBIL', 'POOL','SANO','CHIO','CARI', 'SWAS',
+                'ANLX','HERT','LOFT','WEAR','CAMO','BRAE','BRST','ZIM2']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
-# years_list=[2010,2011,2012,2013,2014,2015,2016,2017,2018]
-years_list=[2014,2015,2016,2017,2018]
-num_cores = 28
+years_list=[2010,2011,2012,2013,2014,2015,2016,2017,2018];num_cores = 28
 num_nodes = 10
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
@@ -75,9 +72,4 @@ for i in range(len(stations_list_arrays)):
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,cddis=cddis,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
                     command='dr_merge();kinematic_project.gd2e();kinematic_project.gather_mGNSS()')
-    qsub_python_code(code,name='{}{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base,walltime='06:00:00')
-#dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
-# kinematic_project.gen_tropNom()
-# kinematic_project.gather_drInfo()
-#rnx2dr();kinematic_project.get_drInfo()
-#gd2e();kinematic_project.gather_mGNSS()
+    qsub_python_code(code,name='{}{}{}'.format(project_name,str(i),ElMin if ElMin!=7 else ''),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base,walltime='06:00:00')
