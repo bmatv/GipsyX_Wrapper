@@ -87,9 +87,9 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
         # else:
         #     raise Exception('Something wrong. No files selected for conversion')
 
-    elif (products_type == 'cod')or(products_type == 'cof'):
-        sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.eph.Z'
-        clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
+    # elif (products_type == 'cod')or(products_type == 'cof'):
+    #     sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.eph.Z'
+    #     clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
     elif (products_type == 'es2')or(products_type == 'ig2')or(products_type == 'jp2'): #es2 is complete with clk and sp3
         sp3_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/repro2/' + products_type +igs_days +'.clk.Z'
@@ -123,21 +123,26 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
         #We expect the clk files to be corrected for the message
         sp3_path = products_dir + '/' + years+ '/' + 'COD'  +igs_days +'.EPH.Z'
         clk_path = products_dir + '/' + years+ '/'+ 'COD' + igs_days +'.CLK.Z'
+    elif products_type == 'cod':
+        #We expect the clk files to be corrected for the message
+        sp3_path = products_dir + '/' + years+ '/' + 'COD'  +igs_days +'.EPH.Z'
+        clk_path = products_dir + '/' + years+ '/'+ 'COD' + igs_days +'.CLK.Z'
     elif products_type == 'com':
         #We expect the clk files to be corrected for the message
-        #Use REPRO2015 parts of data before 2014-01-01
+        #Use COD operational parts of data before 2014-01-01
         products_type = products_type.upper()
         igs_days_num = igs_days.astype(int)
         boudary_date = 17733 # 2014-01-01
         reprocessed_bool = igs_days_num<boudary_date      # 
         non_reprocessed_bool =  igs_days_num>=boudary_date  #
+        if reprocessed_bool.sum() >0: print('using COD type products to cover pre 2014-01-01')
         
         sp3_path_non_repro = products_dir + '/' + years[non_reprocessed_bool] + '/' + products_type + igs_days[non_reprocessed_bool] +'.EPH.Z'
         clk_path_non_repro = products_dir + '/' + years[non_reprocessed_bool] + '/' + products_type + igs_days[non_reprocessed_bool] +'.CLK.Z'
 
         products_dir_repro = _os.path.abspath(_os.path.join(products_dir,_os.path.pardir))
-        sp3_path_repro = products_dir_repro + '/REPRO_2015/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.EPH.Z'
-        clk_path_repro = products_dir_repro + '/REPRO_2015/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.CLK.Z'
+        sp3_path_repro = products_dir_repro + '/CODE/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.EPH.Z'
+        clk_path_repro = products_dir_repro + '/CODE/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.CLK.Z'
         
         sp3_path = _np.concatenate([sp3_path_repro,sp3_path_non_repro])
         clk_path = _np.concatenate([clk_path_repro,clk_path_non_repro])
@@ -165,7 +170,7 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
     
     if (sp3_avail == 1) & (clk_avail ==1):
         print('All files located. Starting conversion...')
-        if (products_type.lower() == 'com') or (products_type.lower() == 'co2015'):
+        if (products_type.lower() == 'com') or (products_type.lower() == 'co2015') or (products_type.lower() == 'cod'):
             out_dir = _os.path.abspath(_os.path.join(products_dir,_os.pardir,_os.pardir,'igs2gipsyx',products_type.lower()))
             print(out_dir)
         else:
