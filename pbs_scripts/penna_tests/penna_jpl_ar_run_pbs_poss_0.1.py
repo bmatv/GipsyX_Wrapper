@@ -1,5 +1,4 @@
 import sys as _sys, os as _os
-
 import numpy as _np
 
 GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
@@ -53,13 +52,12 @@ tqdm=False
 ElDepWeight = 'SqrtSin'
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
-
-
+pbs_base = _os.path.join('/scratch/bogdanm/pbs',project_name) #break down by project folders as gets slow on hpc with multiple files
 
 for i in range(len(penna_pos_s_list)):
     pos_s = penna_pos_s_list[i]
 
-    pbs_base = _os.path.join('/scratch/bogdanm/pbs',project_name) #break down by project folders as gets slow on hpc with multiple files
+    
     prepare_dir_struct_dr(begin_year=_np.min(years_list), end_year = _np.max(years_list),tmp_dir=tmp_dir) #prepare dir struct for dr files
     project_name_construct = _project_name_construct(project_name=project_name,PPPtype=PPPtype,pos_s=pos_s,wetz_s=wetz_s,tropNom_input=tropNom_input,ElMin=ElMin,ambres=ambres)
     prepare_dir_struct_gathers(tmp_dir=tmp_dir,project_name=project_name_construct)
@@ -78,7 +76,7 @@ for i in range(len(penna_pos_s_list)):
                     PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
                     command='gps.gd2e();kinematic_project.gps.envs(dump=True)')
-    qsub_python_code(code,name='{}pos_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
+    qsub_python_code(code,name='{}pos_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime = '02:00:00')
 
 #single static run
 code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin, ElDepWeight=ElDepWeight,
@@ -89,4 +87,4 @@ code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_i
                     PPPtype = 'static',ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
                     command='gps.gd2e();kinematic_project.gps.envs(dump=True)')
-qsub_python_code(code,name='{}_static'.format(project_name),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
+qsub_python_code(code,name='{}_static'.format(project_name),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime = '02:00:00')
