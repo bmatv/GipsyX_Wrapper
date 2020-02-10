@@ -13,7 +13,7 @@ from gxlib.gx_trees import gen_trees
 #parameters to change-----------------------------------------------------------------------------------------------
 
 project_name = 'penna_jpl_cm'
-ionex_type='igs' #igs ionex map igsg2260.15i is missing data
+ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #we should use COD MGEX, ESA and GFZ later
 
 
