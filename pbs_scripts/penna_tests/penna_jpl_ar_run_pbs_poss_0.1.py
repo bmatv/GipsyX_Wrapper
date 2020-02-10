@@ -77,7 +77,7 @@ for i in range(len(penna_pos_s_list)):
 
                     PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
-                    command='gps.gd2e();kinematic_project.gps.envs()')
+                    command='gps.gd2e();kinematic_project.gps.envs(dump=True)')
     qsub_python_code(code,name='{}pos_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
 
 #single static run
@@ -88,5 +88,5 @@ code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_i
                     wetz_s = 0.05,
                     PPPtype = 'static',ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
-                    command='gps.gd2e();kinematic_project.gps.envs()')
+                    command='gps.gd2e();kinematic_project.gps.envs(dump=True)')
 qsub_python_code(code,name='{}_static'.format(project_name),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = '/scratch/bogdanm/pbs', walltime = '02:00:00')
