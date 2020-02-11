@@ -14,7 +14,7 @@ from gxlib.gx_trees import gen_trees
 
 project_name = 'penna_cod_ce'
 ionex_type='cod' #igs ionex map igsg2260.15i is missing data
-gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/REPRO_2015' #we should use COD MGEX, ESA and GFZ later
+gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/co2015' #we should use COD MGEX, ESA and GFZ later
 
 
 '''Execution part here''' 
