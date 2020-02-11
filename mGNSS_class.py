@@ -281,8 +281,8 @@ class mGNSS_class:
         
         return gather
     
-    # def gather_residuals_mGNSS(self):
-    #     return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
+    def gather_residuals_mGNSS(self):
+        return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
     
     def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
         begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
