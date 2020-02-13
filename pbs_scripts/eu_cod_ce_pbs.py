@@ -16,7 +16,7 @@ from gxlib.gx_trees import gen_trees
 
 project_name = 'eu_cod_ce' #second part of bigf dataset (not all stations)
 ionex_type='cod' #igs ionex map igsg2260.15i is missing data
-gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/cod' #we should use COD MGEX, ESA and GFZ later
+gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com' #we should use COD MGEX, ESA and GFZ later
 
 
 '''Execution part here''' 
