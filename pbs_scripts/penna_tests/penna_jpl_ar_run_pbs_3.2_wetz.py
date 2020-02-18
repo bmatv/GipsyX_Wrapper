@@ -24,7 +24,7 @@ years_list=[2010,2011,2012,2013];num_cores = 28
 num_nodes = 11
 #processing penna test for pos_s 0.57 and a list of wetz values
 pos_s = 3.2
-penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100] # wetz values to loop through. 0.1 is uesd with pos_s
+penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057,0.18,0.32,1,10,100] # wetz values to loop through. 0.1 is uesd with pos_s
 if num_nodes > len(penna_wetz_list): num_nodes = len(penna_wetz_list) #in case penna num is less than num_nodes => num_nodes = penna num
 #-------------------------------------------------------------------------------------------------------------------
 
@@ -71,12 +71,12 @@ for i in range(len(penna_wetz_list)):
     qsub_python_code(code,name='{}_32_{}'.format(project_name,str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime = '06:00:00')
 
 #single static run
-code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin, ElDepWeight=ElDepWeight,
-                    staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,VMF1_dir = VMF1_dir,
-                    hatanaka=hatanaka,cddis=cddis,
-                    pos_s = 0,
-                    wetz_s = 0.05,
-                    PPPtype = 'static',ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
-                    gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
-                    command='gps.gd2e();kinematic_project.gps.envs(dump=True, force=True)')
-qsub_python_code(code,name='{}_static'.format(project_name),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime = '06:00:00')
+# code = gen_code(stations_list = stations_list, cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin, ElDepWeight=ElDepWeight,
+#                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,VMF1_dir = VMF1_dir,
+#                     hatanaka=hatanaka,cddis=cddis,
+#                     pos_s = 0,
+#                     wetz_s = 0.05,
+#                     PPPtype = 'static',ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
+#                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,tree_options = tree_options_code,tqdm=False,
+#                     command='gps.gd2e();kinematic_project.gps.envs(dump=True, force=True)')
+# qsub_python_code(code,name='{}_static'.format(project_name),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime = '06:00:00')
