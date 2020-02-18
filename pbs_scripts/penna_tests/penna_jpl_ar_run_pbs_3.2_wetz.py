@@ -24,7 +24,7 @@ years_list=[2010,2011,2012,2013];num_cores = 28
 num_nodes = 11
 #processing penna test for pos_s 0.57 and a list of wetz values
 pos_s = 3.2
-penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100]
+penna_wetz_list = [0.00001, 0.0001,0.001,0.0032, 0.057, 0.1,0.18,0.32,1,10,100] # wetz values to loop through. 0.1 is uesd with pos_s
 if num_nodes > len(penna_wetz_list): num_nodes = len(penna_wetz_list) #in case penna num is less than num_nodes => num_nodes = penna num
 #-------------------------------------------------------------------------------------------------------------------
 
