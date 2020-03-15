@@ -477,7 +477,18 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
     blq_df = blq_df.astype(float)
     coeff95 = 1.96
     if not custom_blq_path:pass
-    else:blq_df.update(blq2blq_df(custom_blq_path))
+    else:        
+        blq_df_custom = blq2blq_df(custom_blq_path) #reading custom blq path and converting it to df
+        stations_present_input = blq_df.index.levels[0] #stores a list of stations present in the input eterna analisys df 
+        stations_present_custom  = blq_df_custom.index.levels[0] #stores a list of stations present in custom blq file specified
+        #check if all stations from eterna ana exist in custom file
+        missing_stations_count = (~_np.isin(stations_present_input,stations_present_custom)).sum()
+        if missing_stations_count > 0:
+            print('{} stations missing from {}'.format(missing_stations_count, custom_blq_path))
+            return 0
+        else:
+            blq_df.update(blq_df_custom)
+        
     amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
     phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
     
