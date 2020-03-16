@@ -484,8 +484,7 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
         #check if all stations from eterna ana exist in custom file
         missing_stations_count = (~_np.isin(stations_present_input,stations_present_custom)).sum()
         if missing_stations_count > 0:
-            print('{} stations missing from {}'.format(missing_stations_count, custom_blq_path))
-            return 0
+            raise ValueError('{} stations missing from {}'.format(missing_stations_count, custom_blq_path)) 
         else:
             blq_df.update(blq_df_custom)
         
