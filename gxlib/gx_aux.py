@@ -454,9 +454,9 @@ def _CRC32_from_file(filename):
 
 
 
-def blq2blq_df(blq_file):
-    '''Reads blq file specified and returns blq dataframe as needed for analysis'''
-    
+def _blq2blq_df_slow(blq_file):
+    '''Original blq2blq_df function. Reads blq file specified and returns blq dataframe as needed for analysis. 
+    SLOW on larger blq files (e.g. NZ blq with 183 stations)'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
     blq = _blq2hardisp(blq_file=blq_file)
     tmp_df_gather = []
@@ -471,6 +471,25 @@ def blq2blq_df(blq_file):
     df_std = _pd.DataFrame(0,index=df.index,columns=_pd.MultiIndex.from_product([['OTL'],['up','east','north'],['amplitude','phase'],['std']]))
     return _pd.concat([df,df_std],axis=1).astype(float)
 
+def blq2blq_df(blq_file):
+    '''A faster version of original blq2blq_df. Has no performance penalty on larger blq files.
+    Reads blq file specified and returns blq dataframe as needed for analysis'''
+    _pd.options.display.max_colwidth = 200 #By default truncates text
+    blq = _blq2hardisp(blq_file=blq_file)  
+    data_raw = _pd.Series(blq[:,1]).str.split('\n',expand=True)
+    sta_names = blq[:,0]
+    
+    buf=[]
+    for column in data_raw.columns:
+        tmp = data_raw[column].str.split(pat=None,expand=True).astype(float)
+        tmp.columns= ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']
+        tmp.index = sta_names
+        buf.append(tmp.stack())
+        
+    values = _pd.concat(buf,axis=1,keys=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],['up','east','north'],['value']]).swaplevel(i=2,j=1))
+    sigmas = _pd.DataFrame(_np.zeros(values.shape),index = values.index,columns=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],['up','east','north'],['std']]).swaplevel(i=2,j=1))
+    
+    return _pd.concat([values,sigmas],axis=1)
 
 def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
     '''converts blq into set of parameters needed for plotting'''
