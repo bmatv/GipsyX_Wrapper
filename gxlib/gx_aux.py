@@ -456,7 +456,7 @@ def _CRC32_from_file(filename):
 
 def _blq2blq_df_slow(blq_file):
     '''Original blq2blq_df function. Reads blq file specified and returns blq dataframe as needed for analysis. 
-    SLOW on larger blq files (e.g. NZ blq with 183 stations)'''
+    SLOW on larger blq files (e.g. NZ blq with 183 stations takes ~1 sec to execute)'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
     blq = _blq2hardisp(blq_file=blq_file)
     tmp_df_gather = []
@@ -473,7 +473,7 @@ def _blq2blq_df_slow(blq_file):
 
 def blq2blq_df(blq_file):
     '''A faster version of original blq2blq_df. Has no performance penalty on larger blq files.
-    Reads blq file specified and returns blq dataframe as needed for analysis'''
+    Reads blq file specified and returns blq dataframe as needed for analysis. NZ blq with 183 stations takes ~129 msec to execute'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
     blq = _blq2hardisp(blq_file=blq_file)  
     data_raw = _pd.Series(blq[:,1]).str.split('\n',expand=True)
