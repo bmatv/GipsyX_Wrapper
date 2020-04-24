@@ -307,6 +307,10 @@ def mode2label(mode):
     '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
     return mode_table[mode_table['mode']==mode]['label'].values[0]
 
+def names2labels(constituents):
+    constituents_labels = '$'+_pd.Series(constituents).str.slice(0,1)+'_'+_pd.Series(constituents).str.slice(1,2)+'$'
+    return constituents_labels
+    
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,reference_df,mode,dump=None):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
