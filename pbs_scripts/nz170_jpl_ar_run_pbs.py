@@ -48,11 +48,12 @@ if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staio
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/'
 # rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz_ogz'
+# hatanaka=False
 rnx_dir='/scratch/bogdanm/GNSS_data/linz'
-
+hatanaka=True
 
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
-hatanaka=False
+
 cddis=False
 tree_options = trees_options.rw_otl
 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/nz183_FES2004GBe_cm.blq'
