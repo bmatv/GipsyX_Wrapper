@@ -39,7 +39,7 @@ GPS continuous stations 2013-2019 (NOW) (170 stations)'''
 #                 'VGTR','VGTS','VGWH','VGWN','VGWT','WAHU','WAIM','WAKA','WANG','WARK',
 #                 'WEST','WGTN','WGTT','WHKT','WHNG','WHVR','WITH','WMAT','WPAW','WPUK']
 
-stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSB' ]
+stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
