@@ -16,7 +16,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
     It is a single array of paths to raw RNX files with all properties needed for the file
     Outputs df wi columns: year (int) | station_name (caps) | doy (int) | rnx_path (object) | dr_path (object)
-    If hatanaka => select d.Z files, else: o.gz
+    If hatanaka => select d.Z or d.gz (e.g. linz) files, else: o.gz
     /scratch/bogdanm/GNSS_data/geonet_nz_ogz/2014/001/anau0010.14o.gz
     /scratch/bogdanm/GNSS_data/geonet_nz/2014/001/anau0010.14d.Z
     /scratch/bogdanm/GNSS_data/geonet_nz/2014/14001/anau0010.14d.Z'''
