@@ -21,25 +21,25 @@ gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
 '''Execution part here
 GPS continuous stations 2013-2019 (NOW) (170 stations)''' 
-# stations_list= ['2406','AHTI','AKTO','ANAU','ARTA','AUCK','AUKT','AVLN','BHST','BIRF',
-#                 'BLUF','BNET','BTHL','CAST','CHTI','CKID','CLIM','CMBL','CNCL','CNST',
-#                 'CORM','DNVK','DUND','DUNT','DURV','FRTN','GISB','GLDB','GNBK','GRNG',
-#                 'HAAS','HAMT','HANA','HAST','HIKB','HOKI','HOLD','HORN','KAHU','KAIK',
-#                 'KAPT','KARA','KAWK','KERE','KOKO','KORO','KTIA','KUTA','LDRZ','LEVN',
-#                 'LEXA','LEYL','LKTA','LYTT','MAHA','MAHI','MAHO','MAKO','MANG','MATW',
-#                 'MAVL','MCNL','METH','MING','MKNO','MNHR','MQZG','MTBL','MTJO','MTPR',
-#                 'MTQN','NLSN','NMAI','NPLY','NRRD','NRSW','OHIN','OKOH','OPTK','OROA',
-#                 'OTAK','OUSD','PAEK','PAKI','PALI','PARI','PARW','PAWA','PILK','PKNO',
-#                 'PNUI','PORA','PRTU','PTOI','PUKE','PYGR','QUAR','RAHI','RAKW','RAUL',
-#                 'RAUM','RAWI','RDLV','RGAR','RGAW','RGHD','RGHL','RGHR','RGKA','RGKW',
-#                 'RGLI','RGMK','RGMT','RGON','RGOP','RGRE','RGRR','RGTA','RGUT','RGWI',
-#                 'RGWV','RIPA','SNST','TAKP','TAUP','TAUW','TEMA','TGHO','TGHR','TGOH',
-#                 'TGRA','TGRI','TGTK','TGWH','THAP','TINT','TKAR','TORY','TRAV','TRNG',
-#                 'TRWH','TURI','VEXA','VGFW','VGKR','VGMO','VGMT','VGOB','VGOT','VGPK',
-#                 'VGTR','VGTS','VGWH','VGWN','VGWT','WAHU','WAIM','WAKA','WANG','WARK',
-#                 'WEST','WGTN','WGTT','WHKT','WHNG','WHVR','WITH','WMAT','WPAW','WPUK']
+stations_list= ['2406','AHTI','AKTO','ANAU','ARTA','AUCK','AUKT','AVLN','BHST','BIRF',
+                'BLUF','BNET','BTHL','CAST','CHTI','CKID','CLIM','CMBL','CNCL','CNST',
+                'CORM','DNVK','DUND','DUNT','DURV','FRTN','GISB','GLDB','GNBK','GRNG',
+                'HAAS','HAMT','HANA','HAST','HIKB','HOKI','HOLD','HORN','KAHU','KAIK',
+                'KAPT','KARA','KAWK','KERE','KOKO','KORO','KTIA','KUTA','LDRZ','LEVN',
+                'LEXA','LEYL','LKTA','LYTT','MAHA','MAHI','MAHO','MAKO','MANG','MATW',
+                'MAVL','MCNL','METH','MING','MKNO','MNHR','MQZG','MTBL','MTJO','MTPR',
+                'MTQN','NLSN','NMAI','NPLY','NRRD','NRSW','OHIN','OKOH','OPTK','OROA',
+                'OTAK','OUSD','PAEK','PAKI','PALI','PARI','PARW','PAWA','PILK','PKNO',
+                'PNUI','PORA','PRTU','PTOI','PUKE','PYGR','QUAR','RAHI','RAKW','RAUL',
+                'RAUM','RAWI','RDLV','RGAR','RGAW','RGHD','RGHL','RGHR','RGKA','RGKW',
+                'RGLI','RGMK','RGMT','RGON','RGOP','RGRE','RGRR','RGTA','RGUT','RGWI',
+                'RGWV','RIPA','SNST','TAKP','TAUP','TAUW','TEMA','TGHO','TGHR','TGOH',
+                'TGRA','TGRI','TGTK','TGWH','THAP','TINT','TKAR','TORY','TRAV','TRNG',
+                'TRWH','TURI','VEXA','VGFW','VGKR','VGMO','VGMT','VGOB','VGOT','VGPK',
+                'VGTR','VGTS','VGWH','VGWN','VGWT','WAHU','WAIM','WAKA','WANG','WARK',
+                'WEST','WGTN','WGTT','WHKT','WHNG','WHVR','WITH','WMAT','WPAW','WPUK']
 
-stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
+# stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
@@ -47,10 +47,10 @@ if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staio
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/'
-# rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz_ogz'
-# hatanaka=False
-rnx_dir='/scratch/bogdanm/GNSS_data/linz'
-hatanaka=True
+rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz_ogz'
+hatanaka=False
+# rnx_dir='/scratch/bogdanm/GNSS_data/linz'
+# hatanaka=True
 
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
 
@@ -93,10 +93,11 @@ for i in range(len(stations_list_arrays)):
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,
                     hatanaka=hatanaka,cddis=cddis,tree_options = tree_options_code,tqdm=False,
-                    command='rnx2dr();kinematic_project.get_drInfo()')
+                    command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
 
     qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),
-    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='01:00:00')
+    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='03:00:00')
 
+# dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
 # 'gps.gd2e();kinematic_project.gps.envs(dump=True)'
 # rnx2dr();kinematic_project.get_drInfo()
