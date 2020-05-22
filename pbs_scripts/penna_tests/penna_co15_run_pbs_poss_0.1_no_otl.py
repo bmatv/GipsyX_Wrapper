@@ -21,7 +21,7 @@ gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/co2015' #we should use 
 stations_list= ['CAMO']
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2010,2011,2012,2013];num_cores = 28
-num_nodes = 12
+num_nodes = 14
 #processing penna test for pos_s 0.57 and a list of wetz values
 wetz_s = 0.1
 penna_pos_s_list = [0.0032, 0.01,0.032,0.1,0.18,0.32, 0.57, 1, 1.8, 3.2, 10,32,100,320] # values of 0.57 and 3.2 were removed not to create conflict
