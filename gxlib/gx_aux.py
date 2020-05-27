@@ -495,13 +495,51 @@ def blq2blq_df(blq_file):
     
     return _pd.concat([values,sigmas],axis=1)
 
+def parse_otl_name(filepath):
+    model_data = _pd.Series(_os.path.basename(filepath)).str.split(pat='_(?!atl)(?!disp)|\.csv',expand=True)
+    return model_data
+
+def csv2df(filepath = '../otl_comparison/otl_construct/FES2012_PREM_direct.csv',as_blq_df=False):
+    '''Reads MSB csv file and outputs a DataFrame with models in heading or a blq_df (as needed for norm_table)'''
+    raw_file = _pd.read_csv(filepath_or_buffer=filepath,header=None,names=[0,1,2,3,'amplitude','phase'])
+    # 0=up, 1=North-South, 2=East-West
+    raw_file[2] = raw_file[2].astype('category').cat.rename_categories(['up','north','east'])
+    raw_file[3] = raw_file[3].str.strip().str.upper()
+    raw_file[0] = raw_file[0].str.strip().str.upper()
+    df_values = raw_file[[0,2,3,'amplitude','phase']].pivot_table(columns=2,index=[0,3],)
+    df_values['amplitude']/=1000 #MSB has values in mm so we divide by 1000 to be consistent with blq
+    df_values.loc(axis=1)['phase',['north','east']]+=180 #+180 deg to horizontal phase to convert to blq
+    df_values[df_values.loc(axis=1)[['phase',],['east','north']]>180] -=360  
+    df_values.index.names = (None,None)
+    if as_blq_df:
+        df_values.columns.names = (None,None)
+        df_std = df_values.copy() * 0
+        df = _pd.concat([df_values,df_std],keys=['value','std'],axis=1)
+        df = df.swaplevel(axis=1,i=0,j=2,)
+        df = _pd.concat([df],keys=['OTL'],axis=1)
+        return df 
+    if not as_blq_df:
+        model_data = parse_otl_name(filepath)
+        df_values = _pd.concat([df_values],keys=[model_data[2][0]],axis=1)
+        df_values = _pd.concat([df_values],keys=[model_data[1][0]],axis=1)
+        df_values = _pd.concat([df_values],keys=[model_data[0][0]],axis=1)
+        return df_values
+
 def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
-    '''converts blq into set of parameters needed for plotting'''
+    '''converts blq into set of parameters needed for plotting. Accepts MSB csv files by separating file extension. 
+    If .blq -> Hans-Georg blq; if .csv -> MSB csv'''
     blq_df = blq_df.astype(float)
     coeff95 = 1.96
     if not custom_blq_path:pass
-    else:        
-        blq_df_custom = blq2blq_df(custom_blq_path) #reading custom blq path and converting it to df
+    else:   
+        file_ext = _os.path.splitext(custom_blq_path)[1] #getting file extension. Either .blq or .csv
+        # a = 2 if file_ext == '.csv' else 3 if file_ext == '.blq' else print('{} is unknown filetype'.format(file_ext))   
+        if file_ext == '.blq':
+            blq_df_custom = blq2blq_df(custom_blq_path)#reading custom blq path and converting it to df
+        elif file_ext == '.csv':
+            blq_df_custom = csv2df(custom_blq_path,as_blq_df=True)#reading MSB formatted file
+        else: print('{} is unknown filetype'.format(file_ext)) 
+
         stations_present_input = blq_df.index.levels[0] #stores a list of stations present in the input eterna analisys df 
         stations_present_custom  = blq_df_custom.index.levels[0] #stores a list of stations present in custom blq file specified
         #check if all stations from eterna ana exist in custom file
