@@ -334,8 +334,8 @@ class mGNSS_class:
         if force: #if force - remove gather file!
             if _os.path.exists(gather_path): _os.remove(gather_path)
 
-        gather = self.gps.envs(dump=True,)
         if not _os.path.exists(gather_path):
+            gather = self.gps.envs(dump=True,)
             if restore_otl:
                 tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
                 tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
