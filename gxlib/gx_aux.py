@@ -507,25 +507,25 @@ def csv2df(filepath = '../otl_comparison/otl_construct/FES2012_PREM_direct.csv',
     raw_file[3] = raw_file[3].str.strip().str.upper()
     raw_file[0] = raw_file[0].str.strip().str.upper()
     df_values = raw_file[[0,2,3,'amplitude','phase']].pivot_table(columns=2,index=[0,3],)
-    df_values['amplitude']/=1000 #MSB has values in mm so we divide by 1000 to be consistent with blq
     df_values.loc(axis=1)['phase',['north','east']]+=180 #+180 deg to horizontal phase to convert to blq
     df_values[df_values.loc(axis=1)[['phase',],['east','north']]>180] -=360  
-    df_values.index.names = (None,None)
+    df_values.index.names = [None,None]
+    df_values.columns.names = [None,None]
     if as_blq_df:
-        df_values.columns.names = (None,None)
+        df_values['amplitude']/=1000 #MSB has values in mm so we divide by 1000 to be consistent with blq
         df_std = df_values.copy() * 0
         df = _pd.concat([df_values,df_std],keys=['value','std'],axis=1)
         df = df.swaplevel(axis=1,i=0,j=2,)
         df = _pd.concat([df],keys=['OTL'],axis=1)
-        return df 
+        return df #output is in meters
     if not as_blq_df:
         model_data = parse_otl_name(filepath)
         df_values = _pd.concat([df_values],keys=[model_data[2][0]],axis=1)
         df_values = _pd.concat([df_values],keys=[model_data[1][0]],axis=1)
         df_values = _pd.concat([df_values],keys=[model_data[0][0]],axis=1)
-        return df_values
+        return df_values #output is in mm
 
-def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
+def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False,ascomplex_xy=False):
     '''converts blq into set of parameters needed for plotting. Accepts MSB csv files by separating file extension. 
     If .blq -> Hans-Georg blq; if .csv -> MSB csv'''
     blq_df = blq_df.astype(float)
@@ -557,34 +557,20 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False):
     
     x = _np.cos(_np.deg2rad(phase)) * amplitude
     y = _np.sin(_np.deg2rad(phase)) * amplitude
-#     return x,y
-    if normalize and not gps_only:
+    if normalize:
         x_norm = x['OTL'].copy()
-        x['OTL'] -= x_norm
-        x['GPS'] -= x_norm
-        x['GLONASS'] -= x_norm
-        x['GPS+GLONASS'] -= x_norm
-        
         y_norm = y['OTL'].copy()
-        y['OTL'] -= y_norm
-        y['GPS'] -= y_norm
-        y['GLONASS'] -= y_norm
-        y['GPS+GLONASS'] -= y_norm
-        
-    if normalize and gps_only:
-        x_norm = x['OTL'].copy()
-        x['OTL'] -= x_norm
-        x['GPS'] -= x_norm      
-        y_norm = y['OTL'].copy()
-        y['OTL'] -= y_norm
-        y['GPS'] -= y_norm
-        
+        for mode in x.columns.levels[0]:
+            x[mode] -= x_norm
+            y[mode] -= y_norm 
+            
+    if ascomplex_xy: return x+1j*y
+
     semiAxisA = std_a
     semiAxisP = _np.tan(_np.deg2rad(std_p))*amplitude
     #returns x,y width, height. angle should be computed as arccos(x/y)
     width = semiAxisA*2*coeff95 #should be multiplied by 2 as axis and not radius
     height = semiAxisP*2*coeff95
-    
     return x,y,width,height,phase
 
 
