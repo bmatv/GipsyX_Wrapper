@@ -331,7 +331,7 @@ class mGNSS_class:
             gather = self.gps.envs(dump=True,)
             tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
             tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
-            tmp_blq_concat = _pd.concat([tmp_gps],keys=['OTL','GPS'],axis=1)             
+            tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps],keys=['OTL','GPS'],axis=1)             
             gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
         else:
             tmp_blq_concat = gx_aux._dump_read(gather_path)  
