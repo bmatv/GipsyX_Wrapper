@@ -196,12 +196,14 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     #     return staDb_path,crc_ex, crc
     return staDb_path
 
-def get_chalmers(staDb_path):
+def get_chalmers(staDb_path,as_df=False):
     '''Converts staDb to input for http://holt.oso.chalmers.se/loading/
     Name of station_________|	|Longitude (deg)	| Latitude (deg)	| Height (m) 
     //sala                        11.9264         57.3958         0.0000
     //ruler.................b................<...............<...............
-    // Records starting with // are treated as comments'''
+    // Records starting with // are treated as comments
+    
+    OR returns a dataframe if as_df (needed for plotting)'''
     staDb = StationDataBase.StationDataBase(dataBase=staDb_path)  # creating staDb object + read as after GipsyX 1.3
 
     
@@ -210,9 +212,11 @@ def get_chalmers(staDb_path):
     llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
                                                     stationList=staDb.getStationList()))
     nllh = _np.column_stack((names_stdb, llh_stdb.T))
-
-    for station in nllh:
-        print('%-19.4s %15.4f %15.4f %15.4f'%(station[0],station[2],station[1],station[3]))
+    if as_df:
+        return _pd.DataFrame(nllh,columns=['SITE','LAT','LON','HEIGHT'])
+    else:
+        for station in nllh:
+            print('%-19.4s %15.4f %15.4f %15.4f'%(station[0],station[2],station[1],station[3]))
 
 
 def _dr_size(dr_files):
