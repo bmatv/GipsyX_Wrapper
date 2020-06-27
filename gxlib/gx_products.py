@@ -60,6 +60,9 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
     if (products_type == 'gfz')or(products_type == 'grg'):
         sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
         clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk.Z'
+    if (products_type == 'jxf'):
+        sp3_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.sp3.Z'
+        clk_path = products_dir + '/' + gps_week+ '/' + products_type +igs_days +'.clk_30s.Z' #only 30s clk files present
     elif (products_type == 'esa'):
         igs_days_num = igs_days.astype(int)
         boudary_date = 17696 # according to docu it should be 17726 : according to CNES recommendations to use rouutine grg after 28/12/2013
