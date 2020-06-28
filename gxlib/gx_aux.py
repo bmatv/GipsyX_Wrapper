@@ -26,7 +26,7 @@ from .gx_hardisp import blq2hardisp as _blq2hardisp
 
 if _pa.__version__ !='0.13.0':
     raise Exception('pyarrow should be version 0.13.0 only') 
-
+import trees_options
 
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
 _regex_loc = _re.compile(r"2\.\W+S.+\W+City or Town\W+\:\s(.+|)\W+State or Province\W+\:\s(.+|)\W+Country\W+\:\s(.+|)\W+Tectonic Plate\W+\:\s(.+|)\W+.+\W+X.+\:\s(.+|)\W+Y..+\:\s(.+|)\W+Z.+\:\s(.+|)\W*Latitude.+\:\s(.+|)\W*Longitude.+\:\s(.+|)\W*Elevation.+\:\s(.+|)", _re.MULTILINE)
@@ -100,7 +100,7 @@ def _dump_read(filename):
     deserialized = _pa.deserialize(decompressed)
     return deserialized
 
-def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres,tree_options_code='trees_options.rw_otl'):
+def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres,tree_options=trees_options.rw_otl):
     '''pos_s and wetz_s are im mm/sqrt(s)'''
     if PPPtype=='kinematic':
         project_name = '{}_{}_{}'.format(str(project_name),str(pos_s),str(wetz_s))
@@ -114,7 +114,7 @@ def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMi
     # the last component in proj_name will be ElMin if it is not default 7 degrees
     if ElMin!=7:
         project_name += '_El{}'.format(ElMin)
-    if tree_options_code == 'trees_options.rw_no_otl':
+    if tree_options == trees_options.rw_no_otl:
         project_name += '_nootl'
     return project_name
 

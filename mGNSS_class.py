@@ -90,7 +90,7 @@ class mGNSS_class:
 
         self.project_name = gx_aux._project_name_construct( project_name, self.PPPtype,
                                                             self.pos_s, self.wetz_s,
-                                                            self.tropNom_input, self.ElMin, ambres = self.ambres) #static projects are marked as project_name_[mode]_static
+                                                            self.tropNom_input, self.ElMin, ambres = self.ambres,tree_options_code=self.tree_options) #static projects are marked as project_name_[mode]_static
         self.static_clk = static_clk
         
         
