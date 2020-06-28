@@ -39,7 +39,7 @@ class gd2e_class:
                  ambres = True,
                  staDb_path = None,
                  trees_df = None
-                 ): 
+                 ):
         self.tqdm = tqdm
         self.hatanaka=hatanaka,
         self.cache_path = _os.path.abspath(cache_path)
@@ -148,12 +148,12 @@ class gd2e_class:
                         tqdm=self.tqdm,
                         cache_path = self.cache_path)
 
-    def solutions(self):
+    def solutions(self,single_station=None):
         return gx_extract.gather_solutions(num_cores=self.num_cores,
                                             project_name=self.project_name,
                                             stations_list=self.stations_list,
                                             tmp_dir=self.tmp_dir,
-                                            tqdm=self.tqdm)
+                                            tqdm=self.tqdm,single_station=single_station)
     def residuals(self,single_station=False):
         return gx_extract.gather_residuals(num_cores=self.num_cores,
                                             project_name=self.project_name,
@@ -161,8 +161,9 @@ class gd2e_class:
                                             tmp_dir=self.tmp_dir,
                                             tqdm=self.tqdm,
                                             single_station=single_station)
-    def filtered_solutions(self,margin=0.1,std_coeff=3):
-        return gx_filter.filter_tdps(margin=margin,std_coeff=std_coeff,tdps=self.solutions())
+    def filtered_solutions(self,sigma_cut=0.1,single_station=None):
+        return gx_filter.filter_tdps(sigma_cut=sigma_cut,tdps=self.solutions(single_station=single_station))
+
     
     def envs(self,margin=0.1,std_coeff=3,dump=False,force=False):
         '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)'''
@@ -230,21 +231,38 @@ class gd2e_class:
                                     return_sets = return_sets
                                     )
 
-    # def test_analyze(self,remove_outliers=True,sampling=1800,force=False):
-    #     '''remove_outliers has no sense here. This is just to get begin and end of the timeline'''
-    #     return gx_eterna.test_analyze(
-    #                                 self.envs(),
-    #                                 self.stations_list,
-    #                                 self.eterna_path,
-    #                                 self.tmp_dir,
-    #                                 self.staDb_path,
-    #                                 self.project_name,
-    #                                 remove_outliers,
-    #                                 blq_file = self.blq_file,
-    #                                 sampling = sampling,
-    #                                 hardisp_path = self.hardisp_path,
-    #                                 force = force
-    #                                 )
+    def analyze_wetz(self,wetz_gather=None,parameter='WetZ',begin=None,end=None,sampling=1800,force=False,return_sets=False,otl_env=False,v_type='value'):
+        '''v_type can be value, nomvalue and sigma. Be careful as it does not create separate dirs but overwrites each v_type. 
+        Need to use force option to get the values'''
+        if begin is None: 
+            begin, end = gx_aux.check_date_margins(begin=begin, end=end, years_list=self.years_list)
+        if wetz_gather is None: #wetz_gather may be fascilitated by mGNSS class so different cionstellation solutions will be in sync
+            wetz_array = self.filtered_solutions()#ideally a function that can dump wetz gathers
+            wetz_gather = _np.ndarray((len(self.stations_list)),dtype=object)
+            for i in range(wetz_gather.shape[0]): #for each station effectively
+                tmp  = wetz_array[i].loc(axis=1)[:,'.Station.{}.Trop.WetZ'.format(self.stations_list[i].upper())]
+                wetz_gather[i] = gx_aux._update_mindex(gx_aux._update_mindex(tmp,self.stations_list[i].upper()),self.mode)
+
+        return gx_eterna.analyze_env(wetz_gather,
+                                    self.stations_list,
+                                    self.eterna_path,
+                                    self.tmp_dir,
+                                    self.staDb_path,
+                                    self.project_name,
+                                    remove_outliers = False,
+                                    restore_otl=False,
+                                    blq_file = self.blq_file,
+                                    sampling = sampling,
+                                    hardisp_path = self.hardisp_path,
+                                    force=force,
+                                    num_cores = self.num_cores,
+                                    mode=self.mode,
+                                    otl_env=False,
+                                    begin = begin,
+                                    end = end,
+                                    return_sets = return_sets,
+                                    v_type=v_type,
+                                    parameter=parameter)
     def wetz(self):
         '''Returns WetZ values dataframe'''
-        return gx_aux.wetz(self.filtered_solutions())        
+        return gx_aux.wetz(self.filtered_solutions())
