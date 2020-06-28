@@ -21,7 +21,7 @@ if PYGCOREPATH not in _sys.path:
 import gcore.EarthCoordTrans as _eo
 import gcore.StationDataBase as StationDataBase
 
-J2000origin = _np.datetime64('2000-01-01 12:00:00')
+from .gx_const import J2000origin
 from .gx_hardisp import blq2hardisp as _blq2hardisp
 
 if _pa.__version__ !='0.13.0':
@@ -100,7 +100,7 @@ def _dump_read(filename):
     deserialized = _pa.deserialize(decompressed)
     return deserialized
 
-def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres):
+def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres,tree_options_code='trees_options.rw_otl'):
     '''pos_s and wetz_s are im mm/sqrt(s)'''
     if PPPtype=='kinematic':
         project_name = '{}_{}_{}'.format(str(project_name),str(pos_s),str(wetz_s))
@@ -114,6 +114,8 @@ def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMi
     # the last component in proj_name will be ElMin if it is not default 7 degrees
     if ElMin!=7:
         project_name += '_El{}'.format(ElMin)
+    if tree_options_code == 'trees_options.rw_no_otl':
+        project_name += '_nootl'
     return project_name
 
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
