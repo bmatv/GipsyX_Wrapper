@@ -6,7 +6,7 @@ import numpy as _np
 import pandas as _pd
 from pandas.compat import StringIO as _StringIO
 
-from .gx_aux import J2000origin as _J2000origin
+from .gx_const import J2000origin as _J2000origin
 
 
 def blq2hardisp(blq_file):
