@@ -253,33 +253,38 @@ class mGNSS_class:
                 gather.append(tmp_mGNSS) 
         return gather
 
-    def gather_wetz(self):
-        wetz_dir =  _os.path.join(self.tmp_dir,'gd2e','wetz_gathers')
+    def gather_wetz(self,gps_only=False,force=False):
+        '''First we gather filtered solutions per constellation and extract Trop part
+        Had to make it two step to save memory'''
+        wetz_dir =  _os.path.join(self.tmp_dir,'gd2e','wetz_gathers',self.project_name)
         if not _os.path.exists(wetz_dir):
             _os.makedirs(wetz_dir)
 
-        gather_path =  _os.path.join(wetz_dir,self.project_name + '_wetz.zstd')
-        '''get envs. For each station do common index, create unique levels and concat'''
-        
-        if not _os.path.exists(gather_path):
-            gps_wetz = self.gps.wetz()
-            glo_wetz = self.glo.wetz()
-            gps_glo_wetz = self.gps_glo.wetz()
-
-            gather = []
-            for i in range(len(self.stations_list)):
-                #get common index
-                tmp_gps,tmp_glo,tmp_gps_glo = self._select_common(gps=gps_wetz[i],glo = glo_wetz[i], gps_glo = gps_glo_wetz[i])
-
-                #update column levels
-                tmp_mGNSS = _pd.concat([tmp_gps,tmp_glo,tmp_gps_glo],keys=['GPS','GLONASS','GPS+GLONASS'],axis=1)
-                gather.append(tmp_mGNSS)
-            gx_aux._dump_write(data = gather,filename=gather_path,num_cores=24,cname='zstd')
-        else:
-            # print('Found mGNSS gather file', self.project_name + ".zstd" )
-            gather = gx_aux._dump_read(gather_path)
-        
-        return gather
+        project_list = [self.gps] if gps_only else [self.gps, self.glo,self.gps_glo]
+        suffix='_gps' if gps_only else ''
+        buf=[]
+        for i in range(len(self.stations_list)):
+            filename =  _os.path.join(wetz_dir,'{}_{}_wetz{}.zstd'.format(self.project_name,self.stations_list[i].lower(),suffix))
+            if force: 
+                if _os.path.exists(filename): _os.remove(filename)
+            if _os.path.exists(filename):
+                buf.append(gx_aux._dump_read(filename))
+            else:
+                station_buf=[]
+                for project in project_list: #read per constellation for this station
+                    filtered_solution = project.filtered_solutions(single_station=self.stations_list[i]) #returns a df
+                    columns_filtered = filtered_solution.columns.levels[1] #columns present
+                    columns_trop = columns_filtered[columns_filtered.to_series().str.split('.',expand=True)[3]=='Trop'] #names of Trop columns to extract
+                    station_buf.append(gx_aux._update_mindex(filtered_solution.loc(axis=1)[:,columns_trop],self.stations_list[i].upper()))
+                if gps_only:
+                    tmp = station_buf
+                else:
+                    tmp = self._select_common(gps=station_buf[0],glo = station_buf[1], gps_glo = station_buf[2])
+                    #update column levels
+                tmp_mGNSS = _pd.concat(tmp,keys=['GPS','GLONASS','GPS+GLONASS'],axis=1)*1000 #conversion to mm
+                gx_aux._dump_write(data = tmp_mGNSS,filename=filename,num_cores=24,cname='zstd')
+                buf.append(tmp_mGNSS)
+        return buf
     
     def gather_residuals_mGNSS(self):
         return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
@@ -336,6 +341,44 @@ class mGNSS_class:
         else:
             tmp_blq_concat = gx_aux._dump_read(gather_path)  
 
+        return tmp_blq_concat
+
+    def analyze_wetz(self,v_type='value',parameter = 'WetZ',sampling=1800,force=False,begin=None,end=None,gps_only=False):
+        '''If gather file doesn't exist - run with force as exec dirs are shared between v_types
+        analyze_wetz(self,wetz_gather=None,begin=None,end=None,sampling=1800,force=False,return_sets=False,otl_env=False,v_type='value')
+        '''
+        wetz_gather = self.gather_wetz(gps_only=gps_only)
+        project_list = [self.gps] if gps_only else [self.gps, self.glo,self.gps_glo]
+
+        begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
+        eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
+        if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
+
+        #need to add check if mode is ['GPS'] so no special method for GPS is needed
+        suffix = 'wetz_{}{}.zstd'.format(v_type[0],'_gps' if gps_only else '')
+        filename = '{}_{}_{}_{}'.format(self.project_name, date2yyyydoy(begin_date), date2yyyydoy(end_date), suffix)
+        gather_path = _os.path.join(eterna_gathers_dir, filename)
+
+        if force: #if force - remove gather file!
+            if _os.path.exists(gather_path): _os.remove(gather_path)
+        
+        if not _os.path.exists(gather_path):
+            '''If force == True -> reruns Eterna even if Eterna files exist'''
+            force=True
+            tmp = []
+            #a.loc(axis=1)['GPS',:,v_type,'.Station.LERI.Trop.WetZ']
+            for project in project_list:
+                tmp.append(project.analyze_wetz(wetz_gather=wetz_gather,parameter=parameter,force=force,begin = begin_date, end = end_date,v_type=v_type))
+                # if not gps_only:
+                #     tmp.append(self.glo.analyze_wetz(wetz_gather=wetz_gather,parameter=parameter,force=force,begin = begin_date, end = end_date,v_type=v_type))
+                #     tmp.append(self.gps_glo.analyze_wetz(wetz_gather=wetz_gather,parameter=parameter,force=force, begin = begin_date, end = end_date,v_type=v_type))
+            tmp_blq_concat = _pd.concat(tmp,keys=['GPS','GLONASS','GPS+GLONASS'],axis=1)
+
+            gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+            
+
+        else:
+            tmp_blq_concat = gx_aux._dump_read(gather_path)          
         return tmp_blq_concat
 
     def spectra(self,restore_otl = True,remove_outliers=True,sampling=1800):
