@@ -165,7 +165,7 @@ class gd2e_class:
         return gx_filter.filter_tdps(sigma_cut=sigma_cut,tdps=self.solutions(single_station=single_station))
 
     
-    def envs(self,margin=0.1,std_coeff=3,dump=False,force=False):
+    def envs(self,sigma_cut=0.1,dump=False,force=False):
         '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)'''
         dump = False if dump is None else dump
         env_gather_path = _os.path.join(self.tmp_dir,'gd2e/env_gathers',self.project_name_core) #saning to core where all mGNSS env_gathers are located
@@ -182,7 +182,7 @@ class gd2e_class:
                 incomplete=True
                 break
         if incomplete:
-            envs = gx_aux._xyz2env(dataset=self.filtered_solutions(margin=margin,std_coeff=std_coeff), #filtered_solutions takes most of the time
+            envs = gx_aux._xyz2env(dataset=self.filtered_solutions(sigma_cut=sigma_cut), #filtered_solutions takes most of the time
                         reference_df=self.refence_xyz_df,mode=self.mode,dump = env_gather_path if dump else None)
         return envs
     def gen_tdps_penna(self,period=13.9585147,A_East=2, A_North=4, A_Vertical=6):
