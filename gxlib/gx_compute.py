@@ -138,7 +138,7 @@ def _gen_gd2e_table(trees_df, merge_table,tmp_dir,tropNom_type,project_name,gnss
     #IF current year -> get last day of products and filter files to process based on this day.
     # if last day != number of days => write a message and filter files
     current_year = _pd.Timestamp('today').year
-    current_year = 2019 # temporary hack for several weeks
+    # current_year = 2019 # temporary hack for several weeks
     if _np.max(years_list) == current_year: #if no current year present in the input year list -> do nothing (no products check needed)
         current_year_files_count = (merge_table['begin'].dt.year == current_year).sum()
         if  current_year_files_count > 0: #sum of True > 0 means cur year is present
