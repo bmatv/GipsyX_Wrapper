@@ -63,7 +63,7 @@ stations_list= ['2406', 'AHTI', 'AKTO', 'ANAU', 'ARTA', 'AUCK', 'BHST', 'BIRF',
 
 #'SCTB' station removed as it is in Anatarctica and almost no OTL. 77 stations GPS+GLO 2014.0-2019.0
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
-num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
+num_nodes = 30 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 
