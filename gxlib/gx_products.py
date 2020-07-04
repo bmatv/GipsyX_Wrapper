@@ -236,6 +236,7 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None,run_dir = '
 
 
 def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,makeShadow_bool=True,tqdm=True,run_dir = '/run/user/1017/'):
+    '''GipsyX can only merge daily products so effectively we end up having 3 days merged (72 hours, centre 24 +- 24) and not 30 hours'''
     begin64 = _np.datetime64(begin).astype('datetime64[D]')
     end64 = _np.datetime64(end).astype('datetime64[D]')
     products_day = _np.arange(begin64,end64)
