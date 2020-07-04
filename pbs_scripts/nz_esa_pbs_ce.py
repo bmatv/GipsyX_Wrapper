@@ -18,7 +18,7 @@ ionex_type='esa' #igs ionex map igsg2260.15i is missing data
 gnss_products_dir = '/scratch/bogdanm/Products/IGS_GNSS_Products/init/esa' #we should use COD MGEX, ESA and GFZ later
 
 '''Execution part here''' 
-#131 GLONASS stations active constantly after 2016-06-01
+#131 GLONASS stations active constantly after 2016-06-01 (131)
 stations_list= ['2406', 'AHTI', 'AKTO', 'ANAU', 'ARTA', 'AUCK', 'BHST', 'BIRF',
         'BLUF', 'BTHL', 'CAST', 'CHTI', 'CLIM', 'CMBL', 'CNCL', 'CNST',
         'CORM', 'DNVK', 'DUND', 'DUNT', 'FRTN', 'GISB', 'GLDB', 'GNBK',
@@ -35,8 +35,8 @@ stations_list= ['2406', 'AHTI', 'AKTO', 'ANAU', 'ARTA', 'AUCK', 'BHST', 'BIRF',
         'TKAR', 'TKHL', 'TRNG', 'TRWH', 'TURI', 'VEXA', 'VGET', 'VGMT',
         'VGNG', 'VGNT', 'VGOB', 'VGTM', 'VGTR', 'VGWT', 'WAIM', 'WAKA',
         'WANG', 'WARK', 'WEST', 'WGTN', 'WHKT', 'WHNG', 'WHVR', 'WITH',
-        'WMAT', 'WRPA', 'YALD']
-#stations from dr conversion. All stations present here
+        'WMAT', 'WRPA'] #, 'YALD' removed for now
+#stations from dr conversion. All stations present here (182 sites)
 # stations_list= ['2406', 'AHTI', 'AKTO', 'ANAU', 'ARTA', 'AUCK', 'AUKT', 'AVLN',
 #        'BHST', 'BIRF', 'BLUF', 'BNET', 'BTHL', 'CAST', 'CHTI', 'CKID',
 #        'CLIM', 'CMBL', 'CNCL', 'CNST', 'CORM', 'DNVK', 'DUND', 'DUNT',
