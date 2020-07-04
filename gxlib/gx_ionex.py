@@ -83,7 +83,7 @@ class ionex:
         return self._create_lists4merge(self._extended_list(),self.years_present())
 
     def _extended_list(self):
-        if self.ionex_type == 'jpl_native':
+        if self.ionex_type == 'jpl': #jpl is jpl_native by default
             path_series = _pd.Series(sorted(_glob.glob(_os.path.abspath(_os.path.join(self.ionex_prods_dir,'y[1-2][0-9][0-9][0-9]/JPLG*.gz'))))) #assure we take .Z files
             properties_series = path_series.str.split('/',expand=True).iloc[:,-2:]
             
@@ -198,7 +198,7 @@ class ionex:
         # Resulting array with two columns
         return data_GIM_final.values
     
-    def merge_ionex_dataset(self):
+    def merge_ionex_dataset(self,force=False):
         # create dir to where the files will be written
         
         path = self.output_path+'/IONEX_merged/'
@@ -210,9 +210,10 @@ class ionex:
         GIM_data=_np.ndarray((len(self.years_present())),dtype=object)
         for i in range(len(self.years_present())):
             
-            if self.ionex_type == 'jpl_native': merged_file_path = path+'jpl'+str(self.years_present()[i])
-            else: merged_file_path = path+self.ionex_type+str(self.years_present()[i])
-                
+            merged_file_path = path+self.ionex_type+str(self.years_present()[i])
+
+            if _os.path.exists(merged_file_path) and force: #force mode
+                _os.remove(merged_file_path)    
             if not _os.path.exists(merged_file_path):
                 merge_list = self.get_merge_lists()[i]
                 cache_path_array = _np.ndarray((merge_list.shape[0]),dtype=object)
