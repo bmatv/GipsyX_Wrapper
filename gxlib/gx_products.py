@@ -138,14 +138,14 @@ def _gen_sets(begin,end,products_type,products_dir,run_dir):
         boudary_date = 17733 # 2014-01-01
         reprocessed_bool = igs_days_num<boudary_date      # 
         non_reprocessed_bool =  igs_days_num>=boudary_date  #
-        if reprocessed_bool.sum() >0: print('using COD type products to cover pre 2014-01-01')
+        if reprocessed_bool.sum() >0: print('using REPRO_2015 type products to cover pre 2014-01-01 as CODE repro2 do not have clk for GLONASS')
         
         sp3_path_non_repro = products_dir + '/' + years[non_reprocessed_bool] + '/' + products_type + igs_days[non_reprocessed_bool] +'.EPH.Z'
         clk_path_non_repro = products_dir + '/' + years[non_reprocessed_bool] + '/' + products_type + igs_days[non_reprocessed_bool] +'.CLK.Z'
 
         products_dir_repro = _os.path.abspath(_os.path.join(products_dir,_os.path.pardir))
-        sp3_path_repro = products_dir_repro + '/CODE/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.EPH.Z'
-        clk_path_repro = products_dir_repro + '/CODE/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.CLK.Z'
+        sp3_path_repro = products_dir_repro + '/REPRO_2015/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.EPH.Z'
+        clk_path_repro = products_dir_repro + '/REPRO_2015/' + '/' + years[reprocessed_bool] + '/' + '{}D'.format(products_type[:2]) +igs_days[reprocessed_bool] +'.CLK.Z'
         
         sp3_path = _np.concatenate([sp3_path_repro,sp3_path_non_repro])
         clk_path = _np.concatenate([clk_path_repro,clk_path_non_repro])
