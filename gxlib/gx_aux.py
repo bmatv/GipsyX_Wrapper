@@ -591,9 +591,9 @@ def check_date_margins(begin,end,years_list):
     else: begin = begin_data
     if end is not None:
         end = _pd.Timestamp(end)
-        if end > end_data:
-            print('{} is after the data. Changing to data end at {}'.format(end,end_data))
-            end = end_data
+        # if end > end_data:
+        #     print('{} is after the data. Changing to data end at {}'.format(end,end_data))
+        #     end = end_data
     else: end = end_data
     return begin.to_datetime64(), end.to_datetime64()
 
