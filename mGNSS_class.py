@@ -253,18 +253,18 @@ class mGNSS_class:
                 gather.append(tmp_mGNSS) 
         return gather
 
-    def gather_wetz(self,gps_only=False,force=False):
+    def gather_aux(self,gps_only=False,force=False):
         '''First we gather filtered solutions per constellation and extract Trop part
         Had to make it two step to save memory'''
-        wetz_dir =  _os.path.join(self.tmp_dir,'gd2e','wetz_gathers',self.project_name)
-        if not _os.path.exists(wetz_dir):
-            _os.makedirs(wetz_dir)
+        aux_dir =  _os.path.join(self.tmp_dir,'gd2e','aux_gathers',self.project_name)
+        if not _os.path.exists(aux_dir):
+            _os.makedirs(aux_dir)
 
         project_list = [self.gps] if gps_only else [self.gps, self.glo,self.gps_glo]
         suffix='_gps' if gps_only else ''
         buf=[]
         for i in range(len(self.stations_list)):
-            filename =  _os.path.join(wetz_dir,'{}_{}_wetz{}.zstd'.format(self.project_name,self.stations_list[i].lower(),suffix))
+            filename =  _os.path.join(aux_dir,'{}_{}_aux{}.zstd'.format(self.project_name,self.stations_list[i].lower(),suffix))
             if force: 
                 if _os.path.exists(filename): _os.remove(filename)
             if _os.path.exists(filename):
@@ -274,8 +274,8 @@ class mGNSS_class:
                 for project in project_list: #read per constellation for this station
                     filtered_solution = project.filtered_solutions(single_station=self.stations_list[i]) #returns a df
                     columns_filtered = filtered_solution.columns.levels[1] #columns present
-                    columns_trop = columns_filtered[columns_filtered.to_series().str.split('.',expand=True)[3]=='Trop'] #names of Trop columns to extract
-                    station_buf.append(gx_aux._update_mindex(filtered_solution.loc(axis=1)[:,columns_trop],self.stations_list[i].upper()))
+                    columns = columns_filtered[_np.isin(columns_filtered.to_series().str.split('.',expand=True)[3],['Trop','Clk'])] #names of Trop and Clk columns to extract
+                    station_buf.append(gx_aux._update_mindex(filtered_solution.loc(axis=1)[:,columns],self.stations_list[i].upper()))
                 if gps_only:
                     tmp = station_buf
                 else:
@@ -343,19 +343,20 @@ class mGNSS_class:
 
         return tmp_blq_concat
 
-    def analyze_wetz(self,v_type='value',parameter = 'WetZ',sampling=1800,force=False,begin=None,end=None,gps_only=False):
+    def analyze_aux(self,v_type='value',parameter = 'WetZ',sampling=1800,force=False,begin=None,end=None,gps_only=False):
         '''If gather file doesn't exist - run with force as exec dirs are shared between v_types
         analyze_wetz(self,wetz_gather=None,begin=None,end=None,sampling=1800,force=False,return_sets=False,otl_env=False,v_type='value')
         '''
-        wetz_gather = self.gather_wetz(gps_only=gps_only)
-        project_list = [self.gps] if gps_only else [self.gps, self.glo,self.gps_glo]
-
         begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
         eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
         if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
 
         #need to add check if mode is ['GPS'] so no special method for GPS is needed
-        suffix = 'wetz_{}{}.zstd'.format(v_type[0],'_gps' if gps_only else '')
+        parameters = ['GradEast','GradNorth','WetZ','Clk']
+        if parameter not in parameters: raise ValueError('Unexpected parameter {}'.format(parameter))
+
+        suffix = '{}_{}{}.zstd'.format(parameter.lower()[:5],v_type[0],'_gps' if gps_only else '') 
+        
         filename = '{}_{}_{}_{}'.format(self.project_name, date2yyyydoy(begin_date), date2yyyydoy(end_date), suffix)
         gather_path = _os.path.join(eterna_gathers_dir, filename)
 
@@ -363,6 +364,8 @@ class mGNSS_class:
             if _os.path.exists(gather_path): _os.remove(gather_path)
         
         if not _os.path.exists(gather_path):
+            wetz_gather = self.gather_aux(gps_only=gps_only)
+            project_list = [self.gps] if gps_only else [self.gps, self.glo,self.gps_glo]
             '''If force == True -> reruns Eterna even if Eterna files exist'''
             force=True
             tmp = []
