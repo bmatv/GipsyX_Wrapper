@@ -584,13 +584,13 @@ def check_date_margins(begin,end,years_list):
     begin_data = _pd.Timestamp(_np.asarray(years_list).min().astype(str))
     end_data = _pd.Timestamp((_np.asarray(years_list).max()+1).astype(str))
     if begin is not None:
-        begin = _pd.Timestamp(begin)
+        begin = _pd.Timestamp(begin);print('Overriding {} begin with {}'.format(begin_data,begin))
         if begin < begin_data:
             print('{} is before the data. Changing to data begin at {}'.format(begin,begin_data))
             begin = begin_data
     else: begin = begin_data
     if end is not None:
-        end = _pd.Timestamp(end)
+        end = _pd.Timestamp(end); print('Overriding {} end with {}'.format(end_data,end))
         # if end > end_data:
         #     print('{} is after the data. Changing to data end at {}'.format(end,end_data))
         #     end = end_data
@@ -602,3 +602,33 @@ def date2yyyydoy(date):
     doy = str((date.dayofyear -1)).zfill(3)
     yyyy = str(date.year)
     return '{}.{}'.format(yyyy,doy)
+
+
+# from datetime import datetime
+# def _from_ordinal(x, tz=None):
+#     ix = int(x)
+#     dt = datetime.fromordinal(ix)
+#     remainder = float(x) - ix
+#     hour, remainder = divmod(24 * remainder, 1)
+#     minute, remainder = divmod(60 * remainder, 1)
+#     second, remainder = divmod(60 * remainder, 1)
+#     microsecond = int(1e6 * remainder)
+#     if microsecond < 10:
+#         microsecond = 0  # compensate for rounding errors
+#     dt = datetime(dt.year, dt.month, dt.day, int(hour), int(minute),
+#                   int(second), microsecond)
+#     if tz is not None:
+#         dt = dt.astimezone(tz)
+
+#     if microsecond > 999990:  # compensate for rounding errors
+#         dt += timedelta(microseconds=1e6 - microsecond)
+
+#     return dt
+
+# _from_ordinal(733414.07083333)
+
+# import numpy as _np
+# J2000origin = _np.datetime64('2000-01-01 12:00:00')
+# date = '2019-01-01 00:00:00'
+# J2000_seconds = (_np.datetime64(date) - J2000origin).astype(int)
+# J2000_seconds
