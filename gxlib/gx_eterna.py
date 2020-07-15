@@ -199,7 +199,7 @@ def run_eterna(input_vars):
     # print(err.decode())
     # print(out.decode())
     
-def analyse_et(env_et,begin_date, end_date,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force,mode,otl_env=False):
+def analyse_et(env_et,begin_date, end_date,eterna_path,station_name,project_name,tmp_dir,staDb_path,remove_outliers,force,mode,otl_env=False,parameter_name=None):
     '''Ignores options needed for PREDICT for now (INITIALEPO and PREDICSPAN)
     otl_env switch means creating tmp_otl_et directory and not standard tmp_et'''
     eterna_exec = _os.path.join(eterna_path,'bin/analyse')
@@ -210,8 +210,10 @@ def analyse_et(env_et,begin_date, end_date,eterna_path,station_name,project_name
     
     if env_et.shape[-1] == 3:
         components = ['e_eterna','n_eterna','v_eterna']
+        parameter_name = ['east','north','up']
     elif env_et.shape[-1] == 1:#need to add wetz_eterna component if component is 1
-        components = ['wetz_ete']
+        components = ['aux_eter'] #used to be wetz_ete. renamed to aux_eter. All single column dataseries are treated as aux analysis timeseries
+        
     
     components_exist = []
     for component in components:
@@ -262,10 +264,10 @@ def analyse_et(env_et,begin_date, end_date,eterna_path,station_name,project_name
             # Executing ETERNA. For each component in sequence (expects list of arguments)
             run_eterna([eterna_exec,comp_path])
 
-    if eterna_exists and not force:
+    if eterna_exists:
         print('Found previous Eterna session for', station_name + '. Extracting processed as not forced.', end=' | ')
         
-    return extract_et(tmp_station_path,llh['LON'],llh['LAT'],et_components = components)
+    return extract_et(tmp_station_path,llh['LON'],llh['LAT'],et_components = components,components=parameter_name)
 
 def read_prn(prn_file):
     with open(prn_file,'r') as file:
@@ -276,20 +278,21 @@ def read_prn(prn_file):
     end_line = [i for i in range(len(data_lines_part)) if "M4" in data_lines_part[i]][0] #CORRECT!!!
 
     footer = len(data_lines) - (begin_line+end_line+1)
-    df = _pd.read_fwf(prn_file,sep='\n',na_values='*********',skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer,widths=(14,9,5,9,10,9,9,9),names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'])
-   
+    df = _pd.read_fwf(prn_file,sep='\n',na_values='*********',colspecs=[(0,14),(15,23),(23,28),(28,37),(38,47),(47,56),(56,65),(65,76)],
+                      names = ['from','to','wave','theor_a','a_factor','a_stdv','phase','phase_stdv'],skip_blank_lines=False,skiprows=begin_line,header=None,skipfooter=footer)
+
     waves_extracted = df.wave.values
     df.set_index(waves_extracted,inplace=True)
     return df
 
-def extract_et(tmp_station_path,lon,lat,et_components = ['e_eterna','n_eterna','v_eterna']):
+def extract_et(tmp_station_path,lon,lat,et_components = ['e_eterna','n_eterna','v_eterna'],components=['east','north','up']):
     lon-=360 if lon>180 else 0 #as the operator is -= then else will be -=parameter !!!
     lon+=360 if lon<-180 else 0
     print(lon,lat)
-    if et_components == ['e_eterna','n_eterna','v_eterna']:#should be in alphabetical order. Not sure why
-        components = ['east','north','up']
-    elif et_components == ['wetz_ete']:
-        components = ['wetz']
+    # if et_components == ['e_eterna','n_eterna','v_eterna']:#should be in alphabetical order. Not sure why
+    #     components = ['east','north','up']
+    # elif et_components == ['aux_eter']:
+    #     components = ['aux']
     '''Function to return blq-like table from 3 component analysis of eterna.'''
     columns_mlevel = _pd.MultiIndex.from_product([components,['amplitude','phase'],['value','std']])
     df_blq = _pd.DataFrame(columns = columns_mlevel,index = ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA','14h'])
@@ -333,12 +336,14 @@ def analyze_env_single_thread(values_set):
     env = env_mode[mode]
     station_name = env.columns.levels[0][0]
     if parameter is not None:
-        env = env.loc(axis=1)[station_name,:,'.Station.{}.Trop.{}'.format(station_name.upper(),parameter)]
+        Trop = ['GradEast','GradNorth','WetZ'] 
+        #.Station.{}.Trop.GradEast, .Station.2406.{}.GradNorth, .Station.{}.Trop.WetZ, .Station.{}.Clk.Bias
+        parameter = ['{}.{}'.format('Trop',parameter) if parameter in Trop else 'Clk.Bias' if parameter == 'Clk' else ValueError('Unexpected parameter {}'.format(parameter))]
+        env = env.loc(axis=1)[station_name,:,'.Station.{}.{}'.format(station_name.upper(),parameter[0])]
 
     begin_J2000 = (env.index[0]) if begin_date is None else (begin_date -_J2000origin).astype('timedelta64[s]').astype(int)
     end_J2000 = (env.index[-1]) if end_date is None else (end_date -_J2000origin).astype('timedelta64[s]').astype(int)
-    # print('begin/end',begin_J2000, end_J2000)
-    # print('env',env.index[0], env.index[-1])
+
     env_station = env[station_name] #one level deeper
     env_et = env2eterna(env_station[(env_station.index>=begin_J2000) & (env_station.index<=end_J2000)],
                         remove_outliers, v_type = v_type)
@@ -349,7 +354,7 @@ def analyze_env_single_thread(values_set):
                                             begin_date = begin_date,end_date = end_date,
                                             eterna_path = eterna_path,station_name=station_name,project_name=project_name,
                                             tmp_dir=tmp_dir,staDb_path=staDb_path,
-                                            remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
+                                            remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode,parameter_name=parameter)],keys=[station_name])
     elif restore_otl:
         synth_otl = gen_synth_otl(dataset = env_et,station_name = station_name,hardisp_path=hardisp_path,blq_file=blq_file,sampling=sampling)
         restored_et = env_et + synth_otl
@@ -357,13 +362,13 @@ def analyze_env_single_thread(values_set):
                                             begin_date = begin_date,end_date = end_date,
                                             eterna_path = eterna_path,station_name=station_name,project_name=project_name,
                                             tmp_dir=tmp_dir,staDb_path=staDb_path,
-                                            remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
+                                            remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode,parameter_name=parameter)],keys=[station_name])
     else:
         blq_array = _pd.concat([analyse_et( env_et = env_et,
                                             begin_date = begin_date,end_date = end_date,
                                             eterna_path = eterna_path,station_name=station_name,project_name=project_name,
                                             tmp_dir=tmp_dir,staDb_path=staDb_path,
-                                            remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode)],keys=[station_name])
+                                            remove_outliers=remove_outliers,force=force,otl_env=otl_env,mode=mode,parameter_name=parameter)],keys=[station_name])
     return blq_array
 
 def analyze_env(envs,stations_list,eterna_path,tmp_dir,staDb_path,project_name,remove_outliers,
