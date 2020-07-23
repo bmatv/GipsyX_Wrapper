@@ -12,7 +12,7 @@ from gd2e_wrap import (gd2e_class, gx_aux, gx_convert, gx_eterna, gx_ionex,
                        gx_merge, gx_tdps, gx_trees)
 from gxlib import gx_hardisp
 from gxlib.gx_aux import _update_mindex, check_date_margins, date2yyyydoy
-
+from shutil import copy as _copy
 
 class mGNSS_class:
     '''
@@ -55,7 +55,6 @@ class mGNSS_class:
         self.tqdm=tqdm
         self.ambres = ambres
         self.IGS_logs_dir = IGS_logs_dir
-        self.cache_path = _os.path.abspath(cache_path)
         self.rnx_dir=rnx_dir
         self.cddis=cddis
         self.tmp_dir=tmp_dir
@@ -72,11 +71,6 @@ class mGNSS_class:
         self.gnss_products_dir = gnss_products_dir
         self.ionex_type=ionex_type
         self.IONEX_products = IONEX_products
-        self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
-                                    ionex_type=self.ionex_type, #type of files
-                                    num_cores=self.num_cores,
-                                    cache_path = self.cache_path,
-                                    tqdm=self.tqdm)
         self.ElMin=int(ElMin)
         self.ElDepWeight = ElDepWeight
         self.rate=rate
@@ -92,15 +86,30 @@ class mGNSS_class:
                                                             self.pos_s, self.wetz_s,
                                                             self.tropNom_input, self.ElMin, ambres = self.ambres,tree_options=self.tree_options) #static projects are marked as project_name_[mode]_static
         self.static_clk = static_clk
-        
-        
         self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path #single staDb path for all modes.
         #Need to be able to fetch external StaDb for pbs
+
+        self.cache_path = _os.path.join(_os.path.abspath(cache_path),project_name)
+        self.staDb_path = cache_staDb_path()#copy staDb  to cache. Should be cache_path/proj_name/staDb_file
+
+        self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
+                            ionex_type=self.ionex_type, #type of files
+                            num_cores=self.num_cores,
+                            cache_path = self.cache_path,
+                            tqdm=self.tqdm)
 
         self.gps = self.init_gd2e(mode = 'GPS')
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
+
+    def cache_staDb_path(self):
+        staDb_dir_cached = _os.path.join(self.cache_path,'staDb')
+        if not _os.path.exists(staDb_path_cached): _os.makedirs(staDb_dir_cached)
+        _copy(src = self.staDb_path, dst = staDb_path_cached)
+
+        staDb_path_cached = _os.path.join(staDb_dir_cached,_os.basename(self.staDb_path))
+        return staDb_path_cached
 
 
     def _check_PPPtype(self,PPPtype):
