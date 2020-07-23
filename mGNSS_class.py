@@ -89,7 +89,7 @@ class mGNSS_class:
         self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path #single staDb path for all modes.
         #Need to be able to fetch external StaDb for pbs
 
-        self.cache_path = self.prep_cache_path(cache_path,project_name)
+        self.cache_path = self.prep_cache_path(cache_path)
         self.staDb_path = self.cache_staDb_path()#copy staDb  to cache. Should be cache_path/proj_name/staDb/staDb_file
 
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
@@ -102,12 +102,12 @@ class mGNSS_class:
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
-    def prep_cache_path(self, cache_path, project_name):
+    def prep_cache_path(self, cache_path):
         '''Prepares cache path by cleaning it first and recreating the files'''
-        proj_cache_path = _os.path.join(_os.path.abspath(cache_path),project_name)
-        if _os.path.exists(proj_cache_path):_rmtree(proj_cache_path)
-        _os.makedirs(proj_cache_path)
-        return proj_cache_path
+        tmpX_cache_path = _os.path.join(_os.path.abspath(cache_path),'tmpX')
+        if _os.path.exists(tmpX_cache_path):_rmtree(tmpX_cache_path)
+        _os.makedirs(tmpX_cache_path)
+        return tmpX_cache_path
 
     def cache_staDb_path(self):
         staDb_dir_cached = _os.path.join(self.cache_path,'staDb')
