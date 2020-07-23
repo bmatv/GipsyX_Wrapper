@@ -81,6 +81,7 @@ def _2dr(rnx2dr_path):
 def rnx2dr(selected_df,num_cores,tqdm,cache_path,staDb_path,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
     #Checking files that are already in place so not to overwrite
+    print('staDb_path:',staDb_path)
     if_exists_array = _np.ndarray((selected_df.shape[0]),dtype=bool)
     for i in range(if_exists_array.shape[0]):
         if_exists_array[i] = not _os.path.exists(selected_df['dr_path'][i])
