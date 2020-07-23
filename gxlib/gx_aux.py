@@ -307,6 +307,7 @@ def gather_drInfo(tmp_dir,num_cores,tqdm):
     print('gather_drInfo: Concatenating partial drinfo files to proj_tmp/rnx_dr/drInfo.zstd')
     _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl),cname='zstd',num_cores=num_cores)
     print('gather_drInfo: Done')
+    print('Now run gen_tropNom() to update the tropnominals. Sites to add will be taken from recently generated drInfo.zstd file and not from initialized stations_list')
     
 def mode2label(mode):
     mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
