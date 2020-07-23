@@ -43,6 +43,10 @@ def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMi
     static_clk can be used for gps only and only for basic test on consistency with Penna&Bos publication
     if static_clk: remove all 
     '''
+    
+    if _os.path.basename(_os.path.abspath(cache_path))!='tmpX': #If called with /dev/shm argument will automatically add tmpX to the path that is always used by other modules
+        cache_path = _os.path.join(cache_path,'tmpX')
+
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:
         raise ValueError("Invalid mode. Expected one of: %s" % modes)
@@ -95,6 +99,7 @@ def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMi
     input_tree = _treeUtils.tree(default_tree)
 
     years = _pd.Series(years_list).astype(str)
+
     ionex_files = cache_path +'/IONEX_merged/' + ionex_type + years #IONEX maps should be copied to cache on gd2e
     ionex_basenames = ionex_type + years
 
