@@ -69,7 +69,7 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
             last_ah_filename = _os.path.basename(last_ah_file_path)
             last_day_used = int(last_ah_filename[4:7]) - 1 #we do -1 as to create a 30h tropnominal
             date = _np.datetime64(str(current_year)) + (_np.arange(last_day_used).astype('timedelta64[D]'))
-            print('Last day in {} is {}. Generating up to {}'.format(str(current_year),last_ah_filename[4:7],str(last_day_used)))
+            print('Last VMF1 day in {} is {}. Generating up to {}'.format(str(current_year),last_ah_filename[4:7],str(last_day_used)))
 
         begin = ((date - J2000origin) - _np.timedelta64(3,'[h]')).astype(int) 
         end = ((date - J2000origin) + _np.timedelta64(27,'[h]')).astype(int) 
