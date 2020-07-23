@@ -59,7 +59,9 @@ def _2dr(rnx2dr_path):
     in_file_path = rnx2dr_path[0]
     out_file_path = rnx2dr_path[1]
     cache_path = rnx2dr_path[2]
-    out_dir = _os.path.dirname(rnx2dr_path[1])
+    staDb_path = rnx2dr_path[3]
+
+    out_dir = _os.path.dirname(out_file_path)
 
     cache_dir = _os.path.join(cache_path,_os.path.basename(out_file_path)) #smth like /cache/anau2350.10d.dr.gz/
     if not _os.path.exists(cache_dir):
@@ -68,7 +70,7 @@ def _2dr(rnx2dr_path):
     in_file_cache_path = _os.path.join(cache_dir,_os.path.basename(in_file_path))
     out_file_cache_path = _os.path.join(cache_dir,_os.path.basename(out_file_path))
 
-    process = _Popen(['rnxEditGde.py', '-dataFile', in_file_cache_path, '-o', out_file_cache_path],cwd = cache_dir)
+    process = _Popen(['rnxEditGde.py', '-dataFile', in_file_cache_path,'-staDb',staDb_path, '-o', out_file_cache_path],cwd = cache_dir)
     process.wait()
     _copy(src = out_file_cache_path, dst = out_dir) #copy result to destination
     #clear folder in ram
@@ -76,7 +78,7 @@ def _2dr(rnx2dr_path):
 
 
 
-def rnx2dr(selected_df,num_cores,tqdm,cache_path,cddis=False):
+def rnx2dr(selected_df,num_cores,tqdm,cache_path,staDb_path,cddis=False):
     '''Runs rnxEditGde.py for each file in the class object in multiprocessing'''
     #Checking files that are already in place so not to overwrite
     if_exists_array = _np.ndarray((selected_df.shape[0]),dtype=bool)
@@ -87,6 +89,7 @@ def rnx2dr(selected_df,num_cores,tqdm,cache_path,cddis=False):
 
     selected_df2convert = selected_df[['rnx_path','dr_path']].copy()
     selected_df2convert['cache_path'] = cache_path #populating df with cache path value
+    selected_df2convert['staDb_path'] = staDb_path #populating with staDb_path which is needed as rnx files may lack receiver information
     selected_df2convert = selected_df2convert.values
      
     if selected_df2convert.shape[0] > 0:
