@@ -58,7 +58,7 @@ IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/au_logs'
 
 cddis=False
 tree_options = trees_options.rw_otl
-blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/nz183_FES2004GBe_cm.blq' #need to change this
+blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/ga/GA_FES2004_GBe_CM.blq' #need to change this
 ElMin = 7
 pos_s = 3.2
 wetz_s=0.1
