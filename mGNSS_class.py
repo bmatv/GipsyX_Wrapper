@@ -12,7 +12,7 @@ from gd2e_wrap import (gd2e_class, gx_aux, gx_convert, gx_eterna, gx_ionex,
                        gx_merge, gx_tdps, gx_trees)
 from gxlib import gx_hardisp
 from gxlib.gx_aux import _update_mindex, check_date_margins, date2yyyydoy
-from shutil import copy as _copy
+from shutil import rmtree as _rmtree, copy as _copy
 
 class mGNSS_class:
     '''
@@ -89,8 +89,8 @@ class mGNSS_class:
         self.staDb_path = gx_aux.gen_staDb(self.tmp_dir,self.project_name,self.stations_list,self.IGS_logs_dir) if staDb_path is None else staDb_path #single staDb path for all modes.
         #Need to be able to fetch external StaDb for pbs
 
-        self.cache_path = _os.path.join(_os.path.abspath(cache_path),project_name)
-        self.staDb_path = cache_staDb_path()#copy staDb  to cache. Should be cache_path/proj_name/staDb_file
+        self.cache_path = self.prep_cache_path(cache_path,project_name)
+        self.staDb_path = self.cache_staDb_path()#copy staDb  to cache. Should be cache_path/proj_name/staDb/staDb_file
 
         self.ionex = gx_ionex.ionex(ionex_prods_dir=self.IONEX_products, #IONEX dir
                             ionex_type=self.ionex_type, #type of files
@@ -102,14 +102,21 @@ class mGNSS_class:
         self.glo = self.init_gd2e(mode = 'GLONASS')
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
+    def prep_cache_path(self, cache_path, project_name):
+        '''Prepares cache path by cleaning it first and recreating the files'''
+        proj_cache_path = _os.path.join(_os.path.abspath(cache_path),project_name)
+        if _os.path.exists(proj_cache_path):_rmtree(proj_cache_path)
+        _os.makedirs(proj_cache_path)
+        return proj_cache_path
 
     def cache_staDb_path(self):
         staDb_dir_cached = _os.path.join(self.cache_path,'staDb')
-        if not _os.path.exists(staDb_path_cached): _os.makedirs(staDb_dir_cached)
-        _copy(src = self.staDb_path, dst = staDb_path_cached)
+        if not _os.path.exists(staDb_dir_cached): _os.makedirs(staDb_dir_cached)
+        _copy(src = self.staDb_path, dst = staDb_dir_cached)
 
-        staDb_path_cached = _os.path.join(staDb_dir_cached,_os.basename(self.staDb_path))
+        staDb_path_cached = _os.path.join(staDb_dir_cached,_os.path.basename(self.staDb_path))
         return staDb_path_cached
+    
 
 
     def _check_PPPtype(self,PPPtype):
