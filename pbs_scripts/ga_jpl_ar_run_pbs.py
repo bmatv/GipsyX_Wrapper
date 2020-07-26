@@ -21,8 +21,8 @@ gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
 '''Execution part here
 GA GPS continuous stations 2013-2020+ (NOW) (152 stations)''' 
-stations_list= ['00NA', '01NA', '02NA', 'ADEL', 'ALBU', 'ALBY', 'ALIC', 'ANDA',
-                'ANTW', 'APSL', 'ARMD', 'BAIR', 'BALN', 'BBOO', 'BDLE', 'BDST',
+stations_list= ['01NA', '02NA', 'ADEL', 'ALBU', 'ALBY', 'ALIC', 'ANDA', #'00NA' removed due to SEPPOLANT_X_MF
+                'ANTW', 'APSL', 'ARMD', 'BALN', 'BBOO', 'BDLE', 'BDST', #'BAIR' removed as no files available
                 'BEE2', 'BEEC', 'BEGA', 'BNDY', 'BRBA', 'BRO1', 'BUR2', 'BURA',
                 'CBLT', 'CEDU', 'CLAC', 'CLEV', 'CNDO', 'COFF', 'COMA', 'COOB',
                 'CSNO', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN', 'DODA', 'DWNI',
