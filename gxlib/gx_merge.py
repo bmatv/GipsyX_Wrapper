@@ -39,7 +39,7 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
             raise ValueError("No data found for mode {} for station {}".format(mode,station))
 
         drinfo_rec_time = station_record['length'].values
-
+        if (drinfo_rec_time>24).sum() != 0: print('Files longer than 24 hours detected in drInfo. Ignoring those as are possibly corrupted.')
         completeness = _np.zeros((drinfo_rec_time.shape),dtype=int)
         #-----------------------------------------------------------------------
         # Basic filtering module that uses total length of the datarecord.
@@ -47,7 +47,8 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
         completeness[((drinfo_rec_time>=12) & ((drinfo_rec_time)<20))]=1
 
         #records with more than 20 hours of data get 2
-        completeness[(drinfo_rec_time>=20)]=2
+        
+        completeness[(drinfo_rec_time>=20)& ((drinfo_rec_time)<24)]=2 # as we work with 24 daily files, we do not use files that are longer
         #-----------------------------------------------------------------------
 
         # BOUNDARY_1                                    # BOUNDARY_2
@@ -80,7 +81,7 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
         
         B2c2 = (start_n_hour-start_c_day <= _np.timedelta64(25,'[h]'))&(start_n_hour-start_c_day >= _np.timedelta64(24,'[h]')) #check if next file is next day without missing days in between 
         
-         
+        
         completeness[B1c1 & B1c2 & B2c1 & B2c2 & (completeness==2)] = 3
 
         tmp_df = station_record.copy()
