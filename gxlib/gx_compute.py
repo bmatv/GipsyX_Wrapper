@@ -39,9 +39,10 @@ def _gd2e(gd2e_set):
     
     rtgx_log = _get_rtgx_log(gd2e_set['cache'])
     rtgx_err = _get_rtgx_err(gd2e_set['cache'])
+    summary = _get_summary(gd2e_set['cache'])
     _rmtree(path=gd2e_set['cache']) #clearing cache after run
 
-    _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err],
+    _dump_write(data = [solutions,residuals,debug_tree,runAgain,rtgx_log,rtgx_err,out,err,summary],
                             filename=gd2e_set['output'],cname='zstd')
     # except:
     #     print('Problem found:',runAgain)
@@ -115,6 +116,32 @@ def _get_rtgx_log(path_dir):
 def _get_rtgx_err(path_dir):
     rtgx_err = _pd.read_csv(path_dir+'/rtgx_ppp_0.tree.err0_0',sep='\n',header=None,index_col=None).squeeze()
     return rtgx_err
+def _get_summary(path_dir):
+    '''
+    Takes a path to Summary file as as input and reads it as 3 separate dataframes. Example file:
+    ---   Residual Summary:
+    ------------------------------------------------------------------
+    ---   included residuals  :      6381 (  97.9% )
+    ---   deleted residuals   :       139 (   2.1% )
+    ---      DataType           Status        RMS (m)         Max (m)         Min (m)         number (%)
+    ---   IonoFreeC_1P_2P   included      4.214006e-01    2.466576e+00   -2.108977e+00      3260 ( 100.0% )
+    ---   IonoFreeC_1P_2P    deleted      0.000000e+00    0.000000e+00    0.000000e+00         0 (   0.0% )
+    ---
+    ---   IonoFreeL_1P_2P   included      6.303161e-03    2.471761e-02   -2.473218e-02      3121 (  95.7% )
+    ---   IonoFreeL_1P_2P    deleted      8.761202e-02    2.131975e-01   -7.005211e-02       139 (   4.3% )
+    ------------------------------------------------------------------
+
+                       PPP Solution: XYZ                                DeltaXYZ(Sol-Nom)               DeltaENV (meters)
+    CAMO 4071656.984835012 -379671.4726419782 4878472.755188548 -1.015E+00  -4.726E-01  -1.245E+00  -5.649E-01  -5.346E-02  -1.575E+00
+    
+    Outputs an object ndarray with 3 dataframes as elements. As we read Summary files from cache usually, not StringIO flavour was implemented. Should take ~7.8 ms per file
+    example of further concatanation if needed: _pd.concat(_np.vstack([read_summary(Summay_file),read_summary(Summay_file)])[:,1])
+    '''
+    file = path_dir+'/Summary'
+    base_tab = _pd.read_fwf(file,skiprows=2,nrows=2,header=None,colspecs=[(3,26),(27,38),(39,45)],names=['Status','N','%'])
+    datatype_tab =_pd.read_fwf(file,skiprows=5,nrows=5,header=None,colspecs=[(3,21),(21,34),(34,50),(50,66),(66,82),(82,93),(94,100)],names=['DataType','Status','RMS (m)','Max (m)','Min (m)','N','%']).loc[[0,1,3,4]].reset_index(drop=True)
+    pos_tab = _pd.read_fwf(file,skiprows=13,nrows=1,header=None,names=['Mark','X (m)','Y (m)','Z (m)','dX (m)','dY (m)','dZ (m)','E (m)','N (m)','V (m)']) 
+    return _np.asarray([base_tab,datatype_tab,pos_tab],dtype=_np.object)
 
 def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
     #Copying IONEX maps to cache before execution-------------------------------------------------------------------------------------
