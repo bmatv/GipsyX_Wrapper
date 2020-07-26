@@ -16,7 +16,7 @@ def _gd2e(gd2e_set):
 
 
     if not _os.path.exists(gd2e_set['cache']):_os.makedirs(gd2e_set['cache']) #creatign cache dir
-    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss {6} -gdCov'.format(
+    runAgain = 'gd2e.py -drEditedFile {0} -recList {1} -runType PPP -GNSSproducts {2} -treeSequenceDir {3} -tdpInput {4} -staDb {5} -selectGnss \'{6}\' -gdCov'.format(
         gd2e_set['filename'],gd2e_set['station_name'],gd2e_set['gnss_products_dir'], gd2e_set['tree_path'],gd2e_set['tdp'],gd2e_set['staDb_path'],gd2e_set['selectGnss'])
     if not gd2e_set['tqdm']:print(runAgain)
     # print(runAgain)
