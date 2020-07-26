@@ -98,7 +98,7 @@ for i in range(len(stations_list_arrays)):
                     command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
 
     qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),
-    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='48:00:00')
+    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='24:00:00')
 
 # dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
 # 'gps.gd2e();kinematic_project.gps.envs(dump=True)'
