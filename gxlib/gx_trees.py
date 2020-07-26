@@ -44,8 +44,8 @@ def gen_trees(tmp_dir, ionex_type, years_list, tree_options,blq_file, mode, ElMi
     if static_clk: remove all 
     '''
     
-    if _os.path.basename(_os.path.abspath(cache_path))!='tmpX': #If called with /dev/shm argument will automatically add tmpX to the path that is always used by other modules
-        cache_path = _os.path.join(cache_path,'tmpX')
+    if _os.path.basename(_os.path.abspath(cache_path))!='tmp_GipsyX': #If called with /dev/shm argument will automatically add tmp_GipsyX to the path that is always used by other modules
+        cache_path = _os.path.join(cache_path,'tmp_GipsyX')
 
     modes = ['GPS', 'GLONASS','GPS+GLONASS']
     if mode not in modes:

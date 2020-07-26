@@ -104,7 +104,7 @@ class mGNSS_class:
         
     def prep_cache_path(self, cache_path):
         '''Prepares cache path by cleaning it first and recreating the files'''
-        tmpX_cache_path = _os.path.join(_os.path.abspath(cache_path),'tmpX')
+        tmpX_cache_path = _os.path.join(_os.path.abspath(cache_path),'tmp_GipsyX')
         if _os.path.exists(tmpX_cache_path):_rmtree(tmpX_cache_path)
         _os.makedirs(tmpX_cache_path)
         return tmpX_cache_path
