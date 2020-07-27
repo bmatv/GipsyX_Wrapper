@@ -41,8 +41,6 @@ stations_list= ['02NA', 'ADEL', 'ALBU', 'ALBY', 'ALIC', 'ANDA', #'00NA' and '01N
                 'WEIP', 'WFAL', 'WGGA', 'WILU', 'WLGT', 'WMGA', 'WOOL', 'WOTG',
                 'WWLG', 'WYCH', 'WYNG', 'YALL', 'YAR2', 'YARR', 'YEEL', 'YELO']
 
-stations_list = ['WGGA', 'WILU', 'WLGT', 'WMGA', 'WOOL', 'WOTG',
-                'WWLG']
 # stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
