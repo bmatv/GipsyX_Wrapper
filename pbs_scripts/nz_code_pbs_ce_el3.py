@@ -90,5 +90,5 @@ for i in range(len(stations_list_arrays)):
                     hatanaka=hatanaka,cddis=cddis,tree_options = tree_options_code,tqdm=False,
                     command='gd2e();kinematic_project.gather_mGNSS()')
 
-    qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base)
+    qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base,walltime='24:00:00')
     
