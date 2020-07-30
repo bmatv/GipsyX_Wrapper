@@ -103,14 +103,14 @@ class mGNSS_class:
         self.gps_glo = self.init_gd2e(mode = 'GPS+GLONASS')
         
     def prep_cache_path(self, cache_path):
-        '''Prepares cache path by cleaning it first and recreating the files'''
+        '''Prepares cache path by cleaning it first and recreating the files. The tmp_GipsyX dir should be constant so compute can cache ionex into static location '''
         tmpX_cache_path = _os.path.join(_os.path.abspath(cache_path),'tmp_GipsyX')
-        if _os.path.exists(tmpX_cache_path):_rmtree(tmpX_cache_path)
-        _os.makedirs(tmpX_cache_path)
+        if not _os.path.exists(tmpX_cache_path):_os.makedirs(tmpX_cache_path)#_rmtree(tmpX_cache_path)
+
         return tmpX_cache_path
 
     def cache_staDb_path(self):
-        staDb_dir_cached = _os.path.join(self.cache_path,'staDb')
+        staDb_dir_cached = _os.path.join(self.cache_path,'staDb',self.project_name)
         if not _os.path.exists(staDb_dir_cached): _os.makedirs(staDb_dir_cached)
         _copy(src = self.staDb_path, dst = staDb_dir_cached)
 
