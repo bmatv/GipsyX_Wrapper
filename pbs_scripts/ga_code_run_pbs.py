@@ -14,7 +14,7 @@ from gxlib.gx_trees import gen_trees
 
 #parameters to change-----------------------------------------------------------------------------------------------
 
-project_name = 'ga_cod_cm'
+project_name = 'ga_cod_ce'
 ionex_type='cod' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com'
