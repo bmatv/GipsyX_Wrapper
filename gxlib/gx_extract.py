@@ -113,7 +113,7 @@ def _gather_tdps(station_files,num_cores,tqdm):
     return data
 
 def gxfile2date(file):
-    doy = int(file[-11:-8])
+    doy = int(file[-11:-8])-1 #-1 as no 0 day
     yy = int(file[-7:-5])
     year_d4 = (yy>=80)*(yy+1900)+(yy<80)*(yy+2000) -1970
     date64 = _np.asarray(year_d4).astype('datetime64[Y]')+ _np.timedelta64(doy,'D')
