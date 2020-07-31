@@ -345,6 +345,10 @@ def analyze_env_single_thread(values_set):
     end_J2000 = (env.index[-1]) if end_date is None else (end_date -_J2000origin).astype('timedelta64[s]').astype(int)
 
     env_station = env[station_name] #one level deeper
+    if env_station.index.duplicated().sum()>0:
+        print('Found duplicated index in',station_name,env_station.index[env_station.index.duplicated()])
+
+    # print(dataset.index.duplicated().sum())
     env_et = env2eterna(env_station[(env_station.index>=begin_J2000) & (env_station.index<=end_J2000)],
                         remove_outliers, v_type = v_type)
 
