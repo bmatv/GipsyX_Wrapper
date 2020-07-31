@@ -112,13 +112,21 @@ def _gather_tdps(station_files,num_cores,tqdm):
         else: data = p.map(_get_tdps_npz, station_files,chunksize=chunksize)
     return data
 
+def gxfile2date(file):
+    doy = int(file[-11:-8])
+    yy = int(file[-7:-5])
+    year_d4 = (yy>=80)*(yy+1900)+(yy<80)*(yy+2000) -1970
+    date64 = _np.asarray(year_d4).astype('datetime64[Y]')+ _np.timedelta64(doy,'D')
+    return date64
+
 def _get_tdps_npz(file):
     '''Extracts smoothFinal data and finalResiduals data from npz file supplied.
     Clips data to 24 hours of the same day if the file is bigger'''
     tmp_solution,tmp_residuals = _dump_read(file)[:2]
 
     #begin_timeframe as file time median should always work
-    begin_timeframe = ((_np.median(tmp_solution.index).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int)
+    # begin_timeframe = ((_np.median(tmp_solution.index).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int) #getting file date from median value
+    begin_timeframe = (gxfile2date(file)- J2000origin).astype(int) #getting file date from file name
     end_timeframe = begin_timeframe + 86400
         
     solution = tmp_solution[(tmp_solution.index >= begin_timeframe) & (tmp_solution.index < end_timeframe)]
