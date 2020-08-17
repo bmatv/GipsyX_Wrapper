@@ -41,8 +41,8 @@ stations_list= ['2406','AHTI','AKTO','ANAU','ARTA','AUCK','AUKT','AVLN','BHST','
 
 # stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
-years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
-num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
+years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
+num_nodes = 30 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
@@ -96,7 +96,7 @@ for i in range(len(stations_list_arrays)):
                     command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
 
     qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),
-    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='03:00:00')
+    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='24:00:00')
 
 # dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
 # 'gps.gd2e();kinematic_project.gps.envs(dump=True)'
