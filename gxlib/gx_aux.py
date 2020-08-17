@@ -604,7 +604,14 @@ def date2yyyydoy(date):
     yyyy = str(date.year)
     return '{}.{}'.format(yyyy,doy)
 
-
+def ECDF(x_series):
+    '''expects pandas dataframe'''
+    x = x_series.sort_values().copy()
+    nobs = x.shape[0]
+    y = _np.linspace(1./nobs,1,nobs)
+    x = x.to_frame()
+    x['ECDF'] = y
+    return x
 # from datetime import datetime
 # def _from_ordinal(x, tz=None):
 #     ix = int(x)
