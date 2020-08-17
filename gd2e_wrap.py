@@ -9,7 +9,7 @@ from gxlib import (gx_aux, gx_compute, gx_convert, gx_eterna, gx_extract,
 class gd2e_class:
     def __init__(self,
                  project_name,
-                 stations_list,
+                 stations_list, #add check for duplicates in stations_list as staDb-based functions may crash
                  years_list,
                  tree_options,
                  mode,
@@ -173,7 +173,7 @@ class gd2e_class:
         envs = _np.ndarray((len(self.stations_list)),dtype=object)
         incomplete=False
         for i in range(envs.shape[0]):
-            env_path = env_path = _os.path.join(env_gather_path,'{}{}.zstd'.format(self.stations_list[i].lower(),gx_aux.mode2label(self.mode)))
+            env_path = _os.path.join(env_gather_path,'{}{}.zstd'.format(self.stations_list[i].lower(),gx_aux.mode2label(self.mode)))
             if force:
                 if _os.path.exists(env_path): _os.remove(env_path)
             if _os.path.exists(env_path):
