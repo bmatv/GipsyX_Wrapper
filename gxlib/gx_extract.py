@@ -124,8 +124,8 @@ def _get_tdps_npz(file):
     Clips data to 24 hours of the same day if the file is bigger'''
     tmp_solution,tmp_residuals = _dump_read(file)[:2]
 
-    #begin_timeframe as file time median should always work
-    # begin_timeframe = ((_np.median(tmp_solution.index).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int) #getting file date from median value
+    # begin_timeframe = ((_np.median(tmp_solution.index).astype(int)+ J2000origin).astype('datetime64[D]')- J2000origin).astype(int) 
+    # getting file date from median value. median approach crashes for KAT1 site in GA dataset so switched to filename
     begin_timeframe = (gxfile2date(file)- J2000origin).astype(int) #getting file date from file name
     end_timeframe = begin_timeframe + 86400
         
