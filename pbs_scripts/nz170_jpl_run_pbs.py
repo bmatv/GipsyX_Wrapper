@@ -1,4 +1,4 @@
-import subprocess
+
 import sys as _sys
 import os as _os
 import numpy as _np
@@ -38,16 +38,23 @@ stations_list= ['2406','AHTI','AKTO','ANAU','ARTA','AUCK','AUKT','AVLN','BHST','
                 'TRWH','TURI','VEXA','VGFW','VGKR','VGMO','VGMT','VGOB','VGOT','VGPK',
                 'VGTR','VGTS','VGWH','VGWN','VGWT','WAHU','WAIM','WAKA','WANG','WARK',
                 'WEST','WGTN','WGTT','WHKT','WHNG','WHVR','WITH','WMAT','WPAW','WPUK']
+
+# stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
-years_list=[2013,2014,2015,2016,2017,2018,2019];num_cores = 28
-num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
+years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
+num_nodes = 30 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/'
 rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz_ogz'
-IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
 hatanaka=False
+# rnx_dir='/scratch/bogdanm/GNSS_data/linz'
+# hatanaka=True
+
+IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
+
+cddis=False
 tree_options = trees_options.rw_otl
 blq_file = '/scratch/bogdanm/Products/otl/ocnld_coeff/nz183_FES2004GBe_cm.blq'
 ElMin = 7
@@ -77,6 +84,9 @@ project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',ElDepWeight=ElDepWeight,
             ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,years_list=years_list,cache_path = cache_path,
             VMF1_dir = VMF1_dir,project_name = project_name_construct,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
+#need to create project name dir inside gd2e dir. project dir should have _g, _r or _gr. Shall I at least create _g? So no race condition pops up
+# proj_gd2e_dir = _os.path.join(tmp_dir,'gd2e',project_name_construct)
+# if not _os.path.exists(proj_gd2e_dir): _os.makedirs(proj_gd2e_dir)
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 stations_list_arrays = _np.array_split(stations_list,num_nodes)
@@ -84,7 +94,13 @@ for i in range(len(stations_list_arrays)):
     code = gen_code(stations_list = list(stations_list_arrays[i]), cache_path = cache_path,tropNom_input=tropNom_input, ambres = ambres,ElMin=ElMin,ElDepWeight=ElDepWeight,
                     staDb_path = staDb_path,years_list=years_list,num_cores=num_cores,tmp_dir=tmp_dir,project_name=project_name,IGS_logs_dir=IGS_logs_dir,blq_file=blq_file,
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
-                    gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,hatanaka=hatanaka,tree_options = tree_options_code,tqdm=False,
-                    command='gps.gd2e();kinematic_project.gps.envs(dump=True)')
+                    gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,
+                    hatanaka=hatanaka,cddis=cddis,tree_options = tree_options_code,tqdm=False,
+                    command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
 
-    qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base)
+    qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),
+    email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='24:00:00')
+
+# dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)
+# 'gps.gd2e();kinematic_project.gps.envs(dump=True)'
+# rnx2dr();kinematic_project.get_drInfo()
