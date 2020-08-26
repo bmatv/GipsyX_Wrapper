@@ -84,6 +84,9 @@ project_name_construct = _project_name_construct(project_name,PPPtype,pos_s,wetz
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',ElDepWeight=ElDepWeight,
             ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,years_list=years_list,cache_path = cache_path,
             VMF1_dir = VMF1_dir,project_name = project_name_construct,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
+#need to create project name dir inside gd2e dir. project dir should have _g, _r or _gr. Shall I at least create _g? So no race condition pops up
+# proj_gd2e_dir = _os.path.join(tmp_dir,'gd2e',project_name_construct)
+# if not _os.path.exists(proj_gd2e_dir): _os.makedirs(proj_gd2e_dir)
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 stations_list_arrays = _np.array_split(stations_list,num_nodes)
