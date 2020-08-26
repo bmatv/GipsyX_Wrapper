@@ -28,7 +28,7 @@ stations_list= ['ALBU', 'ALBY', 'ALIC', 'ANDA',
                 'CSNO', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN', 'DODA',
                 'ECHU', 'ESPA', 'GABO', 'GATT', 'GFTH', 'GLBN', 'GLEN', 'GLIN',
                 'GONG', 'GORO', 'HATT', 'HOB2', 'HYDN', 'IHOE',
-                'IRYM', 'JAB2', 'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KRNG',
+                'IRYM', 'JAB2', 'KALG', 'KARR', 'KAT1', 'KELN', 'KRNG', #'KAT2' removed
                 'KUNU', 'LALB', 'LARR', 'LGOW', 'LIAW', 'LIPO', 'LONA',
                 'LORD', 'MACK', 'MENA', 'MENO', 'MGRV', 'MITT', 'MLAK', 'MOBS',
                 'MREE', 'MSVL', 'MTCV', 'MTEM', 'MTMA', 'MURR',
