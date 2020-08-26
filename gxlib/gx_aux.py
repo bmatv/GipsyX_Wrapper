@@ -214,12 +214,24 @@ def get_chalmers(staDb_path,as_df=False):
     llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
                                                     stationList=staDb.getStationList()))
     nllh = _np.column_stack((names_stdb, llh_stdb.T))
+    nllh =  nllh[nllh[:,0].argsort()]
     if as_df:
         return _pd.DataFrame(nllh,columns=['SITE','LAT','LON','HEIGHT'])
     else:
         for station in nllh:
             print('%-19.4s %15.4f %15.4f %15.4f'%(station[0],station[2],station[1],station[3]))
+# def get_atm1(staDb_path):
+#     '''https://geophy.uni.lu/atmosphere/tide-loading-calculator/ATM1OnlineCalculator/'''
+#         staDb = StationDataBase.StationDataBase(dataBase=staDb_path)  # creating staDb object + read as after GipsyX 1.3
 
+    
+#     max_t = 3.0e8  # maximum time value for the dataset on which available sites will be added to OTL computation with SPOTL
+#     names_stdb = _np.asarray(staDb.getStationList(), dtype=object)
+#     llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
+#                                                     stationList=staDb.getStationList()))
+#     nllh = _np.column_stack((names_stdb, llh_stdb.T))
+#     for station in nllh:
+#         print('%-19.4s %15.4f %15.4f'%(station[0],station[2],station[1]))
 
 def _dr_size(dr_files):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
