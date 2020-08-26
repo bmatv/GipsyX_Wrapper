@@ -239,7 +239,11 @@ class mGNSS_class:
 
         if not _os.path.exists(gather_path):
             _os.makedirs(gather_path)
-
+        #Need to show a message on how many gathers are missing
+        # import glob as _glob
+        # gathers = _glob.glob('/array/bogdanm/tmp_GipsyX/au_tmpX/gd2e/env_gathers/ga_esa_ce_3.2_0.1/*.zstd')
+        # stations_gathered = _pd.Series(gathers).str.split('/',expand=True).iloc[:,-1].str.slice(0,4).str.upper().to_list()
+        # _np.asarray(stations_list_ga_2014_2020)[~_np.isin(stations_list_ga_2014_2020,stations_gathered)]
         gather = []
         #perform a quick check of available files
         for i in range(len(self.stations_list)):
@@ -361,6 +365,7 @@ class mGNSS_class:
 
     def analyze_aux(self,v_type='value',parameter = 'WetZ',sampling=1800,force=False,begin=None,end=None,gps_only=False):
         '''If gather file doesn't exist - run with force as exec dirs are shared between v_types
+        parameters = ['GradEast','GradNorth','WetZ','Clk']
         analyze_wetz(self,wetz_gather=None,begin=None,end=None,sampling=1800,force=False,return_sets=False,otl_env=False,v_type='value')
         '''
         begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
