@@ -39,7 +39,7 @@ stations_list= ['2406','AHTI','AKTO','ANAU','ARTA','AUCK','AUKT','AVLN','BHST','
                 'VGTR','VGTS','VGWH','VGWN','VGWT','WAHU','WAIM','WAKA','WANG','WARK',
                 'WEST','WGTN','WGTT','WHKT','WHNG','WHVR','WITH','WMAT','WPAW','WPUK']
 
-stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
+# stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
 #'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
 num_nodes = 30 #default is 10 . nz gd2e shows full load of 20 nodes
@@ -49,8 +49,8 @@ if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staio
 tmp_dir='/scratch/bogdanm/tmp_GipsyX/nz_tmpX/'
 rnx_dir='/scratch/bogdanm/GNSS_data/geonet_nz_ogz'
 hatanaka=False
-rnx_dir='/scratch/bogdanm/GNSS_data/linz'
-hatanaka=True
+# rnx_dir='/scratch/bogdanm/GNSS_data/linz'
+# hatanaka=True
 
 IGS_logs_dir = '/scratch/bogdanm/GNSS_data/station_log_files/nz_logs'
 
