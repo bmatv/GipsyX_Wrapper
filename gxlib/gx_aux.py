@@ -13,6 +13,7 @@ import numpy as _np
 import pandas as _pd
 import pyarrow as _pa
 import tqdm as _tqdm
+from shutil import move as _move
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
@@ -652,3 +653,35 @@ def ECDF(x_series):
 # date = '2019-01-01 00:00:00'
 # J2000_seconds = (_np.datetime64(date) - J2000origin).astype(int)
 # J2000_seconds
+
+def struct_rnx(src_files_glob = '/array/bogdanm/GNSS_data/gnss-ga/*.gz', out_dir = False):
+    '''Will extract all the necessary information from the filename and move to the respective dir YYYY/DDD/
+    For GA's ftp:  src_files_glob = ".... /*.Z"
+    src_files_glob = '/array/bogdanm/GNSS_data/gnss-ga/*.gz'
+    if out_dir not specified - same folder as src''' 
+    if not out_dir:
+        out_dir = _os.path.dirname(src_files_glob)
+    out_dir= _os.path.abspath(out_dir)
+    files = _pd.Series(_glob.glob(src_files_glob))
+    print('Found {} files'.format(files.shape[0]))
+    files.name = 'PATH_SRC'
+    names = files.str.split('/',expand=True).iloc[:,-1]
+    names.name = 'NAME'
+    names_info = names.str.extract(r'(\w{4})(\d{3})\w{1}\.(\d{2})(.+)') # cannot use (\d{4}) as some files may have 'a', not '0'
+    names_info.columns = ['SITE','DOY','YEAR','EXT']
+    names_df = _pd.concat([names_info,names,files],axis=1)
+    # years = names_df['YEAR'].unique().astype(int)+2000
+
+    names_df['YEAR'] = (names_df['YEAR'].astype(int)+2000).astype(str)
+
+#     out_dir = _os.path.dirname(files[0])
+    names_df['PATH_DST'] = out_dir + '/' +names_df['YEAR'] +  '/' + names_df['DOY']  +'/'+names_df['NAME']
+    
+    #prepare dir structure
+    for year_doy in (names_df['YEAR'] +  '/' + names_df['DOY']).unique():
+        year_dir_path = _os.path.join(out_dir,year_doy)
+        if not _os.path.exists(year_dir_path):
+            _os.makedirs(year_dir_path)
+            
+    for i in range(names_df.shape[0]):
+        _move(src=names_df.loc[i]['PATH_SRC'],dst=names_df.loc[i]['PATH_DST'])
