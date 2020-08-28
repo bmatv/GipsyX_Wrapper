@@ -44,7 +44,7 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
     #Creates a staDb object
     staDb=_StationDataBase.StationDataBase(dataBase = staDb_path) #creating staDb object
     stns = staDb.getStationList() #creating array with available station names
-    
+    print(len(stns),'sites found in staDb:',stns) #verbal output of stations that will be present in tropNom files
     drinfo_file = _dump_read(filename='{}/{}/{}.zstd'.format(tmp_dir,rnx_dr_lbl,drInfo_lbl))
     drinfo_years_list = drinfo_file.begin.dt.year.unique()
 
