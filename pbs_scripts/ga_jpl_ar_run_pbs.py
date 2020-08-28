@@ -19,30 +19,82 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
-'''Execution part here
-GA GPS continuous stations 2013-2020+ (NOW) (152 stations)''' 
-stations_list= ['02NA', 'ADEL', 'ALBU', 'ALBY', 'ALIC', 'ANDA', #'00NA' and '01NA' removed due to SEPPOLANT_X_MF
-                'ANTW', 'APSL', 'ARMD', 'BALN', 'BBOO', 'BDLE', 'BDST', #'BAIR' removed as no files available
-                'BEE2', 'BEEC', 'BEGA', 'BNDY', 'BRBA', 'BRO1', 'BUR2', 'BURA',
-                'CBLT', 'CEDU', 'CLAC', 'CLEV', 'CNDO', 'COFF', 'COMA', 'COOB',
-                'CSNO', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN', 'DODA', 'DWNI',
-                'ECHU', 'ESPA', 'GABO', 'GATT', 'GFTH', 'GLBN', 'GLEN', 'GLIN',
-                'GONG', 'GORO', 'HATT', 'HIL1', 'HNIS', 'HOB2', 'HYDN', 'IHOE',
-                'IRYM', 'JAB2', 'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KRNG',
-                'KUNU', 'LALB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LIPO', 'LONA',
-                'LORD', 'MACK', 'MENA', 'MENO', 'MGRV', 'MITT', 'MLAK', 'MOBS',
-                'MREE', 'MSVL', 'MTBU', 'MTCV', 'MTEM', 'MTMA', 'MUDG', 'MURR',
-                'NEWH', 'NGAN', 'NHIL', 'NNOR', 'NORS', 'NWCS', 'NWRA', 'ORNG',
-                'PARK', 'PBOT', 'PERI', 'PERT', 'PIAN', 'PKVL', 'PMAC', 'PTKL',
-                'PTLD', 'PTSV', 'PUTY', 'RAVN', 'RGLN', 'RHPT', 'ROBI', 'SA45',
-                'SEAL', 'SEMR', 'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STNY', 'STR1',
-                'STR2', 'STR3', 'TAMW', 'TARE', 'TATU', 'TBOB', 'TELO', 'TID1',
-                'TOOW', 'TOW2', 'TURO', 'ULLA', 'UNDE', 'VLWD', 'WAGN', 'WARA',
-                'WEIP', 'WFAL', 'WGGA', 'WILU', 'WLGT', 'WMGA', 'WOOL', 'WOTG',
-                'WWLG', 'WYCH', 'WYNG', 'YALL', 'YAR2', 'YARR', 'YEEL', 'YELO']
+# '''Execution part here
+# GA GPS continuous stations 2013-2020+ (NOW) (152 stations)''' 
+# stations_list= ['02NA', 'ADEL', 'ALBU', 'ALBY', 'ALIC', 'ANDA', #'00NA' and '01NA' removed due to SEPPOLANT_X_MF
+#                 'ANTW', 'APSL', 'ARMD', 'BALN', 'BBOO', 'BDLE', 'BDST', #'BAIR' removed as no files available
+#                 'BEE2', 'BEEC', 'BEGA', 'BNDY', 'BRBA', 'BRO1', 'BUR2', 'BURA',
+#                 'CBLT', 'CEDU', 'CLAC', 'CLEV', 'CNDO', 'COFF', 'COMA', 'COOB',
+#                 'CSNO', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN', 'DODA', 'DWNI',
+#                 'ECHU', 'ESPA', 'GABO', 'GATT', 'GFTH', 'GLBN', 'GLEN', 'GLIN',
+#                 'GONG', 'GORO', 'HATT', 'HIL1', 'HNIS', 'HOB2', 'HYDN', 'IHOE',
+#                 'IRYM', 'JAB2', 'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KRNG',
+#                 'KUNU', 'LALB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LIPO', 'LONA',
+#                 'LORD', 'MACK', 'MENA', 'MENO', 'MGRV', 'MITT', 'MLAK', 'MOBS',
+#                 'MREE', 'MSVL', 'MTBU', 'MTCV', 'MTEM', 'MTMA', 'MUDG', 'MURR',
+#                 'NEWH', 'NGAN', 'NHIL', 'NNOR', 'NORS', 'NWCS', 'NWRA', 'ORNG',
+#                 'PARK', 'PBOT', 'PERI', 'PERT', 'PIAN', 'PKVL', 'PMAC', 'PTKL',
+#                 'PTLD', 'PTSV', 'PUTY', 'RAVN', 'RGLN', 'RHPT', 'ROBI', 'SA45',
+#                 'SEAL', 'SEMR', 'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STNY', 'STR1',
+#                 'STR2', 'STR3', 'TAMW', 'TARE', 'TATU', 'TBOB', 'TELO', 'TID1',
+#                 'TOOW', 'TOW2', 'TURO', 'ULLA', 'UNDE', 'VLWD', 'WAGN', 'WARA',
+#                 'WEIP', 'WFAL', 'WGGA', 'WILU', 'WLGT', 'WMGA', 'WOOL', 'WOTG',
+#                 'WWLG', 'WYCH', 'WYNG', 'YALL', 'YAR2', 'YARR', 'YEEL', 'YELO']
+#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. -13 sites due for now so 410
+stations_list= ['3CA2', '3DA2', '3DA3', '3PAK', '4AUG',#'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA', 
+        '4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '7DLN', '8BAL',
+        '8BUN', 'ADE1', 'ADE2', 'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL' 
+        'ANGS', 'ANNA', 'ANTW', 'APSL', 'ARDL', 'ARMC', 'ARMD', 'ARRT',
+        'ARUB', 'ASHF', 'BALA', 'BALI', 'BALL', 'BALM', 'BALN',#'BAIR' removed as no files available, 
+        'BANK', 'BARR', 'BATH', 'BBOO', 'BCUS', 'BDST', 'BDVL',#'BDLE' removed
+        'BEE2', 'BEEC', 'BEGA', 'BEUA', 'BIGG', 'BING', 'BINN', 'BJCT',
+        'BKNL', 'BLCK', 'BLRN', 'BMAN', 'BNDC', 'BNDY', 'BNLA', 'BOLC',
+        'BOMB', 'BOOL', 'BOOR', 'BORA', 'BORT', 'BRBA', 'BRDW', 'BRLA',
+        'BRO1', 'BROC', 'BRWN', 'BUCH', 'BULA', 'BUR1', 'BUR2', 'BURA',
+        'BURK', 'BUSS', 'CANR', 'CARG', 'CBAR', 'CBLA', 'CBLE', 'CBLT',
+        'CBRA', 'CEDU', 'CKWL', 'CLAC', 'CLAH', 'CLBI', 'CLBN', 'CLEV',
+        'CLYT', 'CNBN', 'CNDA', 'CNDO', 'COBG', 'COEN', 'COLE', 'COLL',
+        'COMA', 'COOB', 'COOL', 'COPS', 'CRAN', 'CRDX', 'CRSY', 'CSNO',
+        'CTMD', 'CUND', 'CUT0', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN',
+        'DLQN', 'DODA', 'DORA', 'DORR', 'DPRT', 'DRGO', 'DUNE', 'DWEL',
+        'DWHY', 'EBNK', 'ECHU', 'ECOR', 'EDEN', 'EDSV', 'EPSM',# 'DWNI' removed
+        'ERMG', 'ESPA', 'EXMT', 'FLND', 'FORB', 'FORS', 'FROY', 'FTDN',
+        'GABO', 'GASC', 'GATT', 'GELA', 'GFEL', 'GFTH', 'GFTN', 'GGTN',
+        'GILG', 'GLB2', 'GLBN', 'GLDN', 'GLEN', 'GLIN', 'GNGN', 'GNOA',
+        'GONG', 'GOOL', 'GORO', 'GROT', 'GUNN', 'GURL', 'GWAB', 'HAMI',
+        'HATT', 'HAY1', 'HERN', 'HILL', 'HLBK', 'HMLT', #'HIL1', 'HNIS' removed
+        'HNSB', 'HOB2', 'HOTH', 'HRSM', 'HUGH', 'HYDN', 'IHOE', 'INVL',
+        'IPSR', 'IRYM', 'JAB1', 'JAB2', 'JERI', 'JERV', 'JLCK', 'KAL5',
+        'KALG', 'KARR', 'KAT1', 'KAT2', 'KDAL', 'KELN', 'KEPK', 'KGIS',
+        'KILK', 'KILM', 'KIRR', 'KMAN', 'KRNG', 'KTMB', 'KTON', 'KULW',
+        'KUNU', 'LALB', 'LAMB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LILY',
+        'LIPO', 'LIRI', 'LKHT', 'LKYA', 'LONA', 'LORD', 'LOTH', 'LURA',
+        'MACK', 'MAFF', 'MAIN', 'MANY', 'MARY', 'MCHL', 'MDAH', 'MEDO',
+        'MENA', 'MENO', 'MGRV', 'MIDL', 'MIMI', 'MITT', 'MLAK', 'MNDE',
+        'MNGO', 'MNSF', 'MOBS', 'MOOR', 'MOUL', 'MRBA', 'MREE', 'MRNO',
+        'MRNT', 'MRO1', 'MRT1', 'MRT2', 'MRT3', 'MRT4', 'MRT5', 'MRWA',
+        'MSVL', 'MTBU', 'MTCV', 'MTDN', 'MTEM', 'MTHR', 'MTIS', 'MTMA',
+        'MUDG', 'MULG', 'MURR', 'MWAL', 'MYRT', 'NBRI', 'NBRK', 'NCLF',
+        'NDRA', 'NEBO', 'NELN', 'NEWE', 'NEWH', 'NGAN', 'NHIL', 'NMBN',
+        'NMTN', 'NNOR', 'NOOS', 'NORS', 'NRMN', 'NSTA', 'NTJN', 'NWCS',
+        'NWRA', 'NYMA', 'OBRN', 'OMEO', 'ORBO', 'ORNG', 'OVAL', 'PACH',
+        'PARK', 'PBOT', 'PERI', 'PERT', 'PIAN', 'PKVL', 'PMAC', 'POCA',
+        'POON', 'PRCE', 'PRKS', 'PRTF', 'PTHL', 'PTKL', 'PTSV',#'PTLD',
+        'PUTY', 'QCLF', 'QUAM', 'RAND', 'RANK', 'RAVN', 'RBVL', 'RGLN',
+        'RHPT', 'RKLD', 'RNBO', 'RNIS', 'RNSP', 'ROBI', 'ROTT', 'RSBY',
+        'RUTH', 'RUUS', 'RYLS', 'SA45', 'SCON', 'SEAL', 'SEMR', 'SKIP',
+        'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STHG', 'STNY', 'STR1', 'STR2',
+        'STR3', 'STRH', 'SWNH', 'SYDN', 'SYM1', 'TAMW', 'TARE', 'TATU',
+        'TBOB', 'TELO', 'THEV', 'THOM', 'TID1', 'TIDB', 'TITG', 'TLPA',
+        'TMBA', 'TMBO', 'TMRA', 'TMUT', 'TNTR', 'TOMP', 'TOOG',#'TOOW', 
+        'TORK', 'TOTT', 'TOW2', 'TULL', 'TURO', 'UCLA', 'ULLA', 'UNDE',
+        'VLWD', 'WAGN', 'WAKL', 'WALW', 'WARA', 'WARI', 'WARW', 'WBEE',
+        'WDBG', 'WEDD', 'WEEM', 'WEND', 'WFAL', 'WGGA', 'WHIY',#'WEIP',
+        'WILU', 'WLAL', 'WLCA', 'WLGT', 'WLWN', 'WMGA', 'WORI',#'WOOL',
+        'WOTG', 'WRRN', 'WTCF', 'WWLG', 'WYCH', 'WYNG', 'YALL', 'YANK',
+        'YAR1', 'YAR2', 'YAR3', 'YARO', 'YARR', 'YARS', 'YASS', 'YEEL',
+        'YELO', 'YIEL', 'YMBA', 'YNKI', 'YRRM', 'YULA', 'YUNG']
 
-# stations_list = ['DUNT', 'LDRZ', 'LYTT', 'OUSD' ]
-#'SCTB' station removed as it is in Anatarctica and almost no OTL
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
 num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
@@ -95,7 +147,7 @@ for i in range(len(stations_list_arrays)):
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,
                     hatanaka=hatanaka,cddis=cddis,tree_options = tree_options_code,tqdm=False,
-                    command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
+                    command='rnx2dr();kinematic_project.get_drInfo()')
 
     qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),
     email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='24:00:00')
