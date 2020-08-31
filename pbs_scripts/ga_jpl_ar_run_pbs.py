@@ -19,59 +19,59 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
-#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 394 sites
+#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 374 sites
 stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3CA2','3DA2','3DA3','3PAK', '4AUG' no files
                     #'4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '8BAL';'7DLN' very leittle files
         'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL', '8BUN' very little files, , 'ADE1', 'ADE2'
         'ANGS', 'ANNA', 'ANTW', 'APSL', 'ARDL', 'ARMC', 'ARMD', 'ARRT',
-        'ARUB', 'ASHF', 'BALA', 'BALI', 'BALL', 'BALM', 'BALN',#'BAIR' removed as no files available, 
+        'ARUB', 'ASHF', 'BALA', 'BALL', 'BALM', 'BALN',#'BAIR', 'BALI' removed as no files available, 
         'BANK', 'BARR', 'BATH', 'BBOO', 'BCUS', 'BDST', 'BDVL',#'BDLE' removed
-        'BEE2', 'BEEC', 'BEGA', 'BEUA', 'BIGG', 'BING', 'BINN', 'BJCT',
+        'BEE2', 'BEEC', 'BEGA', 'BEUA', 'BIGG', 'BING', 'BJCT',#'BINN' no files
         'BKNL', 'BLCK', 'BLRN', 'BMAN', 'BNDC', 'BNDY', 'BNLA', 'BOLC',
         'BOMB', 'BOOL', 'BOOR', 'BORA', 'BORT', 'BRBA', 'BRDW', 'BRLA',
-        'BRO1', 'BROC', 'BRWN', 'BUCH', 'BULA', 'BUR1', 'BUR2', 'BURA',
+        'BRO1', 'BROC', 'BRWN', 'BUCH', 'BULA', 'BUR2', 'BURA',#'BUR1',
         'BURK', 'BUSS', 'CANR', 'CARG', 'CBAR', 'CBLA', 'CBLE', 'CBLT',
         'CBRA', 'CEDU', 'CKWL', 'CLAC', 'CLAH', 'CLBI', 'CLBN', 'CLEV',
-        'CLYT', 'CNBN', 'CNDA', 'CNDO', 'COBG', 'COEN', 'COLE', 'COLL',
+        'CLYT', 'CNBN', 'CNDA', 'CNDO', 'COBG', 'COEN', 'COLE',#'COLL',
         'COMA', 'COOB', 'COOL', 'COPS', 'CRAN', 'CRDX', 'CRSY', 'CSNO',
-        'CTMD', 'CUND', 'CUT0', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN',
-        'DLQN', 'DODA', 'DORA', 'DORR', 'DPRT', 'DRGO', 'DUNE', 'DWEL',
+        'CTMD', 'CUT0', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN',#'CUND',
+        'DLQN', 'DODA', 'DORA', 'DORR', 'DPRT', 'DRGO', 'DUNE',#'DWEL',
         'DWHY', 'EBNK', 'ECHU', 'ECOR', 'EDEN', 'EDSV', 'EPSM',# 'DWNI' removed
         'ERMG', 'ESPA', 'EXMT', 'FLND', 'FORB', 'FORS', 'FROY', 'FTDN',
         'GABO', 'GASC', 'GATT', 'GELA', 'GFEL', 'GFTH', 'GFTN', 'GGTN',
         'GILG', 'GLB2', 'GLBN', 'GLDN', 'GLEN', 'GLIN', 'GNGN', 'GNOA',
-        'GONG', 'GOOL', 'GORO', 'GROT', 'GUNN', 'GURL', 'GWAB', 'HAMI',
-        'HATT', 'HAY1', 'HERN', 'HILL', 'HLBK', 'HMLT', #'HIL1', 'HNIS' removed
+        'GONG', 'GOOL', 'GORO', 'GUNN', 'GURL', 'GWAB',#'GROT', 'HAMI',
+        'HATT', 'HAY1', 'HERN', 'HILL', 'HLBK', #'HMLT', 'HIL1', 'HNIS' removed
         'HNSB', 'HOB2', 'HOTH', 'HRSM', 'HUGH', 'HYDN', 'IHOE', 'INVL',
-        'IPSR', 'IRYM', 'JAB1', 'JAB2', 'JERI', 'JERV', 'JLCK', 'KAL5',
-        'KALG', 'KARR', 'KAT1', 'KAT2', 'KDAL', 'KELN', 'KEPK', 'KGIS',
+        'IPSR', 'IRYM', 'JAB2', 'JERI', 'JERV', 'JLCK',#'KAL5', 'JAB1',
+        'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KEPK', 'KGIS',#'KDAL',
         'KILK', 'KILM', 'KIRR', 'KMAN', 'KRNG', 'KTMB', 'KTON', 'KULW',
         'KUNU', 'LALB', 'LAMB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LILY',
         'LIPO', 'LIRI', 'LKHT', 'LKYA', 'LONA', 'LORD', 'LOTH', 'LURA',
-        'MACK', 'MAFF', 'MAIN', 'MANY', 'MARY', 'MCHL', 'MDAH', 'MEDO',
-        'MENA', 'MENO', 'MGRV', 'MIDL', 'MIMI', 'MITT', 'MLAK', 'MNDE',
+        'MACK', 'MAFF', 'MAIN', 'MANY', 'MARY', 'MCHL', 'MEDO',#'MDAH',
+        'MENA', 'MENO', 'MGRV', 'MIMI', 'MITT', 'MLAK', 'MNDE',#'MIDL',
         'MNGO', 'MNSF', 'MOBS', 'MOOR', 'MOUL', 'MRBA', 'MREE', 'MRNO',
-        'MRNT', 'MRO1', 'MRT1', 'MRT2', 'MRT3', 'MRT4', 'MRT5', 'MRWA',
+        'MRNT', 'MRO1', 'MRT1', 'MRT2', 'MRT3', 'MRT4', 'MRT5', 'MRWA', #MRT* sites have limited data of ~2yr 
         'MSVL', 'MTBU', 'MTCV', 'MTDN', 'MTEM', 'MTHR', 'MTIS', 'MTMA',
         'MUDG', 'MULG', 'MURR', 'MWAL', 'MYRT', 'NBRI', 'NBRK', 'NCLF',
         'NDRA', 'NEBO', 'NELN', 'NEWE', 'NEWH', 'NGAN', 'NHIL', 'NMBN',
-        'NMTN', 'NNOR', 'NOOS', 'NORS', 'NRMN', 'NSTA', 'NTJN', 'NWCS',
+        'NMTN', 'NNOR', 'NORS', 'NRMN', 'NSTA', 'NTJN', 'NWCS',#'NOOS',
         'NWRA', 'NYMA', 'OBRN', 'OMEO', 'ORBO', 'ORNG', 'OVAL', 'PACH',
         'PARK', 'PBOT', 'PERI', 'PERT', 'PIAN', 'PKVL', 'PMAC', 'POCA',
         'POON', 'PRCE', 'PRKS', 'PRTF', 'PTHL', 'PTKL', 'PTSV',#'PTLD',
         'PUTY', 'QCLF', 'QUAM', 'RAND', 'RANK', 'RAVN', 'RBVL', 'RGLN',
-        'RHPT', 'RKLD', 'RNBO', 'RNIS', 'RNSP', 'ROBI', 'ROTT', 'RSBY',
+        'RHPT', 'RKLD', 'RNBO', 'RNSP', 'ROBI', 'RSBY',#'RNIS','ROTT',
         'RUTH', 'RUUS', 'RYLS', 'SA45', 'SCON', 'SEAL', 'SEMR', 'SKIP',
         'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STHG', 'STNY', 'STR1', 'STR2',
         'STR3', 'STRH', 'SWNH', 'SYDN', 'SYM1', 'TAMW', 'TARE', 'TATU',
         'TBOB', 'TELO', 'THEV', 'THOM', 'TID1', 'TIDB', 'TITG', 'TLPA',
         'TMBA', 'TMBO', 'TMRA', 'TMUT', 'TNTR', 'TOMP', 'TOOG',#'TOOW', 
-        'TORK', 'TOTT', 'TOW2', 'TULL', 'TURO', 'UCLA', 'ULLA', 'UNDE',
+        'TOTT', 'TOW2', 'TULL', 'TURO', 'UCLA', 'ULLA', 'UNDE',#'TORK',
         'VLWD', 'WAGN', 'WAKL', 'WALW', 'WARA', 'WARI', 'WARW', 'WBEE',
-        'WDBG', 'WEDD', 'WEEM', 'WEND', 'WFAL', 'WGGA', 'WHIY',#'WEIP',
+        'WDBG', 'WEDD', 'WEEM', 'WEND', 'WFAL', 'WGGA', #'WEIP','WHIY'
         'WILU', 'WLAL', 'WLCA', 'WLGT', 'WLWN', 'WMGA', 'WORI',#'WOOL',
         'WOTG', 'WRRN', 'WTCF', 'WWLG', 'WYCH', 'WYNG', 'YALL', 'YANK',
-        'YAR1', 'YAR2', 'YAR3', 'YARO', 'YARR', 'YARS', 'YASS', 'YEEL',
+        'YAR2', 'YAR3', 'YARO', 'YARR', 'YARS', 'YASS', 'YEEL',#'YAR1', 
         'YELO', 'YIEL', 'YMBA', 'YNKI', 'YRRM', 'YULA', 'YUNG']
 
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
