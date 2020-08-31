@@ -19,31 +19,10 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
-# '''Execution part here
-# GA GPS continuous stations 2013-2020+ (NOW) (152 stations)''' 
-# stations_list= ['02NA', 'ADEL', 'ALBU', 'ALBY', 'ALIC', 'ANDA', #'00NA' and '01NA' removed due to SEPPOLANT_X_MF
-#                 'ANTW', 'APSL', 'ARMD', 'BALN', 'BBOO', 'BDLE', 'BDST', #'BAIR' removed as no files available
-#                 'BEE2', 'BEEC', 'BEGA', 'BNDY', 'BRBA', 'BRO1', 'BUR2', 'BURA',
-#                 'CBLT', 'CEDU', 'CLAC', 'CLEV', 'CNDO', 'COFF', 'COMA', 'COOB',
-#                 'CSNO', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN', 'DODA', 'DWNI',
-#                 'ECHU', 'ESPA', 'GABO', 'GATT', 'GFTH', 'GLBN', 'GLEN', 'GLIN',
-#                 'GONG', 'GORO', 'HATT', 'HIL1', 'HNIS', 'HOB2', 'HYDN', 'IHOE',
-#                 'IRYM', 'JAB2', 'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KRNG',
-#                 'KUNU', 'LALB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LIPO', 'LONA',
-#                 'LORD', 'MACK', 'MENA', 'MENO', 'MGRV', 'MITT', 'MLAK', 'MOBS',
-#                 'MREE', 'MSVL', 'MTBU', 'MTCV', 'MTEM', 'MTMA', 'MUDG', 'MURR',
-#                 'NEWH', 'NGAN', 'NHIL', 'NNOR', 'NORS', 'NWCS', 'NWRA', 'ORNG',
-#                 'PARK', 'PBOT', 'PERI', 'PERT', 'PIAN', 'PKVL', 'PMAC', 'PTKL',
-#                 'PTLD', 'PTSV', 'PUTY', 'RAVN', 'RGLN', 'RHPT', 'ROBI', 'SA45',
-#                 'SEAL', 'SEMR', 'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STNY', 'STR1',
-#                 'STR2', 'STR3', 'TAMW', 'TARE', 'TATU', 'TBOB', 'TELO', 'TID1',
-#                 'TOOW', 'TOW2', 'TURO', 'ULLA', 'UNDE', 'VLWD', 'WAGN', 'WARA',
-#                 'WEIP', 'WFAL', 'WGGA', 'WILU', 'WLGT', 'WMGA', 'WOOL', 'WOTG',
-#                 'WWLG', 'WYCH', 'WYNG', 'YALL', 'YAR2', 'YARR', 'YEEL', 'YELO']
-#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. -13 sites due for now so 410
-stations_list= ['3CA2', '3DA2', '3DA3', '3PAK', '4AUG',#'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA', 
-        '4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '7DLN', '8BAL',
-        '8BUN', 'ADE1', 'ADE2', 'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL' 
+#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 394 sites
+stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3CA2','3DA2','3DA3','3PAK', '4AUG' no files
+                    #'4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '8BAL';'7DLN' very leittle files
+        'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL', '8BUN' very little files, , 'ADE1', 'ADE2'
         'ANGS', 'ANNA', 'ANTW', 'APSL', 'ARDL', 'ARMC', 'ARMD', 'ARRT',
         'ARUB', 'ASHF', 'BALA', 'BALI', 'BALL', 'BALM', 'BALN',#'BAIR' removed as no files available, 
         'BANK', 'BARR', 'BATH', 'BBOO', 'BCUS', 'BDST', 'BDVL',#'BDLE' removed
