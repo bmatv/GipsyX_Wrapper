@@ -75,7 +75,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'YELO', 'YIEL', 'YMBA', 'YNKI', 'YRRM', 'YULA', 'YUNG']
 
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
-num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
+num_nodes = 30 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
