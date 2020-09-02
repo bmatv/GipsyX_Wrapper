@@ -19,7 +19,7 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
-#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 373 sites
+#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 374 sites
 stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3CA2','3DA2','3DA3','3PAK', '4AUG' no files
                     #'4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '8BAL';'7DLN' very leittle files
         'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL', '8BUN' very little files, , 'ADE1', 'ADE2'
@@ -32,7 +32,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'BRO1', 'BROC', 'BRWN', 'BUCH', 'BULA', 'BUR2', 'BURA',#'BUR1',
         'BURK', 'CANR', 'CARG', 'CBAR', 'CBLA', 'CBLE', 'CBLT',#'BUSS',
         'CBRA', 'CEDU', 'CKWL', 'CLAC', 'CLAH', 'CLBI', 'CLBN', 'CLEV',
-        'CLYT', 'CNBN', 'CNDA', 'CNDO', 'COBG', 'COEN', 'COLE',#'COLL',
+        'CLYT', 'CNBN', 'CNDA', 'CNDO', 'COFF', 'COBG', 'COEN', 'COLE', #'COLL',
         'COMA', 'COOB', 'COOL', 'COPS', 'CRAN', 'CRDX', 'CRSY', 'CSNO',
         'CTMD', 'CUT0', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN',#'CUND',
         'DLQN', 'DODA', 'DORA', 'DORR', 'DPRT', 'DRGO', 'DUNE',#'DWEL',
