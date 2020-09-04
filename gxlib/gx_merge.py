@@ -27,11 +27,11 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
     if mode is None:
         complete_record = drinfo #all available files will be merged. Usually this is what I start with
     elif mode == 'GPS':
-        complete_record = drinfo[drinfo['GPS']]
+        complete_record = drinfo[drinfo['GPS']>=3] #need at least 3 satellites present in the file
     elif mode == 'GLONASS':
-        complete_record = drinfo[drinfo['GLONASS']]
+        complete_record = drinfo[drinfo['GLONASS']>=3] #need at least 3 satellites present in the file
     elif mode == 'GPS+GLONASS':
-        complete_record = drinfo[(drinfo['GPS'])&(drinfo['GLONASS'])]
+        complete_record = drinfo[(drinfo['GPS']>0)&(drinfo['GLONASS']>0)] #at least one satellite of each constellation for the processing
     
     for station in stations_list:
         station_record = complete_record[complete_record['station_name'] == station].sort_values(by='begin')
