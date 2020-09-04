@@ -262,9 +262,10 @@ def _drInfo2df(dr_file):
     df['n_receivers'] = _pd.to_numeric(dr_Info_raw.iloc[3, 1])
     df['n_transmitters'] = _pd.to_numeric(dr_Info_raw.iloc[5, 1])
     df['station_name'] = dr_Info_raw.iloc[4, 0].strip()
-    transmitter_types = _np.unique(((dr_Info_raw.iloc[6:, 0]).str.strip()).str[:1].values)
-    df['GPS'] = _np.max(_np.isin(transmitter_types,'G'))
-    df['GLONASS'] = _np.max(_np.isin(transmitter_types,'R'))
+    
+    transmitters = dr_Info_raw.iloc[6:, 0]
+    df['GPS'] = transmitters.str.contains(pat=r'GPS\d{2}').sum() #number of GPS satellites present in the dr file
+    df['GLONASS'] = transmitters.str.contains(pat=r'R\d{3}').sum() #number of GLONASS satellites present in the dr file
     df['path'] = _pd.Series(dr_file).str.extract(r'(\/rnx_dr.+)')
     
     return df
@@ -320,7 +321,7 @@ def gather_drInfo(tmp_dir,num_cores,tqdm):
     print('gather_drInfo: Concatenating partial drinfo files to proj_tmp/rnx_dr/drInfo.zstd')
     _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl),cname='zstd',num_cores=num_cores)
     print('gather_drInfo: Done')
-    print('Now run gen_tropNom() to update the tropnominals. Sites to add will be taken from recently generated drInfo.zstd file and not from initialized stations_list')
+    print('Now run gen_tropNom() to update the tropnominals. Sites will be taken from recently generated staDb so be careful (need to change it to drInfo sites')
     
 def mode2label(mode):
     mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
