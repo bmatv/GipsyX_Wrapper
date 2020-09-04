@@ -75,7 +75,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'YELO', 'YIEL', 'YMBA', 'YNKI', 'YRRM', 'YULA', 'YUNG']
 
 years_list=[2013,2014,2015,2016,2017,2018,2019,2020];num_cores = 28
-num_nodes = 30 #default is 10 . nz gd2e shows full load of 20 nodes
+num_nodes = 20 #default is 10 . nz gd2e shows full load of 20 nodes
 if num_nodes > len(stations_list): num_nodes = len(stations_list) #in case staions num is less than num_nodes => num_nodes = stations num
 #-------------------------------------------------------------------------------------------------------------------
 #We need to generate unique staDb with all the stations
@@ -126,7 +126,7 @@ for i in range(len(stations_list_arrays)):
                     VMF1_dir = VMF1_dir,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,ionex_type=ionex_type,IONEX_products = IONEX_products,rate = rate,
                     gnss_products_dir = gnss_products_dir,eterna_path=eterna_path,hardisp_path = hardisp_path,rnx_dir=rnx_dir,
                     hatanaka=hatanaka,cddis=cddis,tree_options = tree_options_code,tqdm=False,
-                    command='dr_merge();kinematic_project.gps.gd2e();kinematic_project.gps.envs(dump=True)')
+                    command='rnx2dr();kinematic_project.get_drInfo()')
 
     qsub_python_code(code,name='{}{}{}'.format(project_name,str(ElMin) if ElMin != 7 else '',str(i)),
     email='bogdan.matviichuk@utas.edu.au',cleanup=False,pbs_base = pbs_base, walltime='24:00:00')
