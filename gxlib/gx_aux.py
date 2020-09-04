@@ -517,7 +517,7 @@ def blq2blq_df(blq_file):
     return _pd.concat([values,sigmas],axis=1)
 
 def parse_otl_name(filepath):
-    model_data = _pd.Series(_os.path.basename(filepath)).str.split(pat='_(?!atl)(?!disp)|\.csv',expand=True)
+    model_data = _pd.Series(_os.path.basename(filepath)).str.split(pat=r'_(?!atl)(?!disp)|\.csv',expand=True)
     return model_data
 
 def csv2df(filepath = '../otl_comparison/otl_construct/FES2012_PREM_direct.csv',as_blq_df=False):
