@@ -75,6 +75,12 @@ def _update_mindex(dataframe, lvl_name):
 
     dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
     return dataframe
+    
+def split10(array,split_arrays_size = 10):
+    '''takes list or ndarray and splits it into chunks with size of 10.'''
+    array = _np.asarray(array)
+    nchunks = int(array.shape[0]/split_arrays_size) 
+    return _np.array_split(array,nchunks)
 
 def _check_stations(stations_list,tmp_dir,project_name):
     '''Check presence of stations in the project and outputs corrected station list'''
