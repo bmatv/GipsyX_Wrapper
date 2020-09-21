@@ -18,11 +18,11 @@ PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.versio
 if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0, PYGCOREPATH)
 
-from gxlib.gx_hardisp import blq2hardisp
-from gxlib.gx_aux import get_chalmers
+from GipsyX_Wrapper.gxlib.gx_hardisp import blq2hardisp
+from GipsyX_Wrapper.gxlib.gx_aux import get_chalmers
 
 
-from gxlib.gx_aux import blq2blq_df, norm_table, names2labels
+from GipsyX_Wrapper.gxlib.gx_aux import blq2blq_df, norm_table, names2labels
 
 def get_center(staDb_df,coeff=0.1,proportions=None):
     lons = staDb_df['LON'];lats = staDb_df['LAT']
