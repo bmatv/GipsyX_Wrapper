@@ -1,11 +1,13 @@
+import os as _os
+import sys as _sys
 import pandas as _pd
-import glob as _glob
-import os as _os, sys as _sys
+
+
 import tempfile as _tempfile
-from .gx_aux import _CRC32_from_file
+from GipsyX_Wrapper.gxlib.gx_aux import _CRC32_from_file
 _sys.path.append('..')
 
-from trees_options import _carrier_phase_glo, _carrier_phase_gps, _pseudo_range_glo, _pseudo_range_gps
+from GipsyX_Wrapper.trees_options import _carrier_phase_glo, _carrier_phase_gps, _pseudo_range_glo, _pseudo_range_gps
 
 _PYGCOREPATH="{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],
                             _sys.version_info[0], _sys.version_info[1])
