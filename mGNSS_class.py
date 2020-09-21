@@ -7,11 +7,11 @@ import pandas as _pd
 #PARZEN window function
 from scipy import signal
 
-import trees_options
-from gd2e_wrap import (gd2e_class, gx_aux, gx_convert, gx_eterna, gx_ionex,
+import GipsyX_Wrapper.trees_options as trees_options
+from GipsyX_Wrapper.gd2e_wrap import (gd2e_class, gx_aux, gx_convert, gx_eterna, gx_ionex,
                        gx_merge, gx_tdps, gx_trees)
-from gxlib import gx_hardisp
-from gxlib.gx_aux import _update_mindex, check_date_margins, date2yyyydoy
+from GipsyX_Wrapper.gxlib import gx_hardisp
+from GipsyX_Wrapper.gxlib.gx_aux import _update_mindex, check_date_margins, date2yyyydoy
 from shutil import rmtree as _rmtree, copy as _copy
 
 class mGNSS_class:
@@ -215,12 +215,13 @@ class mGNSS_class:
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
         Generates zenith tropnominals from VMF1 model files.'''
-        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.gps.staDb_path)
+        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,\
+            num_cores=self.num_cores,rate=self.rate,staDb_path=self.gps.staDb_path)
 
     def gen_synth_tropNom(self):
         '''First, run gen_tropNom. This script will create files based on original tropNoms'''
-        gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir, staDb_path = self.gps.staDb_path, tqdm=self.tqdm, period=13.9585147, num_cores = self.num_cores, A_East=2, A_North=4, A_Vertical=6)
-        
+        gx_tdps.gen_penna_tdp(tmp_path=self.tmp_dir, staDb_path = self.gps.staDb_path, \
+            tqdm=self.tqdm, period=13.9585147, num_cores = self.num_cores, A_East=2, A_North=4, A_Vertical=6)      
     
     def _get_common_index(self, gps, glo, gps_glo):
         '''returns common index for 3 mGNSS timeseries of the same station'''
@@ -231,14 +232,15 @@ class mGNSS_class:
     def _select_common(self, gps, glo, gps_glo):
         common_index = self._get_common_index(gps,glo,gps_glo)
         return gps.loc[common_index].copy(),glo.loc[common_index].copy(),gps_glo.loc[common_index].copy()
-    
-   
-    def gather_mGNSS(self,force=False):
+
+    def gather_mGNSS(self,force=False,stations_list=None):
         '''get envs. For each station do common index, create unique levels and concat'''
         gather_path =  _os.path.join(self.tmp_dir,'gd2e','env_gathers',self.project_name)
 
         if not _os.path.exists(gather_path):
             _os.makedirs(gather_path)
+        if stations_list is None: stations_list = self.stations_list #overriding stations_list so can return in chunks which saves RAM in case if large dataset
+        n_stations = len(stations_list)
         #Need to show a message on how many gathers are missing
         # import glob as _glob
         # gathers = _glob.glob('/array/bogdanm/tmp_GipsyX/au_tmpX/gd2e/env_gathers/ga_esa_ce_3.2_0.1/*.zstd')
@@ -246,8 +248,8 @@ class mGNSS_class:
         # _np.asarray(stations_list_ga_2014_2020)[~_np.isin(stations_list_ga_2014_2020,stations_gathered)]
         gather = []
         #perform a quick check of available files
-        for i in range(len(self.stations_list)):
-            filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
+        for i in range(n_stations):
+            filename = '{}/{}.zstd'.format(gather_path,stations_list[i].lower())
             if force:
                 if _os.path.exists(filename): _os.remove(filename)
             if not _os.path.exists(filename):
@@ -259,8 +261,8 @@ class mGNSS_class:
                 gather.append(gx_aux._dump_read(filename))
 
         # if at least one station is missing:
-        for i in range(len(self.stations_list)):
-            filename = '{}/{}.zstd'.format(gather_path,self.stations_list[i].lower())
+        for i in range(n_stations):
+            filename = '{}/{}.zstd'.format(gather_path,stations_list[i].lower())
             if not _os.path.exists(filename):
 
                 #get common index
@@ -270,7 +272,7 @@ class mGNSS_class:
                 tmp_mGNSS = _pd.concat([tmp_gps,tmp_glo,tmp_gps_glo],axis=1)
                 gx_aux._dump_write(data = tmp_mGNSS,filename=filename,num_cores=self.num_cores,cname='zstd')
                 #had to go station specific files as nz dataset is too big for serialization with pa
-                gather.append(tmp_mGNSS) 
+                gather.append(tmp_mGNSS)
         return gather
 
     def gather_aux(self,gps_only=False,force=False):
@@ -309,12 +311,15 @@ class mGNSS_class:
     def gather_residuals_mGNSS(self):
         return self.gps.residuals(),self.glo.residuals(),self.gps_glo.residuals()
     
-    def analyze(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
+    def analyze(self,gps_only,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
         begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
         eterna_gathers_dir =  _os.path.join(self.tmp_dir,'gd2e','eterna_gathers')
-        if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
 
-        suffix = '.zstd' if restore_otl else 'nootl.zstd'
+        if gps_only:
+            suffix = 'gps.zstd' if restore_otl else 'nootl_gps.zstd'
+        else: suffix = '.zstd' if restore_otl else 'nootl.zstd'
+
+        if not _os.path.exists(eterna_gathers_dir): _os.makedirs(eterna_gathers_dir)
         filename = '{}_{}_{}_{}'.format(self.project_name, date2yyyydoy(begin_date), date2yyyydoy(end_date), suffix)
         gather_path = _os.path.join(eterna_gathers_dir, filename)
 
@@ -322,46 +327,60 @@ class mGNSS_class:
             if _os.path.exists(gather_path): _os.remove(gather_path)
 
         if not _os.path.exists(gather_path):
-            '''If force == True -> reruns Eterna even if Eterna files exist'''
-            gather = self.gather_mGNSS()
-            tmp_synth = self.gps.analyze_env(envs = gather.copy(),force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)               
-            tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl, begin = begin_date, end = end_date)
-            tmp_glo = self.glo.analyze_env(envs = gather,force=force,mode='GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
-            tmp_gps_glo = self.gps_glo.analyze_env(envs = gather,force=force,mode='GPS+GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
-            tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps,tmp_glo,tmp_gps_glo],keys=['OTL','GPS','GLONASS','GPS+GLONASS'],axis=1)
-
+            if gps_only:
+                '''If force == True -> reruns Eterna even if Eterna files exist.
+                no gather is needed for the case of single gps constellation. Chunking is done within gd2e_wrap'''
+                tmp_synth = self.gps.analyze_env(force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
+                tmp_gps = self.gps.analyze_env(force=force,mode = 'GPS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps],keys=['OTL','GPS'],axis=1)
+            else:
+                '''here we need to specify the syncronized gather. So break envs into chunks here'''
+                stations_sublists = gx_aux.split10(array=self.stations_list,split_arrays_size=self.num_cores)
+                buf=[]
+                for stations_sublist in stations_sublists:
+                    print('Chunking the stations_list. Processing',stations_sublist)
+                    envs = self.gather_mGNSS(force=False,stations_list=stations_sublist)
+                    #if envs gets filtered on mode on this stage - some memory can be saved
+                    tmp_synth = self.gps.analyze_env(envs=envs,force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)              
+                    tmp_gps = self.gps.analyze_env(envs=envs,force=force,mode = 'GPS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                    tmp_glo = self.glo.analyze_env(envs=envs,force=force,mode='GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                    tmp_gps_glo = self.gps_glo.analyze_env(envs=envs,force=force,mode='GPS+GLONASS',restore_otl=restore_otl, begin = begin_date, end = end_date)
+                    tmp_blq_concat_partial = _pd.concat([tmp_synth,tmp_gps,tmp_glo,tmp_gps_glo],keys=['OTL','GPS','GLONASS','GPS+GLONASS'],axis=1)
+                    buf.append(tmp_blq_concat_partial)
+                # return buf
+                tmp_blq_concat = _pd.concat(buf,axis=0) #concatanating the partials vertically
             gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
-            
-
+                
         else:
-            tmp_blq_concat = gx_aux._dump_read(gather_path)          
+            print('found gather at',gather_path)
+            tmp_blq_concat = gx_aux._dump_read(gather_path)
         return tmp_blq_concat
     
-    def analyze_gps(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
-        #Useful for canalysis of gps only products (e.g. JPL)
-        begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
+    # def analyze_gps(self,restore_otl = True,remove_outliers=True,sampling=1800,force=False,begin=None,end=None):
+    #     #Useful for canalysis of gps only products (e.g. JPL)
+    #     begin_date, end_date = check_date_margins(begin=begin, end=end, years_list=self.years_list)
 
-        eterna_gathers_dir = _os.path.join(self.tmp_dir, 'gd2e', 'eterna_gathers')
-        if not _os.path.exists(eterna_gathers_dir):
-            _os.makedirs(eterna_gathers_dir)
+    #     eterna_gathers_dir = _os.path.join(self.tmp_dir, 'gd2e', 'eterna_gathers')
+    #     if not _os.path.exists(eterna_gathers_dir):
+    #         _os.makedirs(eterna_gathers_dir)
 
-        suffix = 'gps.zstd' if restore_otl else 'nootl_gps.zstd'
-        filename = '{}_{}_{}_{}'.format(self.project_name, date2yyyydoy(begin_date), date2yyyydoy(end_date), suffix)
-        gather_path = _os.path.join(eterna_gathers_dir, filename)
+    #     suffix = 'gps.zstd' if restore_otl else 'nootl_gps.zstd'
+    #     filename = '{}_{}_{}_{}'.format(self.project_name, date2yyyydoy(begin_date), date2yyyydoy(end_date), suffix)
+    #     gather_path = _os.path.join(eterna_gathers_dir, filename)
 
-        if force: #if force - remove gather file!
-            if _os.path.exists(gather_path): _os.remove(gather_path)
+    #     if force: #if force - remove gather file!
+    #         if _os.path.exists(gather_path): _os.remove(gather_path)
 
-        if not _os.path.exists(gather_path):
-            gather = self.gps.envs(dump=True,)
-            tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
-            tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
-            tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps],keys=['OTL','GPS'],axis=1)             
-            gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
-        else:
-            tmp_blq_concat = gx_aux._dump_read(gather_path)  
+    #     if not _os.path.exists(gather_path):
+    #         gather = self.gps.envs(dump=True,)
+    #         tmp_synth = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',otl_env=True, begin = begin_date, end = end_date)
+    #         tmp_gps = self.gps.analyze_env(envs = gather,force=force,mode = 'GPS',restore_otl=restore_otl,begin = begin_date, end = end_date)      
+    #         tmp_blq_concat = _pd.concat([tmp_synth,tmp_gps],keys=['OTL','GPS'],axis=1)             
+    #         gx_aux._dump_write(data = tmp_blq_concat,filename=gather_path,num_cores=2,cname='zstd') # dumping to disk mGNSS eterna gather
+    #     else:
+    #         tmp_blq_concat = gx_aux._dump_read(gather_path)  
 
-        return tmp_blq_concat
+    #     return tmp_blq_concat
 
     def analyze_aux(self,v_type='value',parameter = 'WetZ',sampling=1800,force=False,begin=None,end=None,gps_only=False):
         '''If gather file doesn't exist - run with force as exec dirs are shared between v_types
