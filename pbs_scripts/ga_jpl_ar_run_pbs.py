@@ -3,14 +3,14 @@ import sys as _sys
 import os as _os
 import numpy as _np
 
-GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
+GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/"
 if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 
-import trees_options
-from gxlib.gx_aux import _project_name_construct, gen_staDb, prepare_dir_struct_dr, prepare_dir_struct_gathers
-from gxlib.gx_pbs import gen_code, qsub_python_code
-from gxlib.gx_trees import gen_trees
+import GipsyX_Wrapper.trees_options as trees_options
+from GipsyX_Wrapper.gxlib.gx_aux import _project_name_construct, gen_staDb, prepare_dir_struct_dr, prepare_dir_struct_gathers
+from GipsyX_Wrapper.gxlib.gx_pbs import gen_code, qsub_python_code
+from GipsyX_Wrapper.gxlib.gx_trees import gen_trees
 
 #parameters to change-----------------------------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ ionex_type='jpl' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/JPL_GNSS_Products/source/Final'
 
-#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 374 sites
+#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 363 sites
 stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3CA2','3DA2','3DA3','3PAK', '4AUG' no files
                     #'4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '8BAL';'7DLN' very leittle files
         'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL', '8BUN' very little files, , 'ADE1', 'ADE2'
@@ -28,19 +28,19 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'BANK', 'BARR', 'BATH', 'BBOO', 'BCUS', 'BDST', 'BDVL',#'BDLE' removed
         'BEE2', 'BEEC', 'BEGA', 'BEUA', 'BIGG', 'BING', 'BJCT',#'BINN' no files
         'BKNL', 'BLCK', 'BLRN', 'BMAN', 'BNDC', 'BNDY', 'BNLA', 'BOLC',
-        'BOMB', 'BOOL', 'BOOR', 'BORA', 'BORT', 'BRBA', 'BRDW', 'BRLA',
+        'BOMB', 'BOOR', 'BORA', 'BORT', 'BRBA', 'BRDW', 'BRLA', #'BOOL' processing problems with XYZ
         'BRO1', 'BROC', 'BRWN', 'BUCH', 'BULA', 'BUR2', 'BURA',#'BUR1',
         'BURK', 'CANR', 'CARG', 'CBAR', 'CBLA', 'CBLE', 'CBLT',#'BUSS',
         'CBRA', 'CEDU', 'CKWL', 'CLAC', 'CLAH', 'CLBI', 'CLBN', 'CLEV',
         'CLYT', 'CNBN', 'CNDA', 'CNDO', 'COFF', 'COBG', 'COEN', 'COLE', #'COLL',
         'COMA', 'COOB', 'COOL', 'COPS', 'CRAN', 'CRDX', 'CRSY', 'CSNO',
         'CTMD', 'CUT0', 'CWN2', 'CWRA', 'DARW', 'DBBO', 'DKSN',#'CUND',
-        'DLQN', 'DODA', 'DORA', 'DORR', 'DPRT', 'DRGO', 'DUNE',#'DWEL',
+        'DLQN', 'DODA', 'DORA', 'DORR', 'DRGO', 'DUNE',#'DWEL','DPRT',
         'DWHY', 'EBNK', 'ECHU', 'ECOR', 'EDEN', 'EDSV', 'EPSM',# 'DWNI' removed
         'ERMG', 'ESPA', 'EXMT', 'FLND', 'FORB', 'FORS', 'FROY', 'FTDN',
-        'GABO', 'GASC', 'GATT', 'GELA', 'GFEL', 'GFTH', 'GFTN', 'GGTN',
+        'GABO', 'GASC', 'GATT', 'GFEL', 'GFTH', 'GGTN',#'GELA', 'GFTN', 
         'GILG', 'GLB2', 'GLBN', 'GLDN', 'GLEN', 'GLIN', 'GNGN', 'GNOA',
-        'GONG', 'GOOL', 'GORO', 'GUNN', 'GURL', 'GWAB',#'GROT', 'HAMI',
+        'GONG', 'GOOL', 'GORO', 'GUNN', 'GURL', #'GROT', 'HAMI','GWAB',
         'HATT', 'HAY1', 'HERN', 'HILL', 'HLBK', #'HMLT', 'HIL1', 'HNIS' removed
         'HNSB', 'HOB2', 'HOTH', 'HRSM', 'HUGH', 'HYDN', 'IHOE', 'INVL',
         'IPSR', 'IRYM', 'JAB2', 'JERI', 'JERV', 'JLCK',#'KAL5', 'JAB1',
@@ -51,12 +51,12 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'MACK', 'MAFF', 'MAIN', 'MANY', 'MARY', 'MCHL', 'MEDO',#'MDAH',
         'MENA', 'MENO', 'MGRV', 'MIMI', 'MITT', 'MLAK', 'MNDE',#'MIDL',
         'MNGO', 'MNSF', 'MOBS', 'MOOR', 'MOUL', 'MRBA', 'MREE', 'MRNO',
-        'MRNT', 'MRO1', 'MRT1', 'MRT2', 'MRT3', 'MRT4', 'MRT5', 'MRWA', #MRT* sites have limited data of ~2yr 
+        'MRNT', 'MRO1', 'MRWA', #'MRT1', 'MRT2', 'MRT3', 'MRT4', 'MRT5'; MRT* sites have limited data of ~2yr 
         'MSVL', 'MTBU', 'MTCV', 'MTDN', 'MTEM', 'MTHR', 'MTIS', 'MTMA',
         'MUDG', 'MULG', 'MURR', 'MWAL', 'MYRT', 'NBRI', 'NBRK', 'NCLF',
         'NDRA', 'NEBO', 'NELN', 'NEWE', 'NEWH', 'NGAN', 'NHIL', 'NMBN',
         'NMTN', 'NNOR', 'NORS', 'NRMN', 'NSTA', 'NTJN', 'NWCS',#'NOOS',
-        'NWRA', 'NYMA', 'OBRN', 'OMEO', 'ORBO', 'ORNG', 'OVAL', 'PACH',
+        'NWRA', 'NYMA', 'OBRN', 'OMEO', 'ORNG', 'OVAL', 'PACH',#'ORBO',
         'PARK', 'PBOT', 'PERI', 'PERT', 'PIAN', 'PKVL', 'PMAC', 'POCA',
         'POON', 'PRCE', 'PRKS', 'PRTF', 'PTHL', 'PTKL', 'PTSV',#'PTLD',
         'PUTY', 'QCLF', 'QUAM', 'RAND', 'RANK', 'RAVN', 'RBVL', 'RGLN',
