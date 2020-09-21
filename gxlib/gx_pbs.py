@@ -1,5 +1,5 @@
 import subprocess
-import os as _os, sys as _sys
+import os as _os
 
 TEMPLATE_SERIAL = """#!/scratch/bogdanm/miniconda3/envs/py37/bin/python
 #PBS -l walltime={walltime}
