@@ -1,9 +1,9 @@
 import numpy as _np
 import pandas as _pd
 
-from gxlib.gx_aux import J2000origin as _J2000origin, date2yyyydoy
-from gxlib.gx_filter import _stretch, _avg_30
-from gxlib.gx_hardisp import gen_synth_otl
+from GipsyX_Wrapper.gxlib.gx_aux import J2000origin as _J2000origin, date2yyyydoy
+from GipsyX_Wrapper.gxlib.gx_filter import _stretch, _avg_30
+from GipsyX_Wrapper.gxlib.gx_hardisp import gen_synth_otl
 
 import sys as _sys,os as _os
 import shutil as _shutil
@@ -285,10 +285,10 @@ def read_prn(prn_file):
     df.set_index(waves_extracted,inplace=True)
     return df
 
-def extract_et(tmp_station_path,lon,lat,et_components = ['e_eterna','n_eterna','v_eterna'],components=['east','north','up']):
+def extract_et(tmp_station_path,lon,lat,et_components = ['e_eterna','n_eterna','v_eterna'],components=['east','north','up'],print_lon_lat = False):
     lon-=360 if lon>180 else 0 #as the operator is -= then else will be -=parameter !!!
     lon+=360 if lon<-180 else 0
-    print(lon,lat)
+    if print_lon_lat: print(lon,lat)
     # if et_components == ['e_eterna','n_eterna','v_eterna']:#should be in alphabetical order. Not sure why
     #     components = ['east','north','up']
     # elif et_components == ['aux_eter']:
