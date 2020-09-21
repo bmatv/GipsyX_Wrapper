@@ -15,7 +15,8 @@ import pyarrow as _pa
 import tqdm as _tqdm
 from shutil import move as _move
 
-PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
+PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],\
+              _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0, PYGCOREPATH)
     
@@ -27,7 +28,7 @@ from .gx_hardisp import blq2hardisp as _blq2hardisp
 
 if _pa.__version__ !='0.13.0':
     raise Exception('pyarrow should be version 0.13.0 only') 
-import trees_options
+import GipsyX_Wrapper.trees_options as trees_options
 
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
 _regex_loc = _re.compile(r"2\.\W+S.+\W+City or Town\W+\:\s(.+|)\W+State or Province\W+\:\s(.+|)\W+Country\W+\:\s(.+|)\W+Tectonic Plate\W+\:\s(.+|)\W+.+\W+X.+\:\s(.+|)\W+Y..+\:\s(.+|)\W+Z.+\:\s(.+|)\W*Latitude.+\:\s(.+|)\W*Longitude.+\:\s(.+|)\W*Elevation.+\:\s(.+|)", _re.MULTILINE)
@@ -68,10 +69,11 @@ def uncompress_mp(filelist,num_cores=10):
     with _Pool(processes=num_cores) as p:
         p.map(uncompress,filelist)
 
-def _update_mindex(dataframe, lvl_name):
+def _update_mindex(dataframe, lvl_name,loc=0):
     '''Inserts a top level named as lvl_name into dataframe_in'''
     mindex_df = dataframe.columns.to_frame(index=False)
-    mindex_df.insert(loc = 0,column = 'add',value = lvl_name)
+    if loc == -1: loc = mindex_df.shape[1] #can insert below levels
+    mindex_df.insert(loc = loc,column = 'add',value = lvl_name)
 
     dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
     return dataframe
@@ -479,11 +481,9 @@ def get_const_df(ConstellationInfoFile,constellation):
     return df_total
 
 def _CRC32_from_file(filename):
-    buf = open(filename,'rb').read()
-    buf = (_binascii.crc32(buf) & 0xFFFFFFFF)
-    return "%08X" % buf
-
-
+    with open(filename,'rb') as file:
+        buf = file.read()
+    return "%08X" % (_binascii.crc32(buf) & 0xFFFFFFFF)
 
 def _blq2blq_df_slow(blq_file):
     '''Original blq2blq_df function. Reads blq file specified and returns blq dataframe as needed for analysis. 
@@ -502,7 +502,7 @@ def _blq2blq_df_slow(blq_file):
     df_std = _pd.DataFrame(0,index=df.index,columns=_pd.MultiIndex.from_product([['OTL'],['up','east','north'],['amplitude','phase'],['std']]))
     return _pd.concat([df,df_std],axis=1).astype(float)
 
-def blq2blq_df(blq_file):
+def blq2blq_df(blq_file,XYZ=False):
     '''A faster version of original blq2blq_df. Has no performance penalty on larger blq files.
     Reads blq file specified and returns blq dataframe as needed for analysis. NZ blq with 183 stations takes ~129 msec to execute'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
@@ -516,9 +516,10 @@ def blq2blq_df(blq_file):
         tmp.columns= ['M2','S2','N2','K2','K1','O1','P1','Q1','MF','MM','SSA']
         tmp.index = sta_names
         buf.append(tmp.stack())
-        
-    values = _pd.concat(buf,axis=1,keys=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],['up','east','north'],['value']]).swaplevel(i=2,j=1))
-    sigmas = _pd.DataFrame(_np.zeros(values.shape),index = values.index,columns=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],['up','east','north'],['std']]).swaplevel(i=2,j=1))
+    components = ['up','east','north']
+    if XYZ: components = ['X','Y','Z'] #as in GipsyX com file (based on blq)
+    values = _pd.concat(buf,axis=1,keys=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],components,['value']]).swaplevel(i=2,j=1))
+    sigmas = _pd.DataFrame(_np.zeros(values.shape),index = values.index,columns=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],components,['std']]).swaplevel(i=2,j=1))
     
     return _pd.concat([values,sigmas],axis=1)
 
