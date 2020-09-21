@@ -1,21 +1,22 @@
 import os as _os
-
 import numpy as _np
-
-from gxlib import (gx_aux, gx_compute, gx_convert, gx_eterna, gx_extract,
+import pandas as _pd
+from GipsyX_Wrapper.gxlib import (gx_aux, gx_compute, gx_convert, gx_eterna, gx_extract,
                    gx_filter, gx_ionex, gx_merge, gx_tdps, gx_trees)
+
+
 
 
 class gd2e_class:
     def __init__(self,
                  project_name,
-                 stations_list, #add check for duplicates in stations_list as staDb-based functions may crash
+                 stations_list,  #add check for duplicates in stations_list as staDb-based functions may crash
                  years_list,
                  tree_options,
                  mode,
                  hatanaka,
                  cddis=False,
-                 cache_path = '/run/user/1017',
+                 cache_path='/run/user/1017',
                  rnx_dir='/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s',
                  tmp_dir='/mnt/Data/bogdanm/tmp_GipsyX/bigf_tmpX',
                  blq_file = '/mnt/Data/bogdanm/tmp_GipsyX/otl/ocnld_coeff/bigf_glo.blq',
@@ -165,15 +166,17 @@ class gd2e_class:
         return gx_filter.filter_tdps(sigma_cut=sigma_cut,tdps=self.solutions(single_station=single_station))
 
     
-    def envs(self,sigma_cut=0.1,dump=False,force=False):
-        '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)'''
+    def envs(self,sigma_cut=0.1,dump=False,force=False,stations_list=None):
+        '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)
+        stations_list var can be used to specified block-like load which is useful for big datasets analysis'''
         dump = False if dump is None else dump
+        stations_list = self.stations_list if stations_list is None else stations_list
         env_gather_path = _os.path.join(self.tmp_dir,'gd2e/env_gathers',self.project_name_core) #saning to core where all mGNSS env_gathers are located
         if not _os.path.exists(env_gather_path): _os.makedirs(env_gather_path)
-        envs = _np.ndarray((len(self.stations_list)),dtype=object)
+        envs = _np.ndarray((len(stations_list)),dtype=object)
         incomplete=False
         for i in range(envs.shape[0]):
-            env_path = _os.path.join(env_gather_path,'{}{}.zstd'.format(self.stations_list[i].lower(),gx_aux.mode2label(self.mode)))
+            env_path = _os.path.join(env_gather_path,'{}{}.zstd'.format(stations_list[i].lower(),gx_aux.mode2label(self.mode))) #naming convention as site_gps.zstd 
             if force:
                 if _os.path.exists(env_path): _os.remove(env_path)
             if _os.path.exists(env_path):
@@ -206,30 +209,33 @@ class gd2e_class:
         return gx_aux.get_chalmers(self.staDb_path)
 
     def analyze_env(self,envs=None,mode=None,remove_outliers=True,restore_otl=True,sampling=1800,force=False,otl_env=False,begin=None,end=None,return_sets=False):
-        envs = self.envs() if envs is None else envs
-        mode = self.mode if mode is None else mode
+        '''should accept stations_list and break it into chunks. Not envs which take long to read and occupy lots of RAM'''
         if begin is None: 
             begin, end = gx_aux.check_date_margins(begin=begin, end=end, years_list=self.years_list)
-        return gx_eterna.analyze_env(
-                                    envs,
-                                    self.stations_list,
-                                    self.eterna_path,
-                                    self.tmp_dir,
-                                    self.staDb_path,
-                                    self.project_name,
-                                    remove_outliers,
-                                    restore_otl=restore_otl,
-                                    blq_file = self.blq_file,
-                                    sampling = sampling,
-                                    hardisp_path = self.hardisp_path,
-                                    force=force,
-                                    num_cores = self.num_cores,
-                                    mode=mode,
-                                    otl_env=otl_env,
-                                    begin = begin,
-                                    end = end,
-                                    return_sets = return_sets
-                                    )
+        mode = self.mode if mode is None else mode
+
+        if envs is None:
+            stations_sublists = gx_aux.split10(array=self.stations_list,split_arrays_size=self.num_cores)
+            
+            # envs = self.envs() if envs is None else envs #can break the envs into blocks of up to ten stations
+            buf=[]
+            for stations_sublist in stations_sublists:
+                print('Chunking the stations_list. Processing',stations_sublist)
+                #for each sublist run analyze_env. concat the output afterwards
+                envs = self.envs(stations_list = stations_sublist)
+                buf.append(
+                    gx_eterna.analyze_env(  envs,
+                                            self.stations_list,self.eterna_path,self.tmp_dir,self.staDb_path,self.project_name,
+                                            remove_outliers,restore_otl=restore_otl,blq_file = self.blq_file,sampling = sampling,hardisp_path = self.hardisp_path,
+                                            force=force,num_cores = self.num_cores,mode=mode,otl_env=otl_env,begin = begin,end = end,return_sets = return_sets))
+            return _pd.concat(buf,axis=0) #concatanating partial dataframes
+
+        else:return gx_eterna.analyze_env(  envs,
+                                            self.stations_list,self.eterna_path,self.tmp_dir,self.staDb_path,self.project_name,
+                                            remove_outliers,restore_otl=restore_otl,blq_file = self.blq_file,sampling = sampling,hardisp_path = self.hardisp_path,
+                                            force=force,num_cores = self.num_cores,mode=mode,otl_env=otl_env,begin = begin,end = end,return_sets = return_sets)
+        
+
 
     def analyze_wetz(self,wetz_gather=None,parameter='WetZ',begin=None,end=None,sampling=1800,force=False,return_sets=False,otl_env=False,v_type='value'):
         '''v_type can be value, nomvalue and sigma. Be careful as it does not create separate dirs but overwrites each v_type. 
@@ -237,9 +243,11 @@ class gd2e_class:
         if begin is None: 
             begin, end = gx_aux.check_date_margins(begin=begin, end=end, years_list=self.years_list)
         if wetz_gather is None: #wetz_gather may be fascilitated by mGNSS class so different cionstellation solutions will be in sync
-            wetz_array = self.filtered_solutions()#ideally a function that can dump wetz gathers
             wetz_gather = _np.ndarray((len(self.stations_list)),dtype=object)
-            for i in range(wetz_gather.shape[0]): #for each station effectively
+            for station in self.stations_list:
+                wetz_array = self.filtered_solutions(single_station=station)#ideally a function that can dump wetz gathers. Need to make it concurrent per station
+            
+            # for i in range(wetz_gather.shape[0]): #for each station effectively
                 tmp  = wetz_array[i].loc(axis=1)[:,'.Station.{}.Trop.WetZ'.format(self.stations_list[i].upper())]
                 wetz_gather[i] = gx_aux._update_mindex(gx_aux._update_mindex(tmp,self.stations_list[i].upper()),self.mode)
 
@@ -266,3 +274,5 @@ class gd2e_class:
     def wetz(self):
         '''Returns WetZ values dataframe'''
         return gx_aux.wetz(self.filtered_solutions())
+
+
