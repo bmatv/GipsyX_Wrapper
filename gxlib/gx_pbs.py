@@ -34,7 +34,8 @@ GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx"
 if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 
-from mGNSS_class import mGNSS_class; import trees_options
+from GipsyX_Wrapper.mGNSS_class import mGNSS_class
+import GipsyX_Wrapper.trees_options as trees_options
 
 
 kinematic_project = mGNSS_class(project_name = '{project_name}',
