@@ -30,7 +30,7 @@ def qsub_python_code(code,name,email,cleanup,pbs_base,walltime='48:00:00'):
             _os.remove(pbs_script_path)
 
 TEMPLATE_MGNSS = '''import os as _os, sys as _sys
-GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx/GipsyX_Wrapper"
+GIPSY_WRAP_PATH="/scratch/bogdanm/gipsyx"
 if GIPSY_WRAP_PATH not in _sys.path:
     _sys.path.insert(0,GIPSY_WRAP_PATH)
 
