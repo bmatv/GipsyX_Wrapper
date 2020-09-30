@@ -337,7 +337,7 @@ def mode2label(mode):
     return mode_table[mode_table['mode']==mode]['label'].values[0]
 
 def names2labels(constituents):
-    constituents_labels = '$'+_pd.Series(constituents).str.slice(0,1)+'_'+_pd.Series(constituents).str.slice(1,2)+'$'
+    constituents_labels = _pd.Series(constituents).str.slice(0,1)+'$_'+_pd.Series(constituents).str.slice(1,2)+'$'
     return constituents_labels
     
 '''section of solution to ENV conversion'''
