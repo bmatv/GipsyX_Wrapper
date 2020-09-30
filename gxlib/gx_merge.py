@@ -36,7 +36,7 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
     for station in stations_list:
         station_record = complete_record[complete_record['station_name'] == station].sort_values(by='begin')
         if station_record.shape[0] == 0:
-            raise ValueError("No data found for mode {} for station {}".format(mode,station))
+            raise ValueError("No data found for mode {} for station {}".format(mode,station)) #need to return a list of stations
 
         drinfo_rec_time = station_record['length'].values
         if (drinfo_rec_time>24).sum() != 0: print('Files longer than 24 hours detected in drInfo. Ignoring those as are possibly corrupted.')
