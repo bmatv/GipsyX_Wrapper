@@ -46,7 +46,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'IPSR', 'IRYM', 'JAB2', 'JERI', 'JERV', 'JLCK',#'KAL5', 'JAB1',
         'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KEPK', 'KGIS',#'KDAL',
         'KILK', 'KILM', 'KIRR', 'KMAN', 'KRNG', 'KTMB', 'KTON', 'KULW',
-        'KUNU', 'LALB', 'LAMB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LILY',
+        'KUNU', 'LALB', 'LAMB', 'LARR', 'LGOW', 'LIAW', 'LILY',#'LDHI' has no GLONASS - log13
         'LIPO', 'LIRI', 'LKHT', 'LKYA', 'LONA', 'LORD', 'LOTH', 'LURA',
         'MACK', 'MAFF', 'MAIN', 'MANY', 'MARY', 'MCHL', 'MEDO',#'MDAH',
         'MENA', 'MENO', 'MGRV', 'MIMI', 'MITT', 'MLAK', 'MNDE',#'MIDL',
@@ -64,7 +64,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'RUTH', 'RUUS', 'RYLS', 'SA45', 'SCON', 'SEAL', 'SEMR', 'SKIP',
         'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STHG', 'STNY', 'STR1', 'STR2',
         'STR3', 'STRH', 'SWNH', 'SYDN', 'SYM1', 'TAMW', 'TARE', 'TATU',
-        'TBOB', 'TELO', 'THEV', 'THOM', 'TID1', 'TIDB', 'TITG', 'TLPA',
+        'TBOB', 'TELO', 'THEV', 'THOM', 'TID1', 'TITG', 'TLPA',#'TIDB' no GLONASS data available
         'TMBA', 'TMBO', 'TMRA', 'TMUT', 'TNTR', 'TOMP', 'TOOG',#'TOOW', 
         'TOTT', 'TOW2', 'TULL', 'TURO', 'UCLA', 'ULLA', 'UNDE',#'TORK',
         'VLWD', 'WAGN', 'WAKL', 'WALW', 'WARA', 'WARI', 'WARW', 'WBEE',
