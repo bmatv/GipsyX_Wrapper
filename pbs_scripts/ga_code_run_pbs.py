@@ -19,7 +19,7 @@ ionex_type='cod' #igs ionex map igsg2260.15i is missing data
 # gnss_products_dir = '/scratch/bogdanm/Products/JPL_GPS_Products_IGb08/source/Final' #missing files for 2018
 gnss_products_dir = '/scratch/bogdanm/Products/CODE/init/com'
 
-#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 363 sites
+#585 stations in total. Below are 423 GPS sites from 2016-01-01 - now. After preleminary cleaning - 363 sites. GLONASS 361
 stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3CA2','3DA2','3DA3','3PAK', '4AUG' no files
                     #'4BYO', '4CB2', '4CHR', '4CRN', '4CRY', '4RMA', '8BAL';'7DLN' very leittle files
         'ALBU', 'ALBY', 'ALIC', 'ANDA',#'ADEL', '8BUN' very little files, , 'ADE1', 'ADE2'
@@ -46,7 +46,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'IPSR', 'IRYM', 'JAB2', 'JERI', 'JERV', 'JLCK',#'KAL5', 'JAB1',
         'KALG', 'KARR', 'KAT1', 'KAT2', 'KELN', 'KEPK', 'KGIS',#'KDAL',
         'KILK', 'KILM', 'KIRR', 'KMAN', 'KRNG', 'KTMB', 'KTON', 'KULW',
-        'KUNU', 'LALB', 'LAMB', 'LARR', 'LDHI', 'LGOW', 'LIAW', 'LILY',
+        'KUNU', 'LALB', 'LAMB', 'LARR', 'LGOW', 'LIAW', 'LILY',#'LDHI' has no GLONASS - log13
         'LIPO', 'LIRI', 'LKHT', 'LKYA', 'LONA', 'LORD', 'LOTH', 'LURA',
         'MACK', 'MAFF', 'MAIN', 'MANY', 'MARY', 'MCHL', 'MEDO',#'MDAH',
         'MENA', 'MENO', 'MGRV', 'MIMI', 'MITT', 'MLAK', 'MNDE',#'MIDL',
@@ -64,7 +64,7 @@ stations_list= [    #'00NA' and '01NA' removed due to SEPPOLANT_X_MF, '02NA'; '3
         'RUTH', 'RUUS', 'RYLS', 'SA45', 'SCON', 'SEAL', 'SEMR', 'SKIP',
         'SNGO', 'SPBY', 'SPWD', 'SRVC', 'STHG', 'STNY', 'STR1', 'STR2',
         'STR3', 'STRH', 'SWNH', 'SYDN', 'SYM1', 'TAMW', 'TARE', 'TATU',
-        'TBOB', 'TELO', 'THEV', 'THOM', 'TID1', 'TIDB', 'TITG', 'TLPA',
+        'TBOB', 'TELO', 'THEV', 'THOM', 'TID1', 'TITG', 'TLPA',#'TIDB' no GLONASS data available
         'TMBA', 'TMBO', 'TMRA', 'TMUT', 'TNTR', 'TOMP', 'TOOG',#'TOOW', 
         'TOTT', 'TOW2', 'TULL', 'TURO', 'UCLA', 'ULLA', 'UNDE',#'TORK',
         'VLWD', 'WAGN', 'WAKL', 'WALW', 'WARA', 'WARI', 'WARW', 'WBEE',
