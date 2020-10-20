@@ -81,7 +81,8 @@ def _update_mindex(dataframe, lvl_name,loc=0):
 def split10(array,split_arrays_size = 10):
     '''takes list or ndarray and splits it into chunks with size of 10.'''
     array = _np.asarray(array)
-    nchunks = int(array.shape[0]/split_arrays_size) 
+    nchunks = int(array.shape[0]/split_arrays_size)
+    nchunks+=1*(nchunks == 0) #for the case of less than 10 sites in array - leave in a single array
     return _np.array_split(array,nchunks)
 
 def _check_stations(stations_list,tmp_dir,project_name):
@@ -577,8 +578,8 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False,ascomplex
         else:
             blq_df.update(blq_df_custom)
         
-    amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
-    phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
+        amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
+        phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
     
     std_a = blq_df.xs(key = ('amplitude','std'),axis=1,level = (2,3),drop_level=True)*1000
     std_p = blq_df.xs(key = ('phase','std'),axis=1,level = (2,3),drop_level=True)
