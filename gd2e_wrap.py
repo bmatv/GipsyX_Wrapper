@@ -166,7 +166,7 @@ class gd2e_class:
         return gx_filter.filter_tdps(sigma_cut=sigma_cut,tdps=self.solutions(single_station=single_station))
 
     
-    def envs(self,sigma_cut=0.1,dump=False,force=False,stations_list=None):
+    def envs(self,sigma_cut=0.05,dump=False,force=False,stations_list=None):
         '''checks is dump files exist. if not -> gathers filtered solutions and sends to _xyz2env (with dump option True or False)
         stations_list var can be used to specified block-like load which is useful for big datasets analysis'''
         dump = False if dump is None else dump
