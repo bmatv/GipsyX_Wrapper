@@ -233,7 +233,7 @@ class mGNSS_class:
         common_index = self._get_common_index(gps,glo,gps_glo)
         return gps.loc[common_index].copy(),glo.loc[common_index].copy(),gps_glo.loc[common_index].copy()
 
-    def gather_mGNSS(self,force=False,stations_list=None):
+    def gather_mGNSS(self,force=False,stations_list=None,sigma_cut=0.05):
         '''get envs. For each station do common index, create unique levels and concat'''
         gather_path =  _os.path.join(self.tmp_dir,'gd2e','env_gathers',self.project_name)
 
@@ -253,9 +253,9 @@ class mGNSS_class:
             if force:
                 if _os.path.exists(filename): _os.remove(filename)
             if not _os.path.exists(filename):
-                gps_envs = self.gps.envs(force=force)
-                glo_envs = self.glo.envs(force=force)
-                gps_glo_envs = self.gps_glo.envs(force=force)
+                gps_envs = self.gps.envs(force=force,sigma_cut=sigma_cut)
+                glo_envs = self.glo.envs(force=force,sigma_cut=sigma_cut)
+                gps_glo_envs = self.gps_glo.envs(force=force,sigma_cut=sigma_cut)
                 break
             else:
                 gather.append(gx_aux._dump_read(filename))
