@@ -69,13 +69,19 @@ def uncompress_mp(filelist,num_cores=10):
     with _Pool(processes=num_cores) as p:
         p.map(uncompress,filelist)
 
-def _update_mindex(dataframe, lvl_name,loc=0):
-    '''Inserts a top level named as lvl_name into dataframe_in'''
-    mindex_df = dataframe.columns.to_frame(index=False)
+def _update_mindex(dataframe, lvl_name,loc=0,axis=1):
+    '''Inserts a level named as lvl_name into dataframe_in in loc position. 
+    Level can be inserted either in columns (default axis=1) or index (axis=0)'''
+    
+    mindex_df = dataframe.columns if axis == 1 else dataframe.index
+    mindex_df =  mindex_df.to_frame(index=False) 
+    
     if loc == -1: loc = mindex_df.shape[1] #can insert below levels
     mindex_df.insert(loc = loc,column = 'add',value = lvl_name)
 
-    dataframe.columns = _pd.MultiIndex.from_arrays(mindex_df.values.T)
+    mindex_df_updated = _pd.MultiIndex.from_arrays(mindex_df.values.T)
+    if axis == 1: dataframe.columns = mindex_df_updated
+    else: dataframe.index = mindex_df_updated
     return dataframe
     
 def split10(array,split_arrays_size = 10):
