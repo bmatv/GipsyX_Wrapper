@@ -19,15 +19,12 @@ PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],\
               _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
     _sys.path.insert(0, PYGCOREPATH)
-    
 import gcore.EarthCoordTrans as _eo
 import gcore.StationDataBase as StationDataBase
 
 from .gx_const import J2000origin
 from .gx_hardisp import blq2hardisp as _blq2hardisp
 
-if _pa.__version__ !='0.13.0':
-    raise Exception('pyarrow should be version 0.13.0 only') 
 import GipsyX_Wrapper.trees_options as trees_options
 
 _regex_ID = _re.compile(r"1\.\W+S.+\W+Site Name\s+\:\s(.+|)\W+Four Character ID\s+\:\s(.+|)\W+Monument Inscription\s+\:\s(.+|)\W+IERS DOMES Number\s+\:\s(.+|)\W+CDP Number\s+\:\s(.+|)", _re.MULTILINE)
@@ -64,18 +61,18 @@ def prepare_dir_struct_gathers(tmp_dir,project_name):
 def uncompress(file_path):
     process = _Popen(['uncompress',file_path])
     process.wait()
-    
+
 def uncompress_mp(filelist,num_cores=10):
     with _Pool(processes=num_cores) as p:
         p.map(uncompress,filelist)
 
 def _update_mindex(dataframe, lvl_name,loc=0,axis=1):
-    '''Inserts a level named as lvl_name into dataframe_in in loc position. 
+    '''Inserts a level named as lvl_name into dataframe_in in loc position.
     Level can be inserted either in columns (default axis=1) or index (axis=0)'''
-    
+
     mindex_df = dataframe.columns if axis == 1 else dataframe.index
-    mindex_df =  mindex_df.to_frame(index=False) 
-    
+    mindex_df =  mindex_df.to_frame(index=False)
+
     if loc == -1: loc = mindex_df.shape[1] #can insert below levels
     mindex_df.insert(loc = loc,column = 'add',value = lvl_name)
 
@@ -83,7 +80,7 @@ def _update_mindex(dataframe, lvl_name,loc=0,axis=1):
     if axis == 1: dataframe.columns = mindex_df_updated
     else: dataframe.index = mindex_df_updated
     return dataframe
-    
+
 def split10(array,split_arrays_size = 10):
     '''takes list or ndarray and splits it into chunks with size of 10.'''
     array = _np.asarray(array)
@@ -136,7 +133,7 @@ def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMi
 
 def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
     '''Creates a staDb file from IGS logs'''
-    #Making staDb directory in tmp folder 
+    #Making staDb directory in tmp folder
     staDb_dir = tmp_dir + '/staDb/' + project_name + '/'
     staDb_path = staDb_dir + project_name + '.staDb'
 
@@ -145,13 +142,13 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
 
     if not _os.path.exists(staDb_dir):
         _os.makedirs(staDb_dir)
-    #getting paths to all log files needed    
+    #getting paths to all log files needed
     logs = _np.ndarray((len(stations_list)),dtype=object)
-    
+
     for i in range(len(stations_list)):
         logs[i] = sorted(_glob.glob(IGS_logs_dir + '/*/' + stations_list[i].lower() +'*'+'.log'))[-1] #should be the last log created in case multiple exist
 
-    
+
     buf = ("KEYWORDS: ID STATE ANT RX\n")  # POSTSEISMIC, LINK, END
     for file in logs:
         with open(file, 'r') as f:
@@ -188,12 +185,12 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
             # Each field is whitespace delimited:
             # Field 0:         Station identifier (arbitrary string length)
             # Field 1:         Record key, must be 'ANT'
-            # Field 2:         Date of epoch in calendar format YYYY-MM-DD (year, month, day as integers) 
+            # Field 2:         Date of epoch in calendar format YYYY-MM-DD (year, month, day as integers)
             # Field 3:         Time of epoch in HH:MM:SS format (hours, minutes, seconds as integers)
             # Field 4:         Antenna type
             # Field 5:         Radome type
             # Field 6,7,8:     Site vector in meters (east, north, vertical)
-            # Field 9:         Comments starting with '#' 
+            # Field 9:         Comments starting with '#'
 
             buf += ("{ID}  ANT {d_inst} {t_inst}:00 {ant_type} {radome_type} {east} {north} {vertical} # {ant_num}\n".
                 format(ID=matches_ID[0][1], d_inst=ant[matchNum][12], t_inst=ant[matchNum][13] if ant[matchNum][13]!= '' else '00:00', ant_type=ant[matchNum][0],
@@ -216,15 +213,15 @@ def gen_staDb(tmp_dir,project_name,stations_list,IGS_logs_dir):
 
 def get_chalmers(staDb_path,as_df=False):
     '''Converts staDb to input for http://holt.oso.chalmers.se/loading/
-    Name of station_________|	|Longitude (deg)	| Latitude (deg)	| Height (m) 
+    Name of station_________|	|Longitude (deg)	| Latitude (deg)	| Height (m)
     //sala                        11.9264         57.3958         0.0000
     //ruler.................b................<...............<...............
     // Records starting with // are treated as comments
-    
+
     OR returns a dataframe if as_df (needed for plotting)'''
     staDb = StationDataBase.StationDataBase(dataBase=staDb_path)  # creating staDb object + read as after GipsyX 1.3
 
-    
+
     max_t = 3.0e8  # maximum time value for the dataset on which available sites will be added to OTL computation with SPOTL
     names_stdb = _np.asarray(staDb.getStationList(), dtype=object)
     llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
@@ -240,7 +237,7 @@ def get_chalmers(staDb_path,as_df=False):
 #     '''https://geophy.uni.lu/atmosphere/tide-loading-calculator/ATM1OnlineCalculator/'''
 #         staDb = StationDataBase.StationDataBase(dataBase=staDb_path)  # creating staDb object + read as after GipsyX 1.3
 
-    
+
 #     max_t = 3.0e8  # maximum time value for the dataset on which available sites will be added to OTL computation with SPOTL
 #     names_stdb = _np.asarray(staDb.getStationList(), dtype=object)
 #     llh_stdb = _np.asarray(staDb.dumpLatLonHeights(epoch=max_t,
@@ -252,9 +249,9 @@ def get_chalmers(staDb_path,as_df=False):
 def _dr_size(dr_files):
     '''Returns ndarray with sizes of converted dr files. Based on this, selects bad and good files (bad files have size less than 20, technically empty).
     Bad file can be created by GipsyX in case input RNX file doesn't have enough data for conversion. Bad files should be filtered out of processing.
-    The script can be converted to multiprocessing''' 
-    
-    size_array= _np.ndarray((dr_files.shape[0]))    
+    The script can be converted to multiprocessing'''
+
+    size_array= _np.ndarray((dr_files.shape[0]))
 
     for i in range(dr_files.shape[0]):
         size_array[i] = _os.path.getsize(dr_files[i]) #index of 1 means dr file path
@@ -277,12 +274,12 @@ def _drInfo2df(dr_file):
     df['n_receivers'] = _pd.to_numeric(dr_Info_raw.iloc[3, 1])
     df['n_transmitters'] = _pd.to_numeric(dr_Info_raw.iloc[5, 1])
     df['station_name'] = dr_Info_raw.iloc[4, 0].strip()
-    
+
     transmitters = dr_Info_raw.iloc[6:, 0]
     df['GPS'] = transmitters.str.contains(pat=r'GPS\d{2}').sum() #number of GPS satellites present in the dr file
     df['GLONASS'] = transmitters.str.contains(pat=r'R\d{3}').sum() #number of GLONASS satellites present in the dr file
     df['path'] = _pd.Series(dr_file).str.extract(r'(\/rnx_dr.+)')
-    
+
     return df
 
 def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
@@ -294,7 +291,7 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     drinfo_dir = _os.path.join(rnx_dir,drInfo_lbl)
     if not _os.path.exists(drinfo_dir): _os.makedirs(drinfo_dir)
 
-    selected_rnx['good'] = _dr_size(selected_rnx['dr_path'])>20 
+    selected_rnx['good'] = _dr_size(selected_rnx['dr_path'])>20
     #New approach to file saving is to save SSSSYYYY.zstd files for each year in each station. More modular approach.
     stations = selected_rnx[selected_rnx['good']]['station_name'].unique().sort_values(); print('stations selected: {}'.format(stations.get_values()))
     years = selected_rnx[selected_rnx['good']]['year'].unique();years.sort();             print('years selected   : {}'.format(years))
@@ -337,7 +334,7 @@ def gather_drInfo(tmp_dir,num_cores,tqdm):
     _dump_write(data = _pd.concat(tmp,axis=0),filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl),cname='zstd',num_cores=num_cores)
     print('gather_drInfo: Done')
     print('Now run gen_tropNom() to update the tropnominals. Sites will be taken from recently generated staDb so be careful (need to change it to drInfo sites')
-    
+
 def mode2label(mode):
     mode_table = _pd.DataFrame(data = [['GPS','_g'],['GLONASS','_r'],['GPS+GLONASS','_gr']],columns = ['mode','label'])
     '''expects one of the modes (GPS, GLONASS or GPS+GLONASS and returs g,r or gr respectively for naming conventions)'''
@@ -346,7 +343,7 @@ def mode2label(mode):
 def names2labels(constituents):
     constituents_labels = _pd.Series(constituents).str.slice(0,1)+'$_'+_pd.Series(constituents).str.slice(1,2)+'$'
     return constituents_labels
-    
+
 '''section of solution to ENV conversion'''
 def _xyz2env(dataset,reference_df,mode,dump=None):
     '''Correct way of processing smooth0_0.tdp file. Same as tdp2EnvDiff.py
@@ -373,15 +370,15 @@ def _xyz2env(dataset,reference_df,mode,dump=None):
             xyz_value = dataset[i]['value'][XYZ_columns]
             xyz_nomvalue = dataset[i]['nomvalue'][XYZ_columns]
             xyz_sigma = dataset[i]['sigma'][XYZ_columns]
-        
+
             refxyz = get_xyz_site(reference_df,station_name) #stadb values. Median also possible. Another option is first 10-30% of data
-            # refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line. 
+            # refxyz = xyz.median() #ordinary median as reference. Good for data with no trend. Just straight line.
             # refxyz = xyz.iloc[:int(len(xyz)*0.5)].median() #normalizing on first 10% of data so the trends should be visualized perfectly.
             rot = _eo.rotEnv2Xyz(refxyz).T #XYZ
 
             diff_value = xyz_value - refxyz #XYZ
             diff_nomvalue = xyz_nomvalue - refxyz #XYZ
-            
+
             diff_env_value = rot.dot(diff_value.T).T*1000
             diff_env_nomvalue = rot.dot(diff_nomvalue.T).T*1000
             env_sigma = rot.dot(xyz_sigma.T).T*1000
@@ -443,14 +440,14 @@ def get_const_df(ConstellationInfoFile,constellation):
         data = prn[prn[6]=='G']
 
     df = _pd.DataFrame()
-    df['SV'] = data[0] 
+    df['SV'] = data[0]
     df['begin'] = (data[2] +" "+ data[3]).astype('datetime64')
 
 
     end_dates = data[4].copy()
     end_dates[end_dates=='0000-00-00'] = '2100-01-01' #changing 0 date to year 2100 to convert to datetime64
     end = (end_dates +" "+ data[5]).astype('datetime64')
-    
+
     df['end'] = end
     df.sort_values(by=['begin','end'],inplace=True)
     #build unique SV table
@@ -459,32 +456,32 @@ def get_const_df(ConstellationInfoFile,constellation):
     for SV in unique_SV:
         df_SV.loc[SV]['begin'] = df[df['SV'] == SV]['begin'].min()
         df_SV.loc[SV]['end'] = df[df['SV'] == SV]['end'].max()
-    
+
     df_SV.begin = df_SV.begin.astype('datetime64')
     df_SV.end = df_SV.end.astype('datetime64')
     begin = df_SV['begin'].values
     end = df_SV['end'].values
     # end_dates
     array_count = _np.arange(df_SV.shape[0])+1
-    
-    
+
+
     for date in end:
         array_count[begin>=date]-= 1
-        
+
     df_SV['count'] = array_count
     df_SV['SV'] = df_SV.index
-    
+
     begin_day,end_day = df_SV.begin.values.astype('datetime64[D]').astype('datetime64')[[0,-1]]
 
     daily_date = _np.arange(begin_day,end_day)
     daily_count = _np.ndarray((daily_date.shape))
-    
+
     for i in range(df_SV.shape[0]-1):
 
         daily_count[(daily_date>=df_SV['begin'].values[i])&(daily_date<df_SV['begin'].values[i+1])] = df_SV['count'][i]
     df_total = _pd.DataFrame(index=daily_date)
     df_total['count'] = daily_count.astype(int)
-    
+
     return df_total
 
 def _CRC32_from_file(filename):
@@ -493,7 +490,7 @@ def _CRC32_from_file(filename):
     return "%08X" % (_binascii.crc32(buf) & 0xFFFFFFFF)
 
 def _blq2blq_df_slow(blq_file):
-    '''Original blq2blq_df function. Reads blq file specified and returns blq dataframe as needed for analysis. 
+    '''Original blq2blq_df function. Reads blq file specified and returns blq dataframe as needed for analysis.
     SLOW on larger blq files (e.g. NZ blq with 183 stations takes ~1 sec to execute)'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
     blq = _blq2hardisp(blq_file=blq_file)
@@ -505,7 +502,7 @@ def _blq2blq_df_slow(blq_file):
     df = _pd.concat(tmp_df_gather)
     df.columns =  _pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],['up','east','north'],['value']])
     df = df.swaplevel(1,2,axis=1)
-    
+
     df_std = _pd.DataFrame(0,index=df.index,columns=_pd.MultiIndex.from_product([['OTL'],['up','east','north'],['amplitude','phase'],['std']]))
     return _pd.concat([df,df_std],axis=1).astype(float)
 
@@ -513,10 +510,10 @@ def blq2blq_df(blq_file,XYZ=False):
     '''A faster version of original blq2blq_df. Has no performance penalty on larger blq files.
     Reads blq file specified and returns blq dataframe as needed for analysis. NZ blq with 183 stations takes ~129 msec to execute'''
     _pd.options.display.max_colwidth = 200 #By default truncates text
-    blq = _blq2hardisp(blq_file=blq_file)  
+    blq = _blq2hardisp(blq_file=blq_file)
     data_raw = _pd.Series(blq[:,1]).str.split('\n',expand=True)
     sta_names = blq[:,0]
-    
+
     buf=[]
     for column in data_raw.columns:
         tmp = data_raw[column].str.split(pat=None,expand=True).astype(float)
@@ -527,7 +524,7 @@ def blq2blq_df(blq_file,XYZ=False):
     if XYZ: components = ['X','Y','Z'] #as in GipsyX com file (based on blq)
     values = _pd.concat(buf,axis=1,keys=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],components,['value']]).swaplevel(i=2,j=1))
     sigmas = _pd.DataFrame(_np.zeros(values.shape),index = values.index,columns=_pd.MultiIndex.from_product([['OTL'],['amplitude','phase'],components,['std']]).swaplevel(i=2,j=1))
-    
+
     return _pd.concat([values,sigmas],axis=1)
 
 def parse_otl_name(filepath):
@@ -543,7 +540,7 @@ def csv2df(filepath = '../otl_comparison/otl_construct/FES2012_PREM_direct.csv',
     raw_file[0] = raw_file[0].str.strip().str.upper()
     df_values = raw_file[[0,2,3,'amplitude','phase']].pivot_table(columns=2,index=[0,3],)
     df_values.loc(axis=1)['phase',['north','east']]+=180 #+180 deg to horizontal phase to convert to blq
-    df_values[df_values.loc(axis=1)[['phase',],['east','north']]>180] -=360  
+    df_values[df_values.loc(axis=1)[['phase',],['east','north']]>180] -=360
     df_values.index.names = [None,None]
     df_values.columns.names = [None,None]
     if as_blq_df:
@@ -561,35 +558,35 @@ def csv2df(filepath = '../otl_comparison/otl_construct/FES2012_PREM_direct.csv',
         return df_values #output is in mm
 
 def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False,ascomplex_xy=False):
-    '''converts blq into set of parameters needed for plotting. Accepts MSB csv files by separating file extension. 
+    '''converts blq into set of parameters needed for plotting. Accepts MSB csv files by separating file extension.
     If .blq -> Hans-Georg blq; if .csv -> MSB csv'''
     blq_df = blq_df.astype(float)
     coeff95 = 1.96
     if not custom_blq_path:pass
-    else:   
+    else:
         file_ext = _os.path.splitext(custom_blq_path)[1] #getting file extension. Either .blq or .csv
-        # a = 2 if file_ext == '.csv' else 3 if file_ext == '.blq' else print('{} is unknown filetype'.format(file_ext))   
+        # a = 2 if file_ext == '.csv' else 3 if file_ext == '.blq' else print('{} is unknown filetype'.format(file_ext))
         if file_ext == '.blq':
             blq_df_custom = blq2blq_df(custom_blq_path)#reading custom blq path and converting it to df
         elif file_ext == '.csv':
             blq_df_custom = csv2df(custom_blq_path,as_blq_df=True)#reading MSB formatted file
-        else: print('{} is unknown filetype'.format(file_ext)) 
+        else: print('{} is unknown filetype'.format(file_ext))
 
-        stations_present_input = blq_df.index.levels[0] #stores a list of stations present in the input eterna analisys df 
+        stations_present_input = blq_df.index.levels[0] #stores a list of stations present in the input eterna analisys df
         stations_present_custom  = blq_df_custom.index.levels[0] #stores a list of stations present in custom blq file specified
         #check if all stations from eterna ana exist in custom file
         missing_stations_count = (~_np.isin(stations_present_input,stations_present_custom)).sum()
         if missing_stations_count > 0:
-            raise ValueError('{} stations missing from {}'.format(missing_stations_count, custom_blq_path)) 
+            raise ValueError('{} stations missing from {}'.format(missing_stations_count, custom_blq_path))
         else:
             blq_df.update(blq_df_custom)
-        
+
         amplitude = blq_df.xs(key = ('amplitude','value'),axis=1,level = (2,3),drop_level=True)*1000
-        phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True) 
-    
+        phase = blq_df.xs(key = ('phase','value'),axis=1,level = (2,3),drop_level=True)
+
     std_a = blq_df.xs(key = ('amplitude','std'),axis=1,level = (2,3),drop_level=True)*1000
     std_p = blq_df.xs(key = ('phase','std'),axis=1,level = (2,3),drop_level=True)
-    
+
     x = _np.cos(_np.deg2rad(phase)) * amplitude
     y = _np.sin(_np.deg2rad(phase)) * amplitude
     if normalize:
@@ -597,8 +594,8 @@ def norm_table(blq_df, custom_blq_path,normalize=True,gps_only = False,ascomplex
         y_norm = y['OTL'].copy()
         for mode in x.columns.levels[0]:
             x[mode] -= x_norm
-            y[mode] -= y_norm 
-            
+            y[mode] -= y_norm
+
     if ascomplex_xy: return x+1j*y
 
     semiAxisA = std_a
@@ -673,7 +670,7 @@ def struct_rnx(src_files_glob = '/array/bogdanm/GNSS_data/gnss-ga/*.gz', out_dir
     '''Will extract all the necessary information from the filename and move to the respective dir YYYY/DDD/
     For GA's ftp:  src_files_glob = ".... /*.Z"
     src_files_glob = '/array/bogdanm/GNSS_data/gnss-ga/*.gz'
-    if out_dir not specified - same folder as src''' 
+    if out_dir not specified - same folder as src'''
     if not out_dir:
         out_dir = _os.path.dirname(src_files_glob)
     out_dir= _os.path.abspath(out_dir)
@@ -691,12 +688,12 @@ def struct_rnx(src_files_glob = '/array/bogdanm/GNSS_data/gnss-ga/*.gz', out_dir
 
 #     out_dir = _os.path.dirname(files[0])
     names_df['PATH_DST'] = out_dir + '/' +names_df['YEAR'] +  '/' + names_df['DOY']  +'/'+names_df['NAME']
-    
+
     #prepare dir structure
     for year_doy in (names_df['YEAR'] +  '/' + names_df['DOY']).unique():
         year_dir_path = _os.path.join(out_dir,year_doy)
         if not _os.path.exists(year_dir_path):
             _os.makedirs(year_dir_path)
-            
+
     for i in range(names_df.shape[0]):
         _move(src=names_df.loc[i]['PATH_SRC'],dst=names_df.loc[i]['PATH_DST'])
