@@ -1,0 +1,23 @@
+line-length = 120
+indent-width = 4
+target-version = "py312"
+
+[format]
+docstring-code-format = true
+
+[lint]
+fixable = ["ALL"]
+select = ["ALL"]
+ignore = [
+    "D",
+    "COM812",
+    # TODOs
+    "TD",
+    "FIX",
+    # Implicit namespace package
+    "ANN",
+    # Type annotation
+    "INP001",
+    # Private member accessed
+    "SLF001"
+]
