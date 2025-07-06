@@ -41,8 +41,7 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     paths_series = _pd.Series(_np.sort(_np.concatenate(station_files)))
     extracted_df = paths_series.str.extract(r'\/(\d{4})\/(?:\d{2}|)\d{3}(?:\/\d{2}d|)\/((\w{4})(\d{3}).+)').astype({0:int,1:object,2:'category',3:int})
     extracted_df.columns = ['year','filename','station_name','doy']
-    extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list(),inplace=True)
-    
+    extracted_df['station_name'] = extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list())
     extracted_df['rnx_path'] = paths_series
     extracted_df['dr_path'] = (tmp_dir +'/{}/'.format(rnx_dr_lbl) + extracted_df['year'].astype(str) +'/'+extracted_df['doy'].astype(str).str.zfill(3)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
