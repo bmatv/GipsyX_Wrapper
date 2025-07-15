@@ -1,4 +1,5 @@
 import glob as _glob
+import logging
 import os as _os
 from multiprocessing import Pool as _Pool
 from shutil import copy as _copy
@@ -12,7 +13,7 @@ import tqdm as _tqdm
 from .gx_aux import drInfo_lbl, rnx_dr_lbl, prepare_dir_struct_dr
 
 
-def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
+def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,cddis=False):
     '''rnx_dir is path to daily folder that has year-like structure. e.g. /mnt/data/bogdanm/GNSS_data/CDDIS/daily/ with subfolders 2010 2011 ...
     It is a single array of paths to raw RNX files with all properties needed for the file
     Outputs df wi columns: year (int) | station_name (caps) | doy (int) | rnx_path (object) | dr_path (object)
@@ -23,29 +24,33 @@ def select_rnx(stations_list,years_list,rnx_dir,tmp_dir,hatanaka,cddis=False):
     
     rnx_dir = _os.path.abspath(rnx_dir)+'/'
     tmp_dir = _os.path.abspath(tmp_dir)
-    
-    extension = 'd.*' if hatanaka else 'o.*' # no difference if .Z or .gz hatanaka etc
+
     station_files = []
-    for i in range(len(stations_list)):
-        for j in range(0, len(years_list)):
+    for station in stations_list:
+        for year in years_list:
             if cddis:
-                j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+extension)
-            else:    
-                j_year_files = _glob.glob(rnx_dir+str(years_list[j])+'/*/'+ _np.str.lower(stations_list[i])+'*'+str(years_list[j])[2:]+extension)
-            
-            
+                j_year_files = _glob.glob(rnx_dir+str(year)+'/*/*/'+ station+'*'+str(year)[2:]+'*')
+            else:
+                glob_path = f"{rnx_dir}/{str(year)}/*/{station}*{str(year)[2:]}*"
+                print(glob_path)
+                j_year_files = _glob.glob(glob_path)
+
             if len(j_year_files) > 0:
                 station_files.append(_np.sort(_np.asarray(j_year_files)))
             else:
-                print('gx_convert.select_rnx: No RNX files found for', str(stations_list[i]), str(years_list[j]) +'. Please check rnx_in folder')
+                logging.error('gx_convert.select_rnx: No RNX files found for {station}, {year}. Please check rnx_in folder')
     paths_series = _pd.Series(_np.sort(_np.concatenate(station_files)))
+    #RINEX2
     extracted_df = paths_series.str.extract(r'\/(\d{4})\/(?:\d{2}|)\d{3}(?:\/\d{2}d|)\/((\w{4})(\d{3}).+)').astype({0:int,1:object,2:'category',3:int})
+
+    #RINEX3
+    # extracted_df is different for RINEX3
     extracted_df.columns = ['year','filename','station_name','doy']
     extracted_df['station_name'] = extracted_df['station_name'].cat.rename_categories(_pd.Series(extracted_df['station_name'].cat.categories).str.upper().to_list())
     extracted_df['rnx_path'] = paths_series
     extracted_df['dr_path'] = (tmp_dir +'/{}/'.format(rnx_dr_lbl) + extracted_df['year'].astype(str) +'/'+extracted_df['doy'].astype(str).str.zfill(3)
     +'/'+extracted_df['station_name'].astype(str).str.lower()+extracted_df['doy'].astype(str).str.zfill(3)+'0.'\
-    +extracted_df['year'].astype(str).str.slice(2)+extension[0]+'.dr.gz')
+    +extracted_df['year'].astype(str).str.slice(2)+'.dr.gz')
     #{tmp_dir}/rnx_dr/2010/doy/xxxxddd0.ext.dr.gz <1st symbol of ext (o or d)
     # preparing dir structure
     prepare_dir_struct_dr(begin_year=extracted_df['year'].min(), end_year=extracted_df['year'].max(),tmp_dir=tmp_dir)

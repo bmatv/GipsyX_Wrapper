@@ -11,9 +11,10 @@ from subprocess import Popen as _Popen
 import blosc as _blosc
 import numpy as _np
 import pandas as _pd
-import pyarrow as _pa
 import tqdm as _tqdm
 from shutil import move as _move
+
+import pickle
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],\
               _sys.version_info[0], _sys.version_info[1])
@@ -98,19 +99,19 @@ def _check_stations(stations_list,tmp_dir,project_name):
     checked_stations = stations_list[station_exists==True]
     return checked_stations
 
-def _dump_write(filename,data,num_cores=24,cname='zstd'):
-    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
-    _blosc.set_nthreads(num_cores) #using 24 threads for efficient compression of extracted data
-    context = _pa.default_serialization_context()
-    serialized_data = context.serialize(data).to_buffer()
-    compressed = _blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
-    with open(filename,'wb') as f: f.write(compressed)
+def _dump_write(filename, data, num_cores=24, cname="zstd"):
+    """Serializes and compresses data to the file specified. Uses blosc for compression."""
+    _blosc.set_nthreads(num_cores)  # using 24 threads for efficient compression of extracted data
+    serialized = pickle.dumps(data)
+    compressed = _blosc.compress(serialized, typesize=8, clevel=9, cname=cname)
+    with open(filename, "wb") as f:
+        f.write(compressed)
 
 def _dump_read(filename):
-    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
-    with open(filename,'rb') as f:
+    """Reads the file specified, decompresses it and deserializes it to return the original object"""
+    with open(filename, "rb") as f:
         decompressed = _blosc.decompress(f.read())
-    deserialized = _pa.deserialize(decompressed)
+    deserialized = pickle.loads(decompressed)
     return deserialized
 
 def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres,tree_options=trees_options.rw_otl):
@@ -299,7 +300,7 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     years = selected_rnx[selected_rnx['good']]['year'].unique()
     years.sort()
     print('years selected   : {}'.format(years))
-    
+
     for station in stations:
         for year in years:
             filename = '{drinfo_dir}/{yyyy}/{station}{yy}.zstd'.format(drinfo_dir=drinfo_dir,yyyy=year.astype(str),station=station.lower(),yy=year.astype(str)[2:])
