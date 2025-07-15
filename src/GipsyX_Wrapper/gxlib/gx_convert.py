@@ -6,6 +6,7 @@ from pathlib import Path
 from shutil import copy as _copy
 from shutil import rmtree as _rmtree
 from subprocess import Popen as _Popen
+from typing import List
 
 import numpy as _np
 import pandas as _pd
@@ -14,7 +15,7 @@ import tqdm as _tqdm
 from .gx_aux import prepare_dir_struct_dr, rnx_dr_lbl
 
 
-def rnxpaths2df(station_files: list[str]):
+def rnxpaths2df(station_files: List[str]):
     rnx_path = _pd.Series(station_files)
     df = rnx_path.str.extract(r"(?P<station_name>[^\W/]{4})(?:(\d{4}\.\d{2})|[^\W/]+_(\d{7}))", expand=True)
 
