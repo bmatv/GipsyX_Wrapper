@@ -45,8 +45,8 @@ def select_rnx(stations_list, years_list, rnx_dir, tmp_dir, cddis=False):
     """
     logger = logging.getLogger(__name__)
 
-    rnx_dir = Path.resolve(rnx_dir)
-    tmp_dir = Path.resolve(tmp_dir)
+    rnx_dir = str(Path(rnx_dir).resolve())
+    tmp_dir = str(Path(tmp_dir).resolve())
 
     station_files = []
     for station in stations_list:
