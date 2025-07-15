@@ -4,3 +4,51 @@ A python wrapper around JPL's GipsyX for efficient processing of multi station a
 It has all the necessary modules needed for products and data preparation such as: IONEX files merging, tropnominals generation, orbit and clock products conversion and merging etc. All multithreaded.
 
 Additionally, a pbs-script based submission method is added to efficiently utilize PBS clusters.
+
+# A small tutorial
+
+## Getting the data
+
+We will be using rclone to get the data and products. Here's a sample config:
+```
+[ga]
+type = sftp
+host = sftp.data.gnss.ga.gov.au
+user = anonymous
+pass = your_email
+shell_type = unix
+md5sum_command = none
+sha1sum_command = none
+
+[jpl]
+type = http
+url = https://sideshow.jpl.nasa.gov/pub/
+no_head = true
+
+[vmf]
+type = http
+url = https://vmf.geo.tuwien.ac.at/trop_products/
+no_head = true
+```
+
+## RINEX data
+`rclone sync ga:rinex/daily/ data/ --include "2024/*/{HOB2,ALIC,STR2}*rnx.gz" -v --transfers 16 --checkers 32 --checksum`
+
+
+## IGS site logs
+`rclone sync ga: . --include "site-logs/text/*" -v --transfers 16 --checkers 32 --checksum`
+
+## GNSS Products
+`rclone sync jpl: products/ --include="JPL_GNSS_Products/Final/2024/*" -v --transfers 16 --checkers 32 --checksum`
+
+## Ionosphere Products
+`rclone sync jpl:iono_daily/ products/ --include="IONEX_final/y2024/JPLG*gz" -v --transfers 16 --checkers 32 --checksum`
+
+## Troposphere Products
+
+>[!NOTE]
+This is likely outdated but valid for GipsyX v1.3
+
+`rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2024/*" --transfers 16 --checkers 32 -v`
+
+The files have to be gzipped: `gzip -r products/VMF1`
