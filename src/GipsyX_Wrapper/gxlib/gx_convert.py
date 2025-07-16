@@ -48,23 +48,30 @@ def select_rnx(stations_list, years_list, rnx_dir, tmp_dir, cddis=False):
     rnx_dir = str(Path(rnx_dir).resolve())
     tmp_dir = str(Path(tmp_dir).resolve())
 
-    station_files = []
+    rnx_files = []
     for station in stations_list:
+        station_case_ignore = ""
+        for s in station:
+            if s.isalpha():
+                # Create a case-insensitive match for the station name
+                # e.g. for station 'HOB2', it will create '[Hh][Oo][Bb]2'
+                station_case_ignore+=f"[{s.upper()}{s.lower()}]"
+            else:
+                station_case_ignore+=s
         for year in years_list:
-            station_case_ignore = "".join([f"[{s.upper()}{s.lower()}]" for s in station])
             cddis_dir = "*/" if cddis else ""
             glob_path = f"{rnx_dir}/{str(year)}/*/{cddis_dir}{station_case_ignore}*{str(year)[2:]}*"
             station_files = _glob.glob(glob_path)
             if len(station_files) > 0:
-                station_files.extend(station_files)
+                rnx_files.extend(station_files)
             else:
                 msg = f"gx_convert.select_rnx: No RNX files found for {station}, {year}. Please check rnx_in folder, current pattern is: {glob_path}"
                 logger.error(msg)
-    if len(station_files) == 0:
+    if len(rnx_files) == 0:
         msg = f"gx_convert.select_rnx: No RNX files found for {stations_list}, {years_list}."
         raise ValueError(msg)
 
-    df = rnxpaths2df(station_files)
+    df = rnxpaths2df(rnx_files)
 
     dr_dir = f"{tmp_dir}/{rnx_dr_lbl}/"
     dr_filename = (
