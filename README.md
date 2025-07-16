@@ -32,7 +32,7 @@ no_head = true
 ```
 
 ## RINEX data
-`rclone sync ga:rinex/daily/ data/ --include "2024/*/{HOB2,ALIC,STR2}*rnx.gz" -v --transfers 16 --checkers 32 --checksum`
+`rclone sync ga:rinex/daily/ data/ --include "2024/*/{HOB2,ALIC,STR2}*crx.gz" -v --transfers 16 --checkers 32 --checksum`
 
 
 ## IGS site logs
