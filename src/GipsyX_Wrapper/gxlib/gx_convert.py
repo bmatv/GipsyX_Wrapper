@@ -32,7 +32,7 @@ def rnxpaths2df(station_files: List[str]):
 
     df.loc[df["year"] < 100, "year"] += 1900
     df.loc[df["year"] < 1950, "year"] += 100
-    df["station_name"] = df["station_name"].str.upper()
+    df["station_name"] = df["station_name"].str.upper().astype("category")
     df["rnx_path"] = rnx_path
     return df.drop(columns=[1, 2])
 
