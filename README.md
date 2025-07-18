@@ -61,4 +61,40 @@ This is likely outdated but valid for GipsyX v1.3
 rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2024/{ah,aw,zh,zw}*" --transfers 16 --checkers 32 -v
 ```
 
-The files have to be gzipped: `gzip -r products/VMF1`
+The files have to be gzipped: `gzip -r products/VMF1` and moved into the respective dirs: ah, aw etc within year dir:
+
+```bash
+for prefix in ah aw zh zw; do mkdir -p "$prefix" && mv ${prefix}* "$prefix/"; done
+```
+
+or from level above, where year dirs are present:
+
+```bash
+find . -maxdepth 1 -type d -regex './[0-9]\{4\}' -exec bash -c 'cd "$0" && for p in ah aw zh zw; do mkdir -p "$p" && mv "${p}"* "$p/" 2>/dev/null; done' {} \;
+```
+
+With the final directory structure as follows:
+
+```
+VMF1/
+└── 2024
+    ├── ah
+    │   ├── ah24001.h00.gz
+    │   ├── ah24001.h06.gz
+    │   ├── ...
+    ├── aw
+    │   ├── ah24001.h00.gz
+    │   ├── ah24001.h06.gz
+    │   ├── ...
+    ├── zh
+    │   ├── ah24001.h00.gz
+    │   ├── ah24001.h06.gz
+    │   ├── ...
+    └── zw
+        ├── ah24001.h00.gz
+        ├── ah24001.h06.gz
+        ├── ...
+        └── zw24366.h18.gz
+```
+
+
