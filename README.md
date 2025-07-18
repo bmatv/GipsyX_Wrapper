@@ -32,23 +32,33 @@ no_head = true
 ```
 
 ## RINEX data
-`rclone sync ga:rinex/daily/ data/ --include "2024/*/{HOB2,ALIC,STR2}*crx.gz" -v --transfers 16 --checkers 32 --checksum`
+```bash
+rclone sync ga:rinex/daily/ data/ --include "2024/*/{HOB2,ALIC,STR2}*crx.gz" -v --transfers 16 --checkers 32 --checksum
+```
 
 
 ## IGS site logs
-`rclone sync ga: . --include "site-logs/text/*" -v --transfers 16 --checkers 32 --checksum`
+```bash
+rclone sync ga: . --include "site-logs/text/*" -v --transfers 16 --checkers 32 --checksum
+```
 
 ## GNSS Products
-`rclone sync jpl: products/ --include="JPL_GNSS_Products/Final/2024/*" -v --transfers 16 --checkers 32 --checksum`
+```bash
+rclone sync jpl: products/ --include="JPL_GNSS_Products/Final/2024/*" -v --transfers 16 --checkers 32 --checksum
+```
 
 ## Ionosphere Products
-`rclone sync jpl:iono_daily/ products/ --include="IONEX_final/y2024/JPLG*gz" -v --transfers 16 --checkers 32 --checksum`
+```bash
+rclone sync jpl:iono_daily/ products/ --include="IONEX_final/y2024/JPLG*gz" -v --transfers 16 --checkers 32 --checksum
+```
 
 ## Troposphere Products
 
 >[!NOTE]
 This is likely outdated but valid for GipsyX v1.3
 
-`rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2024/*" --transfers 16 --checkers 32 -v`
+```bash
+rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2024/{ah,aw,zh,zw}*" --transfers 16 --checkers 32 -v
+```
 
 The files have to be gzipped: `gzip -r products/VMF1`
