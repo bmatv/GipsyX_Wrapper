@@ -4,15 +4,14 @@ import os as _os
 import sys as _sys
 from multiprocessing import Pool as _Pool
 
+import gcore.EarthCoordTrans as _eo
+import gcore.StationDataBase as _StationDataBase
+import gipsyx.tropNom as _tropNom
 import numpy as _np
 import pandas as _pd
 import tqdm as _tqdm
 
-import gcore.EarthCoordTrans as _eo
-import gcore.StationDataBase as _StationDataBase
-import gipsyx.tropNom as _tropNom
-
-from .gx_aux import J2000origin, _dump_read, drInfo_lbl, rnx_dr_lbl
+from .gx_aux import _dump_read, datetime_to_j2000, drInfo_lbl, rnx_dr_lbl
 
 PYGCOREPATH="{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'], _sys.version_info[0], _sys.version_info[1])
 if PYGCOREPATH not in _sys.path:
@@ -35,46 +34,45 @@ def _gen_VMF1_tropNom(tropnom_param):
     nominals.makeTdp(begin, end, rate, stns, tropNom_out, append=False, staDb=staDb, dry=True, wet=True)
 
 def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
-    '''
+    """
     Generating tropnominal file for valid stations in staDb file.Takes number of years from dr_info.npz
     Had to create additional for loop as file no 31 gives error, no matter what year it is (tropNom read error of VMF1 file). tdp file is created for each observation file
-    '''
+
+    NOTE: have to add 18 seconds so that previous file will not be requested, similar for the last - subtract 18 seconds
+    """
     num_cores = int(num_cores)
 
     #Creates a staDb object
     staDb=_StationDataBase.StationDataBase(dataBase = staDb_path) #creating staDb object
     stns = staDb.getStationList() #creating array with available station names
     print(len(stns),'sites found in staDb:',stns) #verbal output of stations that will be present in tropNom files
-    drinfo_file = _dump_read(filename='{}/{}/{}.zstd'.format(tmp_dir,rnx_dr_lbl,drInfo_lbl))
+    drinfo_file: _pd.Dataframe = _dump_read(filename='{}/{}/{}.zstd'.format(tmp_dir,rnx_dr_lbl,drInfo_lbl))
     drinfo_years_list = drinfo_file.begin.dt.year.unique()
+    drinfo_years_list.sort() # make sure the list is sorted so that year[0] is the edge case, same as year[-1]
 
     #creating folder and file structure taking into account leap year.
     #resulting paths look as follows: year/doy/30h_tropNominal.vmf1
     #data on next day needed to create current day tropnominal
-    days_in_year=_np.ndarray((len(drinfo_years_list)),dtype=int)
-    current_year = _np.datetime64('today').astype('datetime64[Y]').astype(str).astype(int)
-    for i in range(len(drinfo_years_list)):
-        # vmf1 data is missing at current year (if it is not a prediction),
-        # so an additional chech of files present is needed
-        if int(drinfo_years_list[i]) != current_year:         
-            days_in_year[i] = int(365 + (1*_calendar.isleap(drinfo_years_list[i])))
-            date = (_np.datetime64(str(drinfo_years_list[i])) + (_np.arange(days_in_year[i]).astype('timedelta64[D]')))
-            #Now all works correctly. The bug with wrong timevalues was corrected.
+    current_year = _np.datetime64("today").astype("datetime64[Y]").astype(str).astype(int)
+    for year in drinfo_years_list:
+        if year != current_year:
+            date = _np.arange(f"{year}-01-01", f"{year + 1}-01-01", dtype="datetime64[D]").astype("datetime64[s]")
+        else:
+            # Handle current year with potentially incomplete VMF1 data
+            current_year_vmf_ah_dir = _os.path.join(VMF1_dir, str(current_year), 'ah')
+            ah_files = sorted(_glob.glob(f"{current_year_vmf_ah_dir}/*"))
+            if not ah_files:
+                msg = f"No VMF1 'ah' files found in {current_year_vmf_ah_dir}"
+                raise FileNotFoundError(msg)
+            last_ah_file = _os.path.basename(ah_files[-1])  # e.g., 'ah19315.h18.gz'
+            last_day_used = int(last_ah_file[4:7]) - 1  # Subtract 1 to get 30h tropnominal range
 
-        else: 
-            current_year_VMF1_dir_ah = _os.path.join(VMF1_dir, str(current_year),'ah')
-            last_ah_file_path = sorted(_glob.glob(current_year_VMF1_dir_ah+'/*'))[-1]
-            # e.g ah19315.h18.gz
-            
-            last_ah_filename = _os.path.basename(last_ah_file_path)
-            last_day_used = int(last_ah_filename[4:7]) - 1 #we do -1 as to create a 30h tropnominal
-            date = _np.datetime64(str(current_year)) + (_np.arange(last_day_used).astype('timedelta64[D]'))
-            print('Last VMF1 day in {} is {}. Generating up to {}'.format(str(current_year),last_ah_filename[4:7],str(last_day_used)))
+            date = _np.datetime64(str(current_year)) + _np.arange(last_day_used).astype("timedelta64[D]")
+            print(f"Last VMF1 day in {current_year} is {last_ah_file[4:7]}. Generating up to {last_day_used}")
+        begin = date - _np.timedelta64(3,"[h]")
+        end = date + _np.timedelta64(27,"[h]")
 
-        begin = ((date - J2000origin) - _np.timedelta64(3,'[h]')).astype(int) 
-        end = ((date - J2000origin) + _np.timedelta64(27,'[h]')).astype(int) 
-
-        tropNom_out = (tmp_dir +'/tropNom/'+ str(drinfo_years_list[i])+'/'+_pd.Series(date).dt.dayofyear.astype(str).str.zfill(3)+'/30h_tropNominalOut_VMF1.tdp').values
+        tropNom_out = (tmp_dir +'/tropNom/'+ str(year)+'/'+_pd.Series(date).dt.dayofyear.astype(str).str.zfill(3)+'/30h_tropNominalOut_VMF1.tdp').values
 
         staDb_nd    = _np.ndarray((tropNom_out.shape),dtype=object)
         rate_nd     = _np.ndarray((tropNom_out.shape),dtype=object)
@@ -83,16 +81,13 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
 
         staDb_nd.fill(staDb); rate_nd.fill(rate); VMF1_dir_nd.fill(VMF1_dir); stns_nd.fill(stns)
 
-        tropnom_param = _np.column_stack((begin,end,tropNom_out,staDb_nd,rate_nd,VMF1_dir_nd,stns_nd))
-        
-            
-        
-        num_cores = num_cores if len(tropnom_param) > num_cores else len(tropnom_param)
+        tropnom_param = _np.column_stack((datetime_to_j2000(begin),datetime_to_j2000(end),tropNom_out,staDb_nd,rate_nd,VMF1_dir_nd,stns_nd))
+        num_cores = min(len(tropnom_param), num_cores)
         step_size = int(_np.ceil(len(tropnom_param) / num_cores))
 
-        print(drinfo_years_list[i],'year tropnominals generation...',end=' ')
-        print ('Number of files to process:', len(tropnom_param),'| Adj. num_cores:', num_cores)
-        
+        print(f"{year} tropnominals generation...",end=" ")
+        print(f"Number of files to process: {len(tropnom_param)} | Adj. num_cores: {num_cores}")
+
         # tqdm implementation will produce lots of bars because of for loop pools
         for i in range(step_size):
             try:
@@ -101,7 +96,9 @@ def gen_tropnom(tmp_dir,staDb_path,rate,VMF1_dir,num_cores):
             finally:
                 pool.close()
                 pool.join()
-        print('| Done!')
+        print("| Done!")
+
+
 '''
 Creating tdp files with synth signal for X Y Z
 penna values test. staDb NomValues | synth values | 1
