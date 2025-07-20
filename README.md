@@ -70,31 +70,41 @@ for prefix in ah aw zh zw; do mkdir -p "$prefix" && mv ${prefix}* "$prefix/"; do
 or from level above, where year dirs are present:
 
 ```bash
-find . -maxdepth 1 -type d -regex './[0-9]\{4\}' -exec bash -c 'cd "$0" && for p in ah aw zh zw; do mkdir -p "$p" && mv "${p}"* "$p/" 2>/dev/null; done' {} \;
+find . -maxdepth 1 -type d -regex './[0-9]+' -exec bash -c 'cd "$0" && for p in ah aw zh zw; do mkdir -p "$p" && mv "${p}"* "$p/"; done' {} \;
 ```
+
+Get the orography_ell from http://vmf.geo.tuwien.ac.at/station_coord_files/orography_ell and save it into the root of VMF1
 
 With the final directory structure as follows:
-
 ```
 VMF1/
-└── 2024
-    ├── ah
-    │   ├── ah24001.h00.gz
-    │   ├── ah24001.h06.gz
-    │   ├── ...
-    ├── aw
-    │   ├── ah24001.h00.gz
-    │   ├── ah24001.h06.gz
-    │   ├── ...
-    ├── zh
-    │   ├── ah24001.h00.gz
-    │   ├── ah24001.h06.gz
-    │   ├── ...
-    └── zw
-        ├── ah24001.h00.gz
-        ├── ah24001.h06.gz
-        ├── ...
-        └── zw24366.h18.gz
+├── 2023
+│   ├── ah
+│   │   └── ah23365.*.gz
+│   ├── aw
+│   │   └── aw23365.*.gz
+│   ├── zh
+│   │   └── zh23365.*.gz
+│   └── zw
+│       └── zw23365.*.gz
+├── 2024
+│   ├── ah
+│   │   └── ah24*.*.gz
+│   ├── aw
+│   │   └── aw24*.*.gz
+│   ├── zh
+│   │   └── zh24*.*.gz
+│   └── zw
+│       └── zw24*.*.gz
+├── 2025
+│   ├── ah
+│   │   └── ah25001.*.gz
+│   ├── aw
+│   │   └── aw25001.*.gz
+│   ├── zh
+│   │   └── zh25001.*.gz
+│   └── zw
+│       └── zw25001.*.gz
+└── orography_ell.gz
 ```
-
 
