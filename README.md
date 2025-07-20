@@ -60,6 +60,15 @@ This is likely outdated but valid for GipsyX v1.3
 ```bash
 rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2024/{ah,aw,zh,zw}*" --transfers 16 --checkers 32 -v
 ```
+We also need to download the boundary days: 2023-365 and 2025-001 so that 30h tropNom files could be generated for 2024-001 and 2024-365.
+
+```bash
+rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2023/{ah,aw,zh,zw}23365*" --transfers 16 --checkers 32 -v
+```
+
+```bash
+rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="2025/{ah,aw,zh,zw}25001*" --transfers 16 --checkers 32 -v
+```
 
 The files have to be gzipped: `gzip -r products/VMF1` and moved into the respective dirs: ah, aw etc within year dir:
 
