@@ -36,6 +36,49 @@ _regex_ant = _re.compile(r"4\.\d\s+Antenna Type.+\W+:\s(\w+\S?\w+?|)\s+(\w+|)\W+
 drInfo_lbl = 'drInfo'
 rnx_dr_lbl = 'rnx_dr'
 
+
+def datetime_to_j2000(dt: _np.ndarray) -> _np.ndarray:
+    """
+    Converts an array of datetime objects to J2000 time representation.
+
+    Parameters
+    ----------
+    dt : numpy.ndarray
+        Array of datetime objects to be converted.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of integers representing the time difference from the J2000 origin.
+    """
+    if _np.issubdtype(dt.dtype, "datetime64[s]"):
+        return (dt - J2000origin).astype(int)
+    return (dt.astype("datetime64[s]") - J2000origin).astype(int)
+
+
+def j2000_to_datetime(dt_j2000: _np.ndarray) -> _np.ndarray:
+    """
+    Converts an array of J2000 time deltas to datetime values.
+
+    Parameters
+    ----------
+    dt_j2000 : numpy.ndarray
+        Array of time deltas since J2000 epoch, with dtype 'timedelta64[s]'.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of datetime values corresponding to the input J2000 time deltas.
+
+    Notes
+    -----
+    The function assumes the existence of a variable `J2000origin` representing the J2000 epoch as a numpy datetime64 object.
+    """
+    if _np.issubdtype(dt_j2000.dtype, "timedelta64[s]"):
+        return dt + J2000origin
+    return dt_j2000.astype("timedelta64[s]") + J2000origin
+
+
 def prepare_dir_struct_dr(begin_year, end_year,tmp_dir):
     timeline = _pd.Series(_np.arange(_np.datetime64(str(begin_year)),_np.datetime64(str(end_year+1)),_np.timedelta64(1,'D')))
     dayofyear = timeline.dt.dayofyear.astype(str).str.zfill(3)
