@@ -81,11 +81,10 @@ def _get_tdps_pn(path_dir):
     return df
 
 def _get_debug_tree(path_dir):
-    file = path_dir + '/debug.tree'
-    debug_tree = _pd.read_csv(file,sep='#',header=None,error_bad_lines=True)[0]
-    return debug_tree
+    file = path_dir + "/debug.tree"
+    return _pd.read_csv(file, comment="#", header=None, on_bad_lines="error").squeeze()
 
-    
+
 def _get_residuals(path_dir):
     '''Reads finalResiduals.outComplete header: ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
                     ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']'''
