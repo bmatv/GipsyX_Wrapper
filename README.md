@@ -116,7 +116,9 @@ VMF1/
 │       └── zw25001.*.gz
 └── orography_ell.gz
 ```
-[!WARN] Outdated GipsyX (e.g. 1.3) can not run with IGS20 orbit and clock products (`JPL_GNSS_Products`) and will fail with:
+
+>[!WARNING]
+Outdated GipsyX (e.g. 1.3) can not run with IGS20 orbit and clock products (`JPL_GNSS_Products`) and will fail with:
 ```
 E::1000035::rtgx started with command::rtgx Trees/ppp_0.tree
 A::1000003::Invalid Input fatal error on start-up initialization::Invalid Input fatal error on start-up initialization::Error reading GEOP file "GNSSinitValues/GNSS.eo" Error in geopReader(): "IERS2020" is an unrecognized Extended_EO_Model.:::: FATAL ERROR!
@@ -125,7 +127,8 @@ The particular version of GipsyX will thus only work with IGS14 products. Exampl
 
 
 ### IGS14 PPP Processing with GipsyX
-[!NOTE] Legacy files are provided in the form of tarballs and so to process data from 2014, tarballs from 2013 and 2015 should also be downloaded:
+>[!NOTE]
+Legacy files are provided in the form of tarballs and so to process data from 2014, tarballs from 2013 and 2015 should also be downloaded:
 
 ```
 bash
