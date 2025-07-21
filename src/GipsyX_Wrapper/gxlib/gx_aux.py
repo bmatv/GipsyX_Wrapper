@@ -11,9 +11,10 @@ from subprocess import Popen as _Popen
 import blosc as _blosc
 import numpy as _np
 import pandas as _pd
-import pyarrow as _pa
 import tqdm as _tqdm
 from shutil import move as _move
+
+import pickle
 
 PYGCOREPATH = "{}/lib/python{}.{}".format(_os.environ['GCOREBUILD'],\
               _sys.version_info[0], _sys.version_info[1])
@@ -34,6 +35,49 @@ _regex_ant = _re.compile(r"4\.\d\s+Antenna Type.+\W+:\s(\w+\S?\w+?|)\s+(\w+|)\W+
 
 drInfo_lbl = 'drInfo'
 rnx_dr_lbl = 'rnx_dr'
+
+
+def datetime_to_j2000(dt: _np.ndarray) -> _np.ndarray:
+    """
+    Converts an array of datetime objects to J2000 time representation.
+
+    Parameters
+    ----------
+    dt : numpy.ndarray
+        Array of datetime objects to be converted.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of integers representing the time difference from the J2000 origin.
+    """
+    if _np.issubdtype(dt.dtype, "datetime64[s]"):
+        return (dt - J2000origin).astype(int)
+    return (dt.astype("datetime64[s]") - J2000origin).astype(int)
+
+
+def j2000_to_datetime(dt_j2000: _np.ndarray) -> _np.ndarray:
+    """
+    Converts an array of J2000 time deltas to datetime values.
+
+    Parameters
+    ----------
+    dt_j2000 : numpy.ndarray
+        Array of time deltas since J2000 epoch, with dtype 'timedelta64[s]'.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array of datetime values corresponding to the input J2000 time deltas.
+
+    Notes
+    -----
+    The function assumes the existence of a variable `J2000origin` representing the J2000 epoch as a numpy datetime64 object.
+    """
+    if _np.issubdtype(dt_j2000.dtype, "timedelta64[s]"):
+        return dt + J2000origin
+    return dt_j2000.astype("timedelta64[s]") + J2000origin
+
 
 def prepare_dir_struct_dr(begin_year, end_year,tmp_dir):
     timeline = _pd.Series(_np.arange(_np.datetime64(str(begin_year)),_np.datetime64(str(end_year+1)),_np.timedelta64(1,'D')))
@@ -98,19 +142,19 @@ def _check_stations(stations_list,tmp_dir,project_name):
     checked_stations = stations_list[station_exists==True]
     return checked_stations
 
-def _dump_write(filename,data,num_cores=24,cname='zstd'):
-    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
-    _blosc.set_nthreads(num_cores) #using 24 threads for efficient compression of extracted data
-    context = _pa.default_serialization_context()
-    serialized_data = context.serialize(data).to_buffer()
-    compressed = _blosc.compress(serialized_data, typesize=8,clevel=9,cname=cname)
-    with open(filename,'wb') as f: f.write(compressed)
+def _dump_write(filename, data, num_cores=24, cname="zstd"):
+    """Serializes and compresses data to the file specified. Uses blosc for compression."""
+    _blosc.set_nthreads(num_cores)  # using 24 threads for efficient compression of extracted data
+    serialized = pickle.dumps(data)
+    compressed = _blosc.compress(serialized, typesize=8, clevel=9, cname=cname)
+    with open(filename, "wb") as f:
+        f.write(compressed)
 
 def _dump_read(filename):
-    '''Serializes the input (may be a list of dataframes or else) and uses blosc to compress it and write to a file specified'''
-    with open(filename,'rb') as f:
+    """Reads the file specified, decompresses it and deserializes it to return the original object"""
+    with open(filename, "rb") as f:
         decompressed = _blosc.decompress(f.read())
-    deserialized = _pa.deserialize(decompressed)
+    deserialized = pickle.loads(decompressed)
     return deserialized
 
 def _project_name_construct(project_name,PPPtype,pos_s,wetz_s,tropNom_input,ElMin,ambres,tree_options=trees_options.rw_otl):
@@ -299,7 +343,7 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
     years = selected_rnx[selected_rnx['good']]['year'].unique()
     years.sort()
     print('years selected   : {}'.format(years))
-    
+
     for station in stations:
         for year in years:
             filename = '{drinfo_dir}/{yyyy}/{station}{yy}.zstd'.format(drinfo_dir=drinfo_dir,yyyy=year.astype(str),station=station.lower(),yy=year.astype(str)[2:])

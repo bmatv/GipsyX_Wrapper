@@ -83,14 +83,37 @@ class ionex:
         return self._create_lists4merge(self._extended_list(),self.years_present())
 
     def _extended_list(self):
+        """
+        Generates a DataFrame containing metadata and file paths for IONEX files in the specified directory.
+
+        Depending on the `ionex_type` attribute, the method searches for IONEX files using glob patterns:
+        - For 'jpl' type: Searches for files matching 'y[1-2][0-9][0-9][0-9]/JPLG*.gz' in the `ionex_prods_dir`.
+        - For other types: Searches for files matching '[1-2][0-9][0-9][0-9]/*/<ionex_type>*.Z' in the `ionex_prods_dir`.
+
+        The method extracts relevant properties from the file paths (such as year and file name components),
+        and returns a pandas DataFrame with these properties and the full file paths.
+
+        Raises:
+            ValueError: If no IONEX files are found for 'jpl' type.
+
+        Returns:
+            pandas.DataFrame: A DataFrame containing extracted properties and corresponding file paths.
+        """
+
         if self.ionex_type == 'jpl': #jpl is jpl_native by default
             path_series = _pd.Series(sorted(_glob.glob(_os.path.abspath(_os.path.join(self.ionex_prods_dir,'y[1-2][0-9][0-9][0-9]/JPLG*.gz'))))) #assure we take .Z files
+            if path_series.empty:
+                msg = f"No IONEX files found at {self.ionex_prods_dir}"
+                raise ValueError(msg)
             properties_series = path_series.str.split('/',expand=True).iloc[:,-2:]
-            
+
             properties_series.insert(loc=1,column=0,value=properties_series.iloc[:,-1].str.slice(4,7))
             properties_series.iloc[:,0] = properties_series.iloc[:,0].str.slice(1).astype(int)
         else:
             path_series = _pd.Series(sorted(_glob.glob(_os.path.abspath(_os.path.join(self.ionex_prods_dir,'[1-2][0-9][0-9][0-9]/*', self.ionex_type+'*.Z'))))) #assure we take .Z files
+            if path_series.empty:
+                msg = f"No IONEX files found at {self.ionex_prods_dir}"
+                raise ValueError(msg)
             properties_series = path_series.str.split('/',expand=True).iloc[:,-3:]
             properties_series.iloc[:,0] = properties_series.iloc[:,0].astype(int)
         return _pd.concat((properties_series,path_series),axis=1)

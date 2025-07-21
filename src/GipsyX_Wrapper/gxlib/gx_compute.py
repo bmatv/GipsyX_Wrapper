@@ -81,11 +81,10 @@ def _get_tdps_pn(path_dir):
     return df
 
 def _get_debug_tree(path_dir):
-    file = path_dir + '/debug.tree'
-    debug_tree = _pd.read_csv(file,sep='#',header=None,error_bad_lines=True)[0]
-    return debug_tree
+    file = path_dir + "/debug.tree"
+    return _pd.read_csv(file, comment="#", header=None, on_bad_lines="error").squeeze()
 
-    
+
 def _get_residuals(path_dir):
     '''Reads finalResiduals.outComplete header: ['Time','T/R Antenna No','DataType','PF Residual (m)','Elevation from receiver (deg)',\
                     ' Azimuth from receiver (deg)','Elevation from transmitter (deg)',' Azimuth from transmitter (deg)','Status']'''
@@ -147,6 +146,9 @@ def cache_ionex_files(cache_path,IONEX_products_dir,ionex_type,years_list):
     #Copying IONEX maps to cache before execution-------------------------------------------------------------------------------------
     products_dir = _os.path.join(IONEX_products_dir,_os.pardir)
     ionex_files = _pd.Series(sorted(_glob.glob(products_dir+'/IONEX_merged/' + ionex_type + '*')))
+    if ionex_files.empty:
+        msg = f"No IONEX files found at {products_dir+'/IONEX_merged/'}. Have the files been merged?"
+        raise ValueError(msg)
     ionex_basenames = ionex_files.str.split('/', expand=True).iloc[:, -1]
     ionex_years = ionex_basenames.str.slice(-4).astype(int)
     ionex_files = ionex_files[ionex_years.isin(years_list)] #selecting only those ionex files that are needed according to years list

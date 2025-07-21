@@ -108,7 +108,7 @@ class gd2e_class:
     def gen_tropNom(self):
         '''Uses tropNom.nominalTrops to generate nominal troposphere estimates.
         Generates zenith tropnominals from VMF1 model files.'''
-        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,VMF1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,staDb_path=self.staDb_path)
+        gx_tdps.gen_tropnom(tmp_dir=self.tmp_dir,vmf1_dir=self.VMF1_dir,num_cores=self.num_cores,rate=self.rate,stadb_path=self.staDb_path)
     def gen_trees(self):
         return gx_trees.gen_trees(  ionex_type=self.ionex_type,
                                     tmp_dir=self.tmp_dir,
