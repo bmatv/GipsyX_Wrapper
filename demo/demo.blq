@@ -1,0 +1,68 @@
+$$ Ocean loading displacement
+$$
+$$ OTL provider: http://holt.oso.chalmers.se/loading/
+$$ Created by Scherneck & Bos
+$$
+$$ COLUMN ORDER:  M2  S2  N2  K2  K1  O1  P1  Q1  MF  MM SSA
+$$
+$$ ROW ORDER:
+$$ AMPLITUDES (m)
+$$   RADIAL
+$$   TANGENTL    EW
+$$   TANGENTL    NS
+$$ PHASES (degrees)
+$$   RADIAL
+$$   TANGENTL    EW
+$$   TANGENTL    NS
+$$
+$$ Displacement is defined positive in upwards, South and West direction.
+$$ The phase lag is relative to Greenwich and lags positive. The STW105_disp
+$$ Green's function is used. The deficit of tidal water mass in the tide
+$$ model has been corrected by subtracting a uniform layer of water with
+$$ a certain phase lag globally.
+$$
+$$ CMC:  NO (corr.tide centre of mass)
+$$
+$$ A constant seawater density of 1030 kg/m^3 is used.
+$$
+$$ A thin tidal layer is subtracted to conserve water mass.
+$$
+$$ FES2014b: m2 s2 n2 k2 k1 o1
+$$ FES2014b: p1 q1 Mf Mm Ssa
+$$
+$$ END HEADER
+$$
+  ALIC
+$$ FES2014b ID:2025-07-21 00:34:46
+$$ Computed using CARGA
+$$ ALIC                    RADI TANG  lon/lat: 133.8855  -23.6701   603.633
+  .00264 .00096 .00077 .00027 .00223 .00247 .00075 .00068 .00030 .00017 .00012
+  .00159 .00073 .00030 .00020 .00152 .00095 .00046 .00021 .00003 .00001 .00002
+  .00034 .00009 .00012 .00003 .00078 .00061 .00025 .00014 .00010 .00007 .00005
+   147.0  -51.9  110.1  -54.1    3.1   10.0    4.4    4.1  179.2 -179.3 -179.5
+    84.0  108.3   77.3  104.1 -171.0  171.8 -173.7  157.5  -46.7 -105.1 -169.0
+  -128.6   87.0 -159.1   95.8  -84.8 -114.4  -90.4 -129.1 -174.2 -174.4 -179.8
+$$
+  HOB2
+$$ FES2014b ID:2025-07-21 00:34:46
+$$ Computed using CARGA
+$$ HOB2                    RADI TANG  lon/lat: 147.4387  -42.8047    41.459
+  .00982 .00139 .00246 .00028 .00721 .00660 .00236 .00168 .00064 .00037 .00034
+  .00386 .00161 .00071 .00046 .00107 .00057 .00032 .00012 .00004 .00001 .00001
+  .00110 .00060 .00020 .00018 .00143 .00121 .00046 .00028 .00014 .00009 .00008
+   152.4 -114.0  130.1 -123.1   87.3   57.0   80.4   45.3   10.4    5.8    0.3
+   102.6  134.7  104.6  129.2 -163.2 -167.0 -165.4 -178.7  -24.0  -43.9 -161.9
+   106.1   98.8   95.9   96.7 -141.0 -162.3 -144.0 -173.3 -167.0 -172.0 -179.2
+$$
+  STR2
+$$ FES2014b ID:2025-07-21 00:34:46
+$$ Computed using CARGA
+$$ STR2                    RADI TANG  lon/lat: 149.0102  -35.3162   802.869
+  .00893 .00116 .00206 .00036 .00311 .00311 .00099 .00087 .00015 .00009 .00009
+  .00414 .00149 .00072 .00043 .00129 .00067 .00038 .00014 .00003 .00001 .00002
+  .00122 .00040 .00027 .00010 .00147 .00117 .00047 .00026 .00013 .00008 .00007
+   123.6  156.3  109.7  140.9  120.2   66.4  106.7   50.1   26.0   13.8    0.3
+    90.2  124.8   83.1  119.8 -170.7  173.8 -174.4  158.3  -50.3  -89.9 -172.5
+    16.7   60.6   -5.7   53.5 -121.7 -148.1 -126.2 -159.7 -170.4 -173.7 -179.6
+$$ END TABLE
+$$ END TABLE
