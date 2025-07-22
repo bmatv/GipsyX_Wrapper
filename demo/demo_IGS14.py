@@ -100,6 +100,6 @@ kinematic_project.dr_merge()
 kinematic_project.gen_tropNom()
 kinematic_project.ionex.merge_ionex_dataset()
 
-print(kinematic_project.gps.get_chalmers())
-
-# kinematic_project.gps.gd2e()
+print(kinematic_project.gps.get_chalmers()) # could be used to generate blq file at chalmers
+kinematic_project.gps.gd2e()
+kinematic_project.gps.envs(dump=True)
