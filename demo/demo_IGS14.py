@@ -40,7 +40,7 @@ rate = 300
 eterna_path='/scratch/bogdanm/Products/otl/eterna'
 hardisp_path = '/scratch/bogdanm/Products/otl/hardisp/hardisp'
 tree_options_code = 'trees_options.rw_otl'
-tqdm=False
+tqdm=True
 ElDepWeight = 'SqrtSin'
 
 num_cores = 20
