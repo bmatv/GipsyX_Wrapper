@@ -61,7 +61,7 @@ print(staDb_path)
 print(stations_list)
 
 
-kinematic_project = mGNSS_class(project_name = project_name_construct,
+kinematic_project = mGNSS_class(project_name = project_name,
                                 staDb_path = staDb_path,
                                 tmp_dir = tmp_dir,
                                 cache_path = cache_path,

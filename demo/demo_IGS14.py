@@ -48,20 +48,22 @@ num_cores = 20
 # pip install blosc pandas pyarrow tqdm
 
 prepare_dir_struct_dr(begin_year=_np.min(years_list), end_year = _np.max(years_list),tmp_dir=tmp_dir) #prepare dir struct for dr files
+# project_name_construct is only needed for dir structure creation
 project_name_construct = _project_name_construct(project_name=project_name,PPPtype=PPPtype,pos_s=pos_s,wetz_s=wetz_s,tropNom_input=tropNom_input,ElMin=ElMin,ambres=ambres)
 prepare_dir_struct_gathers(tmp_dir=tmp_dir,project_name=project_name_construct)
+# we use project_name below
 
 #generating tree files that won't be overwritten as crc32 will be the same
 gen_trees(  ionex_type=ionex_type,tmp_dir=tmp_dir,tree_options=tree_options,blq_file=blq_file,mode = 'GPS+GLONASS',ElDepWeight=ElDepWeight,
             ElMin = ElMin,pos_s = pos_s,wetz_s = wetz_s,PPPtype = PPPtype,years_list=years_list,cache_path = cache_path,
-            VMF1_dir = VMF1_dir,project_name = project_name_construct,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
+            VMF1_dir = VMF1_dir,project_name = project_name,static_clk = static_clk,ambres = ambres)#the GNSS_class single project name
 
 staDb_path = gen_staDb(tmp_dir = tmp_dir, project_name = project_name, stations_list = stations_list, IGS_logs_dir = IGS_logs_dir)
 print(staDb_path)
 print(stations_list)
 
 
-kinematic_project = mGNSS_class(project_name = project_name_construct,
+kinematic_project = mGNSS_class(project_name = project_name,
                                 staDb_path = staDb_path,
                                 tmp_dir = tmp_dir,
                                 cache_path = cache_path,
