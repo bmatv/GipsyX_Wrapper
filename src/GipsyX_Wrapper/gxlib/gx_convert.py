@@ -133,7 +133,7 @@ def rnx2dr(selected_df,num_cores,tqdm,cache_path,staDb_path,cddis=False):
         print ('Number of files to process:', selected_df2convert.shape[0],'| Adj. num_cores:', num_cores,end=' ')
 
         with _Pool(processes = num_cores) as p:
-            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_2dr, selected_df2convert), total=selected_df2convert.shape[0]))
+            if tqdm: list(_tqdm.tqdm(p.imap(_2dr, selected_df2convert), total=selected_df2convert.shape[0]))
             else: p.map(_2dr, selected_df2convert)
     else:
         #In case length of unconverted files array is 0 - nothing will be converted

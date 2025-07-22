@@ -222,7 +222,7 @@ def igs2jpl(begin,end,products_type,products_dir,tqdm,num_cores=None,run_dir = '
     sets = sets.to_records()
     
     with _Pool(num_cores) as p:
-        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
+        if tqdm: list(_tqdm.tqdm(p.imap(_sp3ToPosTdp, sets), total=sets.shape[0]))
         else: p.map(_sp3ToPosTdp, sets)
     
 
@@ -273,7 +273,7 @@ def jpl2merged_orbclk(begin,end,GNSSproducts_dir,num_cores=None,h24_bool=True,ma
     input_sets = _np.column_stack([products_begin,products_end,repository,target_dir,h24,makeShadow,products_day,run])
 
     with _Pool(processes = num_cores) as p:
-        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gen_orbclk, input_sets), total=input_sets.shape[0]))
+        if tqdm: list(_tqdm.tqdm(p.imap(_gen_orbclk, input_sets), total=input_sets.shape[0]))
         else: p.map(_gen_orbclk, input_sets)
     _rmtree(tmp_merge_path) #cleaning
 
@@ -384,7 +384,7 @@ def ce2cm(init_ce_path,num_cores = 10,tqdm=True):
     pos_path_series = _pd.concat([pos_src,pos_dst,_pd.Series(cache_path_series)],axis=1).values
 #     return pos_path_series
     with _Pool(processes = num_cores) as p:
-        if tqdm: list(_tqdm.tqdm_notebook(p.imap(_ce2cm_single_thread, pos_path_series), total=len(pos_path_series)))
+        if tqdm: list(_tqdm.tqdm(p.imap(_ce2cm_single_thread, pos_path_series), total=len(pos_path_series)))
         else: p.map(_ce2cm_single_thread, pos_path_series)
     _rmtree(path=cache_path)
     

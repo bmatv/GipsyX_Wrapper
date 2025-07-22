@@ -59,7 +59,7 @@ def gd2e(gd2e_table,project_name,num_cores,tqdm,cache_path):
         print('Processing {} |  # files left: {} | Adj. # of threads: {}'.format(project_name,gd2e_table.shape[0],num_cores))
 
         with _Pool(processes = num_cores) as p:
-            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
+            if tqdm: list(_tqdm.tqdm(p.imap(_gd2e, gd2e_table), total=gd2e_table.shape[0]))
             else: p.map(_gd2e, gd2e_table) #investigate why list is needed.
     
     # except:

@@ -136,5 +136,5 @@ def dr_merge(merge_table,num_cores,tqdm):
         print('Number of files to merge:', merge_table_class3_run.shape[0],'| Adj. num_cores:', num_cores)
 
         with _Pool(processes = num_cores) as p:
-            if tqdm: list(_tqdm.tqdm_notebook(p.imap(_merge, merge_table_class3_run.to_records()), total=merge_table_class3_run.shape[0]))
+            if tqdm: list(_tqdm.tqdm(p.imap(_merge, merge_table_class3_run.to_records()), total=merge_table_class3_run.shape[0]))
             else: p.map(_merge, merge_table_class3_run.to_records())

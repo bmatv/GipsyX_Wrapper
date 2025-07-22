@@ -204,7 +204,7 @@ class ionex:
         # Collecting ionex maps from multiple files in parallel
         with _Pool(num_cores) as p:
             if self.tqdm:
-                GIM_data = list(_tqdm.tqdm_notebook(p.imap(GIM_data_extraction, in_sets[:,[3,4]]), total=in_sets.shape[0]))
+                GIM_data = list(_tqdm.tqdm(p.imap(GIM_data_extraction, in_sets[:,[3,4]]), total=in_sets.shape[0]))
             else:
                 GIM_data = p.map(GIM_data_extraction, in_sets[:,[3,4]])
             # GIM_data_extraction expects only array with filepaths

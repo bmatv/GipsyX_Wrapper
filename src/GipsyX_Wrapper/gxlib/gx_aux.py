@@ -354,7 +354,7 @@ def get_drInfo(tmp_dir,num_cores,tqdm,selected_rnx):
                     print('{} good files found for {}{} out of {}. Running get_drInfo...'.format(dr_good_station_year.shape[0],station,year,dr_station_year.shape[0]))
                     num_cores = num_cores if dr_good_station_year.shape[0] > num_cores else dr_good_station_year.shape[0]
                     with _Pool(processes = num_cores) as p:
-                        if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm_notebook(p.imap(_drInfo2df, dr_good_station_year),
+                        if tqdm: drinfo_df = _pd.concat(list(_tqdm.tqdm(p.imap(_drInfo2df, dr_good_station_year),
                                                                                 total=dr_good_station_year.shape[0],
                                                                                 desc='{}{}'.format(station.lower(),year.astype(str)[2:]))),axis=0,ignore_index=True)
                         else:
