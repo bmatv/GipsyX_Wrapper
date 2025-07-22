@@ -1,5 +1,6 @@
 import subprocess
 import sys as _sys, os as _os
+from pathlib import Path
 
 import numpy as _np
 
@@ -23,7 +24,7 @@ rnx_dir='/home/bogdanm/gnss/data'
 IGS_logs_dir = '/home/bogdanm/gnss/site-logs' # should be one more level here
 hatanaka=True #True if you want to use d.Z or d.gz files, False for o.Z or o.gz
 tree_options = trees_options.rw_otl
-blq_file = "/home/bogdanm/gnss/products/OTL/au.blq"
+blq_file = (Path(__file__).absolute().parent/"demo.blq").as_posix()
 ElMin = 7
 pos_s = 3.2
 wetz_s=0.1
