@@ -129,14 +129,12 @@ The particular version of GipsyX will thus only work with IGS14 products. Exampl
 ### IGS14 PPP Processing with GipsyX
 >[!NOTE]
 Legacy files are provided in the form of tarballs and so to process data from 2014, tarballs from 2013 and 2015 should also be downloaded:
-
-```
-bash
+```bash
 rclone sync vmf:GRID/2.5x2/VMF1/STD_OP/ products/VMF1/ --include="201[3-5]/{ah,aw,zh,zw}*" --transfers 16 --checkers 32 -v
 ```
 
-Untar (from the inside of VMF1 dir) with e.g.: 
-```
+Untar (from the inside of VMF1 dir) with e.g.,: 
+```bash
 find ???? -maxdepth 1 -type f -name '*.tar' -exec sh -c 'for f; do tar -xf "$f" -C "$(dirname "$f")"; done' _ {} +
 ```
 gzip and move to the respective dirs as above.
