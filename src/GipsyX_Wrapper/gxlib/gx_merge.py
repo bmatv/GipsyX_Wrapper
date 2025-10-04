@@ -1,4 +1,5 @@
 import numpy as _np
+import logging
 import pandas as _pd
 import os as _os
 from subprocess import Popen as _Popen
@@ -12,7 +13,7 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
     tmp_dir is expected to have drinfo.npz file produced by get_drinfo function
     Analyses the properties of dr files and outputs classified dataset where class 3 files can be meged to 32 hours files centered on the midday.
     Currently there are no special cases for the very first and last files of the station as if merged non-symmetrically won't be centred'''
-
+    logger = logging.getLogger(__name__)
     tmp_dir = _os.path.abspath(tmp_dir)
     rnx_dir = _os.path.join(tmp_dir,rnx_dr_lbl)
     drinfo = _dump_read(filename='{}/{}.zstd'.format(rnx_dir,drInfo_lbl))  
@@ -36,7 +37,9 @@ def get_merge_table(tmp_dir,stations_list,mode=None):
     for station in stations_list:
         station_record = complete_record[complete_record['station_name'] == station].sort_values(by='begin')
         if station_record.shape[0] == 0:
-            raise ValueError("No data found for mode {} for station {}".format(mode,station)) #need to return a list of stations
+            mode = mode if mode else "None [All constellations]" # add context to None mode
+            logger.warning("No data found for mode '{mode}' for station '{station}'")
+            continue
 
         drinfo_rec_time = station_record['length'].values
         if (drinfo_rec_time>24).sum() != 0: print('Files longer than 24 hours detected in drInfo. Ignoring those as are possibly corrupted.')
