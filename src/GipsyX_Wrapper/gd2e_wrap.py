@@ -26,7 +26,7 @@ class gd2e_class:
         tree_options,
         mode,
         hatanaka: bool,
-        cddis:bool=False,
+        cddis: bool = False,
         cache_path="/run/user/1017",
         rnx_dir="/mnt/Data/bogdanm/GNSS_data/BIGF_data/daily30s",
         tmp_dir="/mnt/Data/bogdanm/tmp_GipsyX/bigf_tmpX",
@@ -35,7 +35,7 @@ class gd2e_class:
         tropNom_type="30h_tropNominalOut_VMF1.tdp",
         IGS_logs_dir="/mnt/Data/bogdanm/GNSS_data/BIGF_data/station_log_files",
         IONEX_products="/mnt/Data/bogdanm/Products/IONEX_Products",
-        rate:int=300,
+        rate: int = 300,
         gnss_products_dir="/mnt/Data/bogdanm/Products/JPL_GPS_Products_IGb08/Final",
         ionex_type="igs",  # No ionex dir required as ionex merged products will be put into tmp directory by ionex class
         eterna_path="/home/bogdanm/Desktop/otl/eterna",
@@ -48,7 +48,7 @@ class gd2e_class:
         PPPtype="kinematic",
         static_clk=False,
         tqdm: bool = True,
-        ambres:bool=True,
+        ambres: bool = True,
         staDb_path=None,
         trees_df=None,
     ):
